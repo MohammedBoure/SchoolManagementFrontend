@@ -1,0 +1,329 @@
+<style>
+  /* إخفاء الأعمدة في الشاشات الصغيرة */
+  @media (max-width: 768px) {
+    .col-hide-mobile { display: none !important; }
+  }
+
+  /* تنسيق مؤشر الحركة (السهم) */
+  .stock-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-left: 8px;
+    font-size: 10px;
+  }
+  .arrow-in { background: rgba(72,187,120,0.1); color: var(--brand-success); }
+  .arrow-out { background: rgba(221,107,32,0.1); color: var(--brand-warning); }
+
+  /* رسالة التحذير للكمية */
+  #qty-warning {
+    display: none;
+    color: var(--brand-danger);
+    font-size: 11px;
+    margin-top: -10px;
+    margin-bottom: 16px;
+    background: rgba(229,62,62,0.05);
+    padding: 8px;
+    border-radius: var(--radius-md);
+    border: 1px dashed rgba(229,62,62,0.3);
+  }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">🔄 حركة المخزون</div>
+    <div class="page-subtitle">سجل جميع عمليات الإدخال والإخراج من المخزون للمواد والمستلزمات</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('stock-actions-table','stock-logs.csv')">
+      <i class="fas fa-file-excel"></i> تصدير السجل
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-stock-action')">
+      <i class="fas fa-exchange-alt"></i> إضافة حركة
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-sync-alt"></i></div>
+    </div>
+    <div class="kpi-value">23</div>
+    <div class="kpi-label">إجمالي الحركات هذا الأسبوع</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-arrow-down"></i></div>
+    </div>
+    <div class="kpi-value">12</div>
+    <div class="kpi-label">عمليات إدخال (وارد)</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-arrow-up"></i></div>
+    </div>
+    <div class="kpi-value">11</div>
+    <div class="kpi-label">عمليات إخراج (منصرف)</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+    </div>
+    <div class="kpi-value">4</div>
+    <div class="kpi-label">أصناف وصلت للحد الأدنى</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+    <div class="tabs">
+      <button class="tab-btn active">كل الحركات</button>
+      <button class="tab-btn">إدخال (وارد)</button>
+      <button class="tab-btn">إخراج (منصرف)</button>
+    </div>
+    
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث باسم الصنف أو كود الحركة...">
+      </div>
+      <select class="filter-select">
+        <option>كل الأصناف</option>
+        <option>أوراق A4</option>
+        <option>أقلام سبورة</option>
+        <option>حبر طابعة</option>
+      </select>
+      <select class="filter-select">
+        <option>كل الأنواع</option>
+        <option>إدخال (+)</option>
+        <option>إخراج (-)</option>
+      </select>
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="من تاريخ">
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="إلى تاريخ">
+      <select class="filter-select col-hide-mobile">
+        <option>كل المسؤولين</option>
+        <option>أحمد الدراجي</option>
+        <option>سعيد كمال</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="stock-actions-table">
+      <thead>
+        <tr>
+          <th>التاريخ والوقت</th>
+          <th>الصنف</th>
+          <th>نوع الحركة</th>
+          <th style="text-align: center;">الكمية</th>
+          <th class="col-hide-mobile" style="text-align: center;">الرصيد بعد الحركة</th>
+          <th>السبب / البيان</th>
+          <th>المسؤول</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-size: 11px; color: var(--text-secondary);">2026/03/09<br>10:15 ص</td>
+          <td><strong>أوراق طباعة A4</strong><div style="font-size:10px;color:var(--text-muted)">#ITM-001</div></td>
+          <td><span class="badge badge-warning"><i class="fas fa-arrow-up"></i> إخراج</span></td>
+          <td style="text-align: center; font-weight: 800; color: var(--brand-warning); font-size: 14px;">5</td>
+          <td class="col-hide-mobile" style="text-align: center; font-weight: 700; color: var(--text-muted);">15</td>
+          <td style="font-size: 12px;">صرف لمكتب الإدارة (طلب #442)</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-blue" style="width:24px;height:24px;font-size:10px;">أد</div>
+              <span style="font-size: 12px;">أحمد الدراجي</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr style="background: rgba(72,187,120,0.02);">
+          <td style="font-size: 11px; color: var(--text-secondary);">2026/03/08<br>14:30 م</td>
+          <td><strong>أقلام سبورة بيضاء</strong><div style="font-size:10px;color:var(--text-muted)">#ITM-042</div></td>
+          <td><span class="badge badge-success"><i class="fas fa-arrow-down"></i> إدخال</span></td>
+          <td style="text-align: center; font-weight: 800; color: var(--brand-success); font-size: 14px;">+50</td>
+          <td class="col-hide-mobile" style="text-align: center; font-weight: 700; color: var(--text-muted);">120</td>
+          <td style="font-size: 12px;">توريد من فاتورة المورد (#INV-990)</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-green" style="width:24px;height:24px;font-size:10px;">سك</div>
+              <span style="font-size: 12px;">سعيد كمال</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="font-size: 11px; color: var(--text-secondary);">2026/03/08<br>09:00 ص</td>
+          <td><strong>حبر طابعة أسود</strong><div style="font-size:10px;color:var(--text-muted)">#ITM-015</div></td>
+          <td><span class="badge badge-warning"><i class="fas fa-arrow-up"></i> إخراج</span></td>
+          <td style="text-align: center; font-weight: 800; color: var(--brand-warning); font-size: 14px;">2</td>
+          <td class="col-hide-mobile" style="text-align: center; font-weight: 700; color: var(--brand-danger);">3 <i class="fas fa-arrow-down" style="font-size:8px"></i></td>
+          <td style="font-size: 12px;">استبدال حبر سكرتارية</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-blue" style="width:24px;height:24px;font-size:10px;">أد</div>
+              <span style="font-size: 12px;">أحمد الدراجي</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="pagination">
+    <span>عرض 1-3 من أصل 845 حركة</span>
+    <div class="pagination-btns">
+      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">...</button>
+      <button class="page-btn">85</button>
+      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-stock-action">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-header">
+      <div class="modal-title">🔄 تسجيل حركة مخزون</div>
+      <button class="modal-close" onclick="closeModal('modal-add-stock-action')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">الصنف *</label>
+      <select class="form-select" id="action-item" onchange="simulateItemSelect()" required>
+        <option value="">-- ابحث أو اختر الصنف --</option>
+        <option value="20">أوراق طباعة A4</option>
+        <option value="120">أقلام سبورة بيضاء</option>
+        <option value="5">حبر طابعة أسود</option>
+      </select>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الرصيد الحالي بالمخزن</label>
+        <input type="text" class="form-input" id="current-balance" value="0" disabled style="opacity: 0.7; font-weight: 700; color: var(--text-primary);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">نوع الحركة *</label>
+        <select class="form-select" id="action-type" onchange="validateStockQty()" required>
+          <option value="in">إدخال (+)</option>
+          <option value="out">إخراج (-)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">الكمية *</label>
+      <input type="number" class="form-input" id="action-qty" placeholder="مثال: 10" min="1" oninput="validateStockQty()" required>
+    </div>
+    
+    <div id="qty-warning">
+      <i class="fas fa-exclamation-triangle"></i> <strong>تنبيه:</strong> الكمية المدخلة أكبر من الرصيد المتاح في المخزن! لا يمكن إتمام عملية الإخراج.
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">السبب / البيان *</label>
+      <input type="text" class="form-input" id="action-reason" placeholder="مثال: شراء من المورد، صرف لمعمل العلوم..." required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ملاحظات إضافية (اختياري)</label>
+      <textarea class="form-textarea" rows="2" placeholder="أرقام فواتير، اسم المستلم..."></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btn-save-action" onclick="submitStockAction()">
+        <i class="fas fa-check"></i> تأكيد الحركة
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-stock-action')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 1. محاكاة جلب الرصيد الحالي من قاعدة البيانات عند اختيار الصنف
+  function simulateItemSelect() {
+    const itemSelect = document.getElementById('action-item');
+    const balanceInput = document.getElementById('current-balance');
+    
+    // في التطبيق الحقيقي سيتم جلب هذا من الـ API
+    // هنا وضعنا الرصيد في الـ value الخاصة بـ option للمحاكاة
+    const selectedBalance = itemSelect.value || 0;
+    balanceInput.value = selectedBalance;
+    
+    // إعادة التحقق من الكمية بعد تغيير الصنف
+    validateStockQty();
+  }
+
+  // 2. التحقق من الكمية (لا يمكن إخراج أكثر من الرصيد)
+  function validateStockQty() {
+    const type = document.getElementById('action-type').value;
+    const qty = parseInt(document.getElementById('action-qty').value) || 0;
+    const balance = parseInt(document.getElementById('current-balance').value) || 0;
+    
+    const warning = document.getElementById('qty-warning');
+    const saveBtn = document.getElementById('btn-save-action');
+    const qtyInput = document.getElementById('action-qty');
+
+    // تفعيل التحذير فقط في حالة "إخراج" والكمية أكبر من الرصيد
+    if (type === 'out' && qty > balance) {
+      warning.style.display = 'block';
+      qtyInput.style.borderColor = 'var(--brand-danger)';
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = '0.5';
+      saveBtn.style.cursor = 'not-allowed';
+    } else {
+      warning.style.display = 'none';
+      qtyInput.style.borderColor = 'var(--border-color)';
+      saveBtn.disabled = false;
+      saveBtn.style.opacity = '1';
+      saveBtn.style.cursor = 'pointer';
+    }
+  }
+
+  // 3. تأكيد وحفظ الحركة
+  function submitStockAction() {
+    // تحقق سريع من الحقول المطلوبة (محاكاة)
+    const item = document.getElementById('action-item').value;
+    const qty = document.getElementById('action-qty').value;
+    const reason = document.getElementById('action-reason').value;
+
+    if(!item || !qty || !reason) {
+      showToast('يرجى تعبئة جميع الحقول الإلزامية', 'error');
+      return;
+    }
+
+    // النجاح
+    showToast('تم تسجيل الحركة بنجاح وتحديث رصيد المخزن', 'success');
+    closeModal('modal-add-stock-action');
+    
+    // تفريغ الحقول للمرة القادمة
+    document.getElementById('action-item').value = '';
+    document.getElementById('action-qty').value = '';
+    document.getElementById('action-reason').value = '';
+    document.getElementById('current-balance').value = '0';
+  }
+</script>

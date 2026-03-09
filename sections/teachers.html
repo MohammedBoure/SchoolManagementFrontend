@@ -1,0 +1,568 @@
+<style>
+  /* Toggle Switch CSS (في حال لم تكن موجودة) */
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--text-muted); transition: .3s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+  input:checked + .slider { background-color: #48bb78; }
+  input:checked + .slider:before { transform: translateX(16px); }
+
+  /* تنسيقات خاصة ببطاقات المعلمين (Card View) */
+  .teacher-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .teacher-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .teacher-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .teacher-card .avatar { width: 64px; height: 64px; font-size: 24px; margin-bottom: 12px; }
+  .teacher-card-name { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
+  .teacher-card-subject { margin-bottom: 16px; }
+  .teacher-card-stats {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-top: 1px dashed var(--border-color);
+    border-bottom: 1px dashed var(--border-color);
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+  .teacher-stat-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .teacher-stat-label { color: var(--text-muted); font-size: 10px; }
+  .teacher-stat-val { font-weight: 700; color: var(--text-primary); }
+  
+  /* تنسيقات التبويبات الداخلية في Profile Modal */
+  .profile-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px; padding-bottom: 8px; overflow-x: auto; }
+  .profile-tab-btn { background: transparent; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-md); transition: var(--transition); white-space: nowrap; }
+  .profile-tab-btn:hover { background: var(--bg-surface-2); color: var(--brand-primary); }
+  .profile-tab-btn.active { background: rgba(26,107,74,0.1); color: var(--brand-primary); }
+  .profile-tab-content { display: none; }
+  .profile-tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+  
+  /* View Toggle Buttons */
+  .view-toggle-btn { background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+  .view-toggle-btn:first-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; border-left: none; }
+  .view-toggle-btn:last-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .view-toggle-btn.active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
+  
+  /* Admin Only Classes */
+  .admin-only { color: #276749; font-weight: 700; font-family: monospace; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">👨‍🏫 إدارة المعلمين</div>
+    <div class="page-subtitle">ملفات المعلمين وتخصصاتهم وجداولهم الدراسية</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('teachers-table','teachers.csv')">
+      <i class="fas fa-file-excel"></i> تصدير
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-teacher')">
+      <i class="fas fa-user-plus"></i> معلم جديد
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-chalkboard-teacher"></i></div>
+    </div>
+    <div class="kpi-value">18</div>
+    <div class="kpi-label">إجمالي المعلمين</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-check-circle"></i></div>
+    </div>
+    <div class="kpi-value">15</div>
+    <div class="kpi-label">نشطون</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-book-reader"></i></div>
+    </div>
+    <div class="kpi-value">5</div>
+    <div class="kpi-label">تخصصات مختلفة</div>
+  </div>
+  <div class="kpi-card fade-in fade-in-delay-4" style="border-right: 4px solid var(--text-muted)">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--bg-base); color:var(--text-muted)"><i class="fas fa-calendar-alt"></i></div>
+    </div>
+    <div class="kpi-value">312</div>
+    <div class="kpi-label">حصة هذا الشهر</div>
+  </div>
+</div>
+
+<div class="card fade-in" style="margin-bottom: 24px; padding: 12px 20px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    
+    <div class="table-controls" style="margin: 0; border: none; padding: 0; background: transparent;">
+      <div class="search-input-wrap" style="width: 250px;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث بالاسم أو التخصص...">
+      </div>
+      <select class="filter-select">
+        <option>جميع التخصصات</option>
+        <option>رياضيات</option>
+        <option>لغة عربية</option>
+        <option>لغة فرنسية</option>
+        <option>علوم</option>
+      </select>
+      <select class="filter-select">
+        <option>جميع الحالات</option>
+        <option>نشط</option>
+        <option>موقوف</option>
+      </select>
+    </div>
+
+    <div style="display: flex; align-items: center;">
+      <button class="view-toggle-btn active" id="btn-card-view" onclick="toggleTeacherView('card')" title="عرض البطاقات">
+        <i class="fas fa-th-large"></i>
+      </button>
+      <button class="view-toggle-btn" id="btn-table-view" onclick="toggleTeacherView('table')" title="عرض الجدول">
+        <i class="fas fa-list"></i>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="view-card" class="teacher-cards-grid fade-in">
+  
+  <div class="teacher-card">
+    <div class="avatar avatar-blue">أع</div>
+    <div class="teacher-card-name">أحمد علي عبد الله</div>
+    <div class="teacher-card-subject"><span class="badge badge-info">رياضيات</span></div>
+    
+    <div class="teacher-card-stats">
+      <div class="teacher-stat-col">
+        <span class="teacher-stat-label">تاريخ التعيين</span>
+        <span class="teacher-stat-val">2021/09/01</span>
+      </div>
+      <div class="teacher-stat-col" style="border-right: 1px solid var(--border-color); border-left: 1px solid var(--border-color); padding: 0 16px;">
+        <span class="teacher-stat-label">الفصول</span>
+        <span class="teacher-stat-val">4 فصول</span>
+      </div>
+      <div class="teacher-stat-col" title="يظهر للمدير فقط">
+        <span class="teacher-stat-label">الراتب الأساسي <i class="fas fa-lock" style="font-size:8px;"></i></span>
+        <span class="teacher-stat-val admin-only">65,000 دج</span>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 8px; width: 100%;">
+      <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="openModal('modal-teacher-profile'); switchProfileTab('tab-schedule');">
+        <i class="far fa-calendar-alt"></i> جدوله
+      </button>
+      <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openModal('modal-teacher-profile'); switchProfileTab('tab-personal');">
+        <i class="far fa-id-card"></i> الملف
+      </button>
+    </div>
+  </div>
+
+  <div class="teacher-card">
+    <div class="avatar avatar-green">فك</div>
+    <div class="teacher-card-name">فاطمة كمال حسن</div>
+    <div class="teacher-card-subject"><span class="badge badge-success">علوم طبيعية</span></div>
+    
+    <div class="teacher-card-stats">
+      <div class="teacher-stat-col">
+        <span class="teacher-stat-label">تاريخ التعيين</span>
+        <span class="teacher-stat-val">2023/10/15</span>
+      </div>
+      <div class="teacher-stat-col" style="border-right: 1px solid var(--border-color); border-left: 1px solid var(--border-color); padding: 0 16px;">
+        <span class="teacher-stat-label">الفصول</span>
+        <span class="teacher-stat-val">3 فصول</span>
+      </div>
+      <div class="teacher-stat-col" title="يظهر للمدير فقط">
+        <span class="teacher-stat-label">الراتب الأساسي <i class="fas fa-lock" style="font-size:8px;"></i></span>
+        <span class="teacher-stat-val admin-only">55,000 دج</span>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 8px; width: 100%;">
+      <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="openModal('modal-teacher-profile')">
+        <i class="far fa-calendar-alt"></i> جدوله
+      </button>
+      <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openModal('modal-teacher-profile')">
+        <i class="far fa-id-card"></i> الملف
+      </button>
+    </div>
+  </div>
+
+  <div class="teacher-card" style="opacity: 0.8; background: var(--bg-surface-2);">
+    <div class="avatar avatar-orange" style="filter: grayscale(1);">مخ</div>
+    <div class="teacher-card-name" style="color: var(--text-secondary);">محمد خليل</div>
+    <div class="teacher-card-subject"><span class="badge badge-gray">لغة فرنسية</span></div>
+    
+    <div class="teacher-card-stats">
+      <div class="teacher-stat-col">
+        <span class="teacher-stat-label">تاريخ التعيين</span>
+        <span class="teacher-stat-val">2020/02/01</span>
+      </div>
+      <div class="teacher-stat-col" style="border-right: 1px solid var(--border-color); border-left: 1px solid var(--border-color); padding: 0 16px;">
+        <span class="teacher-stat-label">الفصول</span>
+        <span class="teacher-stat-val">0 فصل</span>
+      </div>
+      <div class="teacher-stat-col">
+        <span class="teacher-stat-label">الحالة</span>
+        <span class="teacher-stat-val" style="color: var(--brand-danger);">موقوف</span>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 8px; width: 100%;">
+      <button class="btn btn-ghost btn-sm" style="flex: 1; width: 100%;" onclick="openModal('modal-teacher-profile')">
+        <i class="far fa-id-card"></i> عرض الملف
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div id="view-table" class="card data-table-card fade-in" style="display: none;">
+  <div class="table-wrapper">
+    <table class="data-table" id="teachers-table">
+      <thead>
+        <tr>
+          <th>المعلم</th>
+          <th>التخصص</th>
+          <th>تاريخ التعيين</th>
+          <th style="text-align: center;">الفصول المسندة</th>
+          <th>الراتب الأساسي (للمدير)</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue">أع</div>
+              <div><strong>أحمد علي عبد الله</strong><div style="font-size:10px;color:var(--text-muted)">ahmed.math@school.com</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-info">رياضيات</span></td>
+          <td>2021/09/01</td>
+          <td style="text-align: center; font-weight: 700;">4</td>
+          <td class="admin-only">65,000 دج</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="checkTeacherStatus(this, 'أحمد علي')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="ملف المعلم" onclick="openModal('modal-teacher-profile')"><i class="fas fa-id-card"></i></button>
+              <button class="action-btn" style="color:var(--brand-info)" title="الجدول" onclick="openModal('modal-teacher-profile'); switchProfileTab('tab-schedule');"><i class="fas fa-calendar-alt"></i></button>
+              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-green">فك</div>
+              <div><strong>فاطمة كمال حسن</strong><div style="font-size:10px;color:var(--text-muted)">fatima.sci@school.com</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-success">علوم طبيعية</span></td>
+          <td>2023/10/15</td>
+          <td style="text-align: center; font-weight: 700;">3</td>
+          <td class="admin-only">55,000 دج</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="checkTeacherStatus(this, 'فاطمة كمال')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="ملف المعلم" onclick="openModal('modal-teacher-profile')"><i class="fas fa-id-card"></i></button>
+              <button class="action-btn" style="color:var(--brand-info)" title="الجدول"><i class="fas fa-calendar-alt"></i></button>
+              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-teacher">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-title">👨‍🏫 إضافة معلم جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-add-teacher')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الاسم الكامل *</label>
+        <input type="text" class="form-input" placeholder="الاسم الرباعي" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">رقم الهوية الوطنية</label>
+        <input type="text" class="form-input" placeholder="رقم البطاقة">
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">تاريخ الميلاد</label>
+        <input type="date" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">الجنس</label>
+        <select class="form-select">
+          <option>ذكر</option>
+          <option>أنثى</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">التخصص الأساسي *</label>
+        <input type="text" class="form-input" placeholder="مثال: رياضيات" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">تاريخ التعيين *</label>
+        <input type="date" class="form-input" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">المواد التي يستطيع تدريسها</label>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; background: var(--bg-surface-2); padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+        <label style="font-size: 13px; display: flex; align-items: center; gap: 6px;"><input type="checkbox" checked> رياضيات</label>
+        <label style="font-size: 13px; display: flex; align-items: center; gap: 6px;"><input type="checkbox"> فيزياء</label>
+        <label style="font-size: 13px; display: flex; align-items: center; gap: 6px;"><input type="checkbox"> معلوماتية</label>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">رقم الهاتف</label>
+        <input type="tel" class="form-input" placeholder="+213 00 00 00 00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input type="email" class="form-input" placeholder="teacher@school.com">
+      </div>
+    </div>
+
+    <div class="form-group" style="background: rgba(39,103,73,0.05); padding: 12px; border-radius: var(--radius-md); border: 1px dashed var(--brand-success);">
+      <label class="form-label" style="color: var(--brand-success);">الراتب الأساسي (دج) * <i class="fas fa-lock" style="font-size:10px;"></i></label>
+      <input type="number" class="form-input" placeholder="0.00" required>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تمت إضافة المعلم بنجاح', 'success');closeModal('modal-add-teacher')">
+        <i class="fas fa-save"></i> إضافة المعلم
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-teacher')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-teacher-profile">
+  <div class="modal" style="max-width: 700px; width: 95%;">
+    <div class="modal-header">
+      <div class="modal-title">📋 ملف المعلم: أحمد علي عبد الله</div>
+      <button class="modal-close" onclick="closeModal('modal-teacher-profile')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+      <div class="avatar avatar-blue" style="width: 72px; height: 72px; font-size: 28px;">أع</div>
+      <div>
+        <h3 style="margin: 0 0 6px 0; font-size: 18px; font-weight: 800; color: var(--text-primary);">أحمد علي عبد الله</h3>
+        <span class="badge badge-info">رياضيات</span>
+        <span class="badge badge-success" style="margin-right: 8px;">نشط</span>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+          <i class="fas fa-envelope"></i> ahmed.math@school.com &nbsp;&nbsp;|&nbsp;&nbsp; 
+          <i class="fas fa-phone"></i> +213 555 123 456
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-tabs">
+      <button class="profile-tab-btn active" onclick="switchProfileTab('tab-personal')" id="btn-tab-personal">البيانات الشخصية</button>
+      <button class="profile-tab-btn" onclick="switchProfileTab('tab-schedule')" id="btn-tab-schedule">الجدول الأسبوعي</button>
+      <button class="profile-tab-btn" onclick="switchProfileTab('tab-payrolls')" id="btn-tab-payrolls">الرواتب (للمدير)</button>
+      <button class="profile-tab-btn" onclick="switchProfileTab('tab-assignments')" id="btn-tab-assignments">إسناد الفصول</button>
+    </div>
+
+    <div id="tab-personal" class="profile-tab-content active">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;">رقم الهوية الوطنية</div>
+          <div style="font-weight: 700; color: var(--text-primary);">1029384756</div>
+        </div>
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;">تاريخ الميلاد / الجنس</div>
+          <div style="font-weight: 700; color: var(--text-primary);">1985/04/12 (ذكر)</div>
+        </div>
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;">تاريخ التعيين</div>
+          <div style="font-weight: 700; color: var(--text-primary);">2021/09/01 (منذ 4 سنوات)</div>
+        </div>
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;">المواد المُصرّح له بتدريسها</div>
+          <div style="font-weight: 700; color: var(--text-primary);">رياضيات، فيزياء</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-schedule" class="profile-tab-content">
+      <div class="table-wrapper" style="border: 1px solid var(--border-color);">
+        <table class="data-table" style="font-size: 11px; text-align: center;">
+          <thead style="background: var(--bg-surface-2);">
+            <tr>
+              <th style="width: 60px;">الساعة</th><th>الأحد</th><th>الإثنين</th><th>الثلاثاء</th><th>الأربعاء</th><th>الخميس</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:700; background:var(--bg-surface-2);">08:00</td>
+              <td style="background: rgba(43,108,176,0.1); color: var(--brand-info); font-weight: 700;">الفصل الأول</td>
+              <td>-</td>
+              <td style="background: rgba(43,108,176,0.1); color: var(--brand-info); font-weight: 700;">الفصل الثاني</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700; background:var(--bg-surface-2);">10:00</td>
+              <td>-</td>
+              <td style="background: rgba(43,108,176,0.1); color: var(--brand-info); font-weight: 700;">الفصل الثالث</td>
+              <td>-</td>
+              <td style="background: rgba(43,108,176,0.1); color: var(--brand-info); font-weight: 700;">الفصل الأول</td>
+              <td style="background: rgba(43,108,176,0.1); color: var(--brand-info); font-weight: 700;">الفصل الثالث</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align: left; margin-top: 10px;">
+        <button class="btn btn-ghost btn-sm"><i class="fas fa-print"></i> طباعة الجدول</button>
+      </div>
+    </div>
+
+    <div id="tab-payrolls" class="profile-tab-content">
+      <div style="background: rgba(39,103,73,0.05); padding: 16px; border-radius: var(--radius-md); border: 1px dashed var(--brand-success); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 11px; color: var(--brand-success);">الراتب الأساسي المُسجل</div>
+          <div class="admin-only" style="font-size: 20px;">65,000 دج</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="color: var(--brand-success);"><i class="fas fa-pen"></i> تعديل</button>
+      </div>
+      
+      <h5 style="margin: 0 0 10px 0; font-size: 13px;">آخر الرواتب المصروفة</h5>
+      <div class="table-wrapper">
+        <table class="data-table" style="font-size: 11px;">
+          <thead>
+            <tr><th>الشهر</th><th>الراتب الأساسي</th><th>الإضافات</th><th>الخصومات</th><th>الصافي</th><th>الحالة</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>فبراير 2026</td>
+              <td>65,000 دج</td>
+              <td style="color:var(--brand-success)">+ 5,000 دج</td>
+              <td style="color:var(--brand-danger)">0 دج</td>
+              <td style="font-weight:800; color:#276749;">70,000 دج</td>
+              <td><span class="badge badge-success">مدفوع</span></td>
+            </tr>
+            <tr>
+              <td>يناير 2026</td>
+              <td>65,000 دج</td>
+              <td style="color:var(--brand-success)">0 دج</td>
+              <td style="color:var(--brand-danger)">- 2,000 دج</td>
+              <td style="font-weight:800; color:#276749;">63,000 دج</td>
+              <td><span class="badge badge-success">مدفوع</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-assignments" class="profile-tab-content">
+      <p style="font-size: 12px; color: var(--text-secondary); margin-top: 0;">الفصول المُسندة لهذا المعلم خلال العام الدراسي الحالي:</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <span style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;"><i class="fas fa-chalkboard"></i> الفصل الأول (رياضيات)</span>
+        <span style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;"><i class="fas fa-chalkboard"></i> الفصل الثاني (رياضيات)</span>
+        <span style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;"><i class="fas fa-chalkboard"></i> الفصل الثالث (رياضيات)</span>
+      </div>
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 24px;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-teacher-profile')">إغلاق الملف</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // دالة التبديل بين Card View و Table View
+  function toggleTeacherView(view) {
+    const cardView = document.getElementById('view-card');
+    const tableView = document.getElementById('view-table');
+    const btnCard = document.getElementById('btn-card-view');
+    const btnTable = document.getElementById('btn-table-view');
+
+    if (view === 'card') {
+      cardView.style.display = 'grid';
+      tableView.style.display = 'none';
+      btnCard.classList.add('active');
+      btnTable.classList.remove('active');
+    } else {
+      cardView.style.display = 'none';
+      tableView.style.display = 'block';
+      btnCard.classList.remove('active');
+      btnTable.classList.add('active');
+    }
+  }
+
+  // دالة التبديل بين التبويبات الداخلية في نافذة ملف المعلم
+  function switchProfileTab(tabId) {
+    // إخفاء كل المحتويات
+    const contents = document.querySelectorAll('.profile-tab-content');
+    contents.forEach(c => c.classList.remove('active'));
+    
+    // إزالة تفعيل كل الأزرار
+    const btns = document.querySelectorAll('.profile-tab-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    
+    // تفعيل الهدف
+    document.getElementById(tabId).classList.add('active');
+    // البحث عن الزر المرتبط وتفعيله
+    const targetBtn = Array.from(btns).find(btn => btn.getAttribute('onclick').includes(tabId));
+    if(targetBtn) targetBtn.classList.add('active');
+  }
+
+  // دالة التحقق عند إيقاف معلم (كما هو مطلوب في الـ Notes)
+  function checkTeacherStatus(checkbox, teacherName) {
+    if (!checkbox.checked) {
+      // إيقاف المعلم
+      const confirmDeactivate = confirm(`تحذير: المعلم "${teacherName}" لديه فصول مسندة إليه حالياً. هل أنت متأكد من رغبتك في إيقافه؟ سيؤثر هذا على الجداول الدراسية.`);
+      if (!confirmDeactivate) {
+        checkbox.checked = true; // تراجع
+      } else {
+        if(typeof showToast === 'function') showToast(`تم إيقاف المعلم ${teacherName}`, 'error');
+      }
+    } else {
+      if(typeof showToast === 'function') showToast(`تم تفعيل المعلم ${teacherName}`, 'success');
+    }
+  }
+</script>

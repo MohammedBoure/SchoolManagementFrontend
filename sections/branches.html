@@ -1,0 +1,280 @@
+<style>
+  /* Toggle Switch CSS (في حال لم تكن موجودة في style.css) */
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--text-muted); transition: .3s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+  input:checked + .slider { background-color: #48bb78; }
+  input:checked + .slider:before { transform: translateX(16px); }
+  [data-theme="dark"] .slider { background-color: #4a5568; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">🏢 إدارة الفروع</div>
+    <div class="page-subtitle">إدارة فروع المدرسة وبياناتها</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-branch')">
+      <i class="fas fa-plus"></i> فرع جديد
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
+    </div>
+    <div class="kpi-value">3</div>
+    <div class="kpi-label">إجمالي الفروع</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-check-circle"></i></div>
+    </div>
+    <div class="kpi-value">2</div>
+    <div class="kpi-label">فروع نشطة</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-user-graduate"></i></div>
+    </div>
+    <div class="kpi-value">487</div>
+    <div class="kpi-label">إجمالي الطلاب</div>
+  </div>
+  <div class="kpi-card fade-in fade-in-delay-4" style="border-right: 4px solid var(--text-muted)">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--bg-base); color:var(--text-muted)"><i class="fas fa-users"></i></div>
+    </div>
+    <div class="kpi-value">34</div>
+    <div class="kpi-label">إجمالي الموظفين</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header">
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث باسم الفرع أو الكود...">
+      </div>
+      <select class="filter-select">
+        <option>جميع الحالات</option>
+        <option>نشط</option>
+        <option>موقوف</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="branches-table">
+      <thead>
+        <tr>
+          <th>الفرع</th>
+          <th>العنوان</th>
+          <th>الهاتف</th>
+          <th>المدير</th>
+          <th style="text-align: center;">الطلاب</th>
+          <th style="text-align: center;">الموظفين</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue">رئ</div>
+              <div><strong>الفرع الرئيسي</strong><div style="font-size:10px;color:var(--text-muted)">#BR-001</div></div>
+            </div>
+          </td>
+          <td>حي الزهور، شارع 15، عمارة ب</td>
+          <td><span dir="ltr">+213 555 123 456</span></td>
+          <td>أحمد الدراجي</td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-primary);">350</td>
+          <td style="text-align: center; font-weight: 700;">24</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الفرع', 'info')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="إحصائيات الفرع"><i class="fas fa-chart-line"></i></button>
+              <button class="action-btn edit" title="تعديل بيانات الفرع" onclick="openModal('modal-edit-branch')"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-green">شم</div>
+              <div><strong>فرع الشمال</strong><div style="font-size:10px;color:var(--text-muted)">#BR-002</div></div>
+            </div>
+          </td>
+          <td>حي النور، المجمع التجاري الأول</td>
+          <td><span dir="ltr">+213 555 987 654</span></td>
+          <td>فاطمة كمال</td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-primary);">137</td>
+          <td style="text-align: center; font-weight: 700;">10</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الفرع', 'info')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="إحصائيات الفرع"><i class="fas fa-chart-line"></i></button>
+              <button class="action-btn edit" title="تعديل بيانات الفرع" onclick="openModal('modal-edit-branch')"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr style="background: rgba(229,62,62,0.03);">
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-orange">جن</div>
+              <div><strong>فرع الجنوب (قيد التجهيز)</strong><div style="font-size:10px;color:var(--text-muted)">#BR-003</div></div>
+            </div>
+          </td>
+          <td>المنطقة الصناعية الجديدة</td>
+          <td><span style="color:var(--text-muted)">-</span></td>
+          <td><span style="color:var(--text-muted)">غير محدد</span></td>
+          <td style="text-align: center; font-weight: 700; color: var(--text-muted);">0</td>
+          <td style="text-align: center; font-weight: 700; color: var(--text-muted);">0</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" onchange="showToast('تم تفعيل الفرع بنجاح', 'success')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="إحصائيات الفرع"><i class="fas fa-chart-line"></i></button>
+              <button class="action-btn edit" title="تعديل بيانات الفرع" onclick="openModal('modal-edit-branch')"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+
+<div class="modal-overlay" id="modal-add-branch">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
+      <div class="modal-title">🏢 إضافة فرع جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-add-branch')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">اسم الفرع *</label>
+        <input type="text" class="form-input" placeholder="مثال: الفرع الرئيسي" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">كود الفرع *</label>
+        <input type="text" class="form-input" placeholder="مثال: BR-001" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">العنوان *</label>
+      <textarea class="form-textarea" placeholder="العنوان الكامل للفرع..." rows="2" required></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">رقم الهاتف *</label>
+        <input type="tel" class="form-input" placeholder="+213 00 00 00 00" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input type="email" class="form-input" placeholder="branch@school.com">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">المدير المسؤول *</label>
+      <select class="form-select" required>
+        <option value="">-- اختر مستخدماً --</option>
+        <option>أحمد الدراجي</option>
+        <option>فاطمة كمال</option>
+        <option>مدير آخر...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ملاحظات</label>
+      <textarea class="form-textarea" placeholder="أي تفاصيل إضافية..."></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم إنشاء الفرع بنجاح', 'success');closeModal('modal-add-branch')">
+        <i class="fas fa-save"></i> إنشاء الفرع
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-branch')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-branch">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
+      <div class="modal-title">✏️ تعديل بيانات الفرع</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-branch')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">اسم الفرع *</label>
+        <input type="text" class="form-input" value="فرع الشمال" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">كود الفرع *</label>
+        <input type="text" class="form-input" value="BR-002" disabled style="opacity:0.7;">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">العنوان *</label>
+      <textarea class="form-textarea" rows="2" required>حي النور، المجمع التجاري الأول</textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">رقم الهاتف *</label>
+        <input type="tel" class="form-input" value="+213 555 987 654" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input type="email" class="form-input" value="north@school.com">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">المدير المسؤول *</label>
+      <select class="form-select" required>
+        <option value="">-- اختر مستخدماً --</option>
+        <option>أحمد الدراجي</option>
+        <option selected>فاطمة كمال</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ملاحظات</label>
+      <textarea class="form-textarea"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم حفظ التعديلات بنجاح', 'success');closeModal('modal-edit-branch')">
+        <i class="fas fa-save"></i> حفظ التعديلات
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-branch')">إلغاء</button>
+    </div>
+  </div>
+</div>

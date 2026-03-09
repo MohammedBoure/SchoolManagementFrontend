@@ -1,0 +1,406 @@
+<style>
+  /* تنسيقات خاصة بصفحة أولياء الأمور */
+  .parent-row { cursor: pointer; transition: var(--transition); }
+  .parent-row:hover { background-color: rgba(0,0,0,0.02); }
+  
+  /* تنسيقات التبويبات الداخلية في Profile Modal */
+  .profile-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px; padding-bottom: 8px; overflow-x: auto; }
+  .profile-tab-btn { background: transparent; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-md); transition: var(--transition); white-space: nowrap; }
+  .profile-tab-btn:hover { background: var(--bg-surface-2); color: var(--brand-primary); }
+  .profile-tab-btn.active { background: rgba(26,107,74,0.1); color: var(--brand-primary); }
+  .profile-tab-content { display: none; }
+  .profile-tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">👨‍👩‍👦 أولياء الأمور</div>
+    <div class="page-subtitle">بيانات أولياء الأمور وملفات العائلة والمتابعة المالية</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('parents-table','parents.csv')">
+      <i class="fas fa-file-excel"></i> تصدير
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-parent')">
+      <i class="fas fa-user-plus"></i> ولي أمر جديد
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-users"></i></div>
+    </div>
+    <div class="kpi-value">312</div>
+    <div class="kpi-label">إجمالي أولياء الأمور</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-exclamation-circle"></i></div>
+    </div>
+    <div class="kpi-value">28</div>
+    <div class="kpi-label">لديهم ديون متأخرة</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-child"></i></div>
+    </div>
+    <div class="kpi-value">45</div>
+    <div class="kpi-label">عائلات متعددة الأبناء</div>
+  </div>
+  <div class="kpi-card fade-in fade-in-delay-4" style="border-right: 4px solid var(--text-muted)">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--bg-base); color:var(--text-muted)"><i class="fas fa-coins"></i></div>
+    </div>
+    <div class="kpi-value">890 دج</div>
+    <div class="kpi-label">متوسط المديونية للعائلة</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header">
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث بالاسم أو رقم الهاتف...">
+      </div>
+      <select class="filter-select">
+        <option>جميع الفروع</option>
+        <option>الفرع الرئيسي</option>
+        <option>فرع الشمال</option>
+      </select>
+      <select class="filter-select">
+        <option>جميع الحالات المالية</option>
+        <option>لا يوجد ديون</option>
+        <option>ديون متأخرة</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="parents-table">
+      <thead>
+        <tr>
+          <th>ولي الأمر</th>
+          <th style="text-align: center;">الأبناء</th>
+          <th>إجمالي الرسوم</th>
+          <th>المدفوع</th>
+          <th>المتبقي</th>
+          <th>الفرع</th>
+          <th>آخر تواصل</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="parent-row" style="background: rgba(229,62,62,0.03);" onclick="openModal('modal-family-profile')">
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-orange">مح</div>
+              <div><strong>محمود زايد</strong><div style="font-size:10px;color:var(--text-muted)" dir="ltr">+213 555 111 222</div></div>
+            </div>
+          </td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-info);">
+            2 <i class="fas fa-child" style="font-size: 10px; margin-right: 2px;"></i>
+          </td>
+          <td>90,000 دج</td>
+          <td>50,000 دج</td>
+          <td style="color:var(--brand-danger);font-weight:800">40,000 دج</td>
+          <td>الفرع الرئيسي</td>
+          <td style="color:var(--text-muted); font-size:11px;">منذ أسبوعين</td>
+          <td onclick="event.stopPropagation();">
+            <div class="action-btns">
+              <button class="action-btn view" title="ملف العائلة" onclick="openModal('modal-family-profile')"><i class="fas fa-id-card-alt"></i></button>
+              <button class="action-btn" style="color:var(--brand-info)" title="إرسال رسالة" onclick="openModal('modal-send-reminder')"><i class="fas fa-comment-dots"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="parent-row" onclick="openModal('modal-family-profile')">
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue">مص</div>
+              <div><strong>مصطفى كمال</strong><div style="font-size:10px;color:var(--text-muted)" dir="ltr">+213 555 333 444</div></div>
+            </div>
+          </td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-info);">
+            1 <i class="fas fa-child" style="font-size: 10px; margin-right: 2px;"></i>
+          </td>
+          <td>45,000 دج</td>
+          <td>45,000 دج</td>
+          <td style="color:var(--text-muted);">-</td>
+          <td>فرع الشمال</td>
+          <td style="color:var(--text-muted); font-size:11px;">أمس</td>
+          <td onclick="event.stopPropagation();">
+            <div class="action-btns">
+              <button class="action-btn view" title="ملف العائلة" onclick="openModal('modal-family-profile')"><i class="fas fa-id-card-alt"></i></button>
+              <button class="action-btn" style="color:var(--brand-info)" title="إرسال رسالة"><i class="fas fa-comment-dots"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="pagination">
+    <span>عرض 1-2 من أصل 312 ولي أمر</span>
+    <div class="pagination-btns">
+      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-parent">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-title">👤 إضافة ولي أمر جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-add-parent')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الاسم الكامل *</label>
+        <input type="text" class="form-input" placeholder="الاسم الرباعي" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">رقم الهوية الوطنية</label>
+        <input type="text" class="form-input" placeholder="رقم البطاقة">
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">رقم الهاتف الأساسي *</label>
+        <input type="tel" class="form-input" placeholder="+213 00 00 00 00" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">رقم هاتف بديل (للطوارئ)</label>
+        <input type="tel" class="form-input" placeholder="+213 00 00 00 00">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input type="email" class="form-input" placeholder="parent@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">المهنة</label>
+        <input type="text" class="form-input" placeholder="مثال: طبيب، مهندس، موظف...">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">العنوان الكامل</label>
+      <textarea class="form-textarea" placeholder="المدينة، الحي، الشارع..." rows="2"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ملاحظات إضافية</label>
+      <textarea class="form-textarea" placeholder="أي ملاحظات تخص ولي الأمر..." rows="2"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تمت إضافة ولي الأمر بنجاح', 'success');closeModal('modal-add-parent')">
+        <i class="fas fa-save"></i> حفظ البيانات
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-parent')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-family-profile">
+  <div class="modal" style="max-width: 750px; width: 95%;">
+    <div class="modal-header">
+      <div class="modal-title">👨‍👩‍👦 ملف العائلة: محمود زايد</div>
+      <button class="modal-close" onclick="closeModal('modal-family-profile')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="profile-tabs">
+      <button class="profile-tab-btn active" onclick="switchParentProfileTab('tab-parent-info')" id="btn-tab-parent-info">بيانات ولي الأمر</button>
+      <button class="profile-tab-btn" onclick="switchParentProfileTab('tab-children')" id="btn-tab-children">الأبناء (الطلاب)</button>
+      <button class="profile-tab-btn" onclick="switchParentProfileTab('tab-finance')" id="btn-tab-finance">الوضع المالي</button>
+    </div>
+
+    <div id="tab-parent-info" class="profile-tab-content active">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;"><i class="fas fa-phone"></i> الهاتف الأساسي</div>
+          <div style="font-weight: 700; color: var(--text-primary);" dir="ltr">+213 555 111 222</div>
+        </div>
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;"><i class="fas fa-envelope"></i> البريد الإلكتروني</div>
+          <div style="font-weight: 700; color: var(--text-primary);">m.zayed@email.com</div>
+        </div>
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;"><i class="fas fa-briefcase"></i> المهنة</div>
+          <div style="font-weight: 700; color: var(--text-primary);">مهندس معماري</div>
+        </div>
+        <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;"><i class="fas fa-id-card"></i> رقم الهوية</div>
+          <div style="font-weight: 700; color: var(--text-primary);">1092837465</div>
+        </div>
+        <div style="grid-column: 1 / -1; background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+          <div style="color: var(--text-muted); margin-bottom: 4px;"><i class="fas fa-map-marker-alt"></i> العنوان</div>
+          <div style="font-weight: 700; color: var(--text-primary);">الجزائر، حي النخيل، العمارة 15، شقة 4</div>
+        </div>
+      </div>
+      <div style="margin-top: 16px; text-align: left;">
+        <button class="btn btn-ghost btn-sm"><i class="fas fa-pen"></i> تعديل البيانات</button>
+      </div>
+    </div>
+
+    <div id="tab-children" class="profile-tab-content">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr><th>اسم الطالب</th><th>الفصل</th><th>تاريخ الميلاد</th><th>الحالة</th><th>ملف الطالب</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ياسر محمود زايد</strong></td>
+              <td>الفصل الثاني</td>
+              <td>2018/05/12</td>
+              <td><span class="badge badge-success">مُسجل</span></td>
+              <td><button class="action-btn view" title="فتح ملف الطالب"><i class="fas fa-external-link-alt"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>ليان محمود زايد</strong></td>
+              <td>الفصل التمهيدي</td>
+              <td>2021/08/20</td>
+              <td><span class="badge badge-warning">قيد الانتظار</span></td>
+              <td><button class="action-btn view" title="فتح ملف الطالب"><i class="fas fa-external-link-alt"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-finance" class="profile-tab-content">
+      
+      <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; background: var(--bg-surface-2); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center;">
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">إجمالي الرسوم المستحقة</div>
+          <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">90,000 دج</div>
+        </div>
+        <div style="flex: 1; background: rgba(72,187,120,0.05); padding: 16px; border-radius: var(--radius-md); border: 1px dashed rgba(72,187,120,0.4); text-align: center;">
+          <div style="font-size: 12px; color: var(--brand-success); margin-bottom: 4px;">ما تم سداده</div>
+          <div style="font-size: 20px; font-weight: 800; color: var(--brand-success);">50,000 دج</div>
+        </div>
+        <div style="flex: 1; background: rgba(229,62,62,0.05); padding: 16px; border-radius: var(--radius-md); border: 1px dashed rgba(229,62,62,0.4); text-align: center;">
+          <div style="font-size: 12px; color: var(--brand-danger); margin-bottom: 4px;">الديون المتبقية</div>
+          <div style="font-size: 20px; font-weight: 800; color: var(--brand-danger);">40,000 دج</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-secondary); margin-bottom:6px; font-weight:600;">
+          <span>نسبة السداد</span>
+          <span>55%</span>
+        </div>
+        <div class="progress-bar-wrap" style="height: 10px; margin: 0;">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: 55%; background: var(--brand-warning);"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h5 style="margin: 0; font-size: 14px; color: var(--text-primary);">سجل الدفعات الأخير</h5>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-send-reminder')" style="background: var(--brand-danger); border-color: var(--brand-danger);">
+          <i class="fas fa-bell"></i> إرسال تذكير بالديون
+        </button>
+      </div>
+
+      <div class="table-wrapper" style="border: 1px solid var(--border-color);">
+        <table class="data-table" style="font-size: 11px;">
+          <thead style="background: var(--bg-surface-2);">
+            <tr><th>رقم الإيصال</th><th>التاريخ</th><th>البيان</th><th>طريقة الدفع</th><th>المبلغ</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#REC-2026-085</td>
+              <td>15 فبراير 2026</td>
+              <td>قسط أول (ياسر محمود)</td>
+              <td><span class="badge badge-info">بطاقة</span></td>
+              <td style="font-weight:700; color:var(--brand-success);">30,000 دج</td>
+            </tr>
+            <tr>
+              <td>#REC-2026-012</td>
+              <td>10 يناير 2026</td>
+              <td>دفعة تسجيل مبدئية</td>
+              <td><span class="badge badge-gray">نقداً</span></td>
+              <td style="font-weight:700; color:var(--brand-success);">20,000 دج</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 24px;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-family-profile')">إغلاق الملف</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-send-reminder">
+  <div class="modal" style="max-width: 500px; z-index: 1001;"> <div class="modal-header">
+      <div class="modal-title" style="color: var(--brand-warning);">📩 إرسال تذكير بالديون</div>
+      <button class="modal-close" onclick="closeModal('modal-send-reminder')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">المرسل إليه</label>
+      <input type="text" class="form-input" value="محمود زايد (+213 555 111 222)" disabled style="opacity:0.7;">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">قناة الإرسال *</label>
+      <select class="form-select" required>
+        <option value="sms">رسالة نصية (SMS)</option>
+        <option value="email">بريد إلكتروني</option>
+        <option value="both" selected>كلاهما (SMS + بريد)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">نص الرسالة *</label>
+      <textarea class="form-textarea" rows="4" required>السيد ولي الأمر المحترم،
+نود تذكيركم بوجود مستحقات مالية متأخرة بقيمة (40,000 دج) خاصة بالرسوم الدراسية لأبنائكم.
+يرجى المبادرة بالتسديد في أقرب وقت لضمان سير العملية التعليمية.
+إدارة المدرسة.</textarea>
+      <div class="form-hint">يمكنك التعديل على النص الافتراضي قبل الإرسال.</div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="background: var(--brand-warning); border-color: var(--brand-warning);" onclick="showToast('تم إرسال التذكير بنجاح', 'success');closeModal('modal-send-reminder')">
+        <i class="fas fa-paper-plane"></i> إرسال التذكير
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-send-reminder')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // دالة التبديل بين التبويبات الداخلية في نافذة ملف العائلة
+  function switchParentProfileTab(tabId) {
+    // إخفاء كل المحتويات
+    const contents = document.querySelectorAll('#modal-family-profile .profile-tab-content');
+    contents.forEach(c => c.classList.remove('active'));
+    
+    // إزالة تفعيل كل الأزرار
+    const btns = document.querySelectorAll('#modal-family-profile .profile-tab-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    
+    // تفعيل الهدف
+    document.getElementById(tabId).classList.add('active');
+    
+    // تفعيل الزر المرتبط
+    const targetBtn = document.getElementById('btn-' + tabId);
+    if(targetBtn) targetBtn.classList.add('active');
+  }
+</script>

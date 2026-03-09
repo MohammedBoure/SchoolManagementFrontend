@@ -1,0 +1,367 @@
+<style>
+  /* إخفاء الأعمدة في الشاشات الصغيرة */
+  @media (max-width: 768px) {
+    .col-hide-mobile { display: none !important; }
+  }
+
+  /* تنسيق الإشعارات العاجلة */
+  .urgent-title { color: var(--brand-danger); }
+  .urgent-icon { color: var(--brand-danger); margin-left: 6px; font-size: 12px; }
+
+  /* تنسيق معاينة عدد المستلمين */
+  .recipients-preview {
+    background: rgba(43,108,176,0.08);
+    border: 1px dashed rgba(43,108,176,0.3);
+    color: var(--brand-info);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    transition: var(--transition);
+  }
+  
+  /* شريط التقدم للإحصائيات في المودال */
+  .stats-bar-wrap { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--bg-surface-2); margin-top: 6px; }
+  .stats-bar-read { background: var(--brand-success); }
+  .stats-bar-unread { background: var(--text-muted); opacity: 0.3; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">📢 مركز الإرسال الجماعي</div>
+    <div class="page-subtitle">إرسال إشعارات جماعية للمعلمين وأولياء الأمور والطلاب ومتابعة وصولها</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-broadcast')">
+      <i class="fas fa-paper-plane"></i> إرسال إشعار جماعي
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-bell"></i></div>
+    </div>
+    <div class="kpi-value">48</div>
+    <div class="kpi-label">إشعار أُرسل هذا الشهر</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-users"></i></div>
+    </div>
+    <div class="kpi-value">1,247</div>
+    <div class="kpi-label">إجمالي المستلمين</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-calendar-day"></i></div>
+    </div>
+    <div class="kpi-value">12</div>
+    <div class="kpi-label">إشعار تم إرساله اليوم</div>
+  </div>
+  <div class="kpi-card fade-in fade-in-delay-4" style="border-right: 4px solid var(--text-muted)">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--bg-base); color:var(--text-muted)"><i class="fas fa-check-double"></i></div>
+    </div>
+    <div class="kpi-value">98%</div>
+    <div class="kpi-label">معدل التسليم والقراءة</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+    <div class="tabs">
+      <button class="tab-btn active">كل الإشعارات</button>
+      <button class="tab-btn">اليوم</button>
+      <button class="tab-btn">الأسبوع الماضي</button>
+      <button class="tab-btn">الشهر</button>
+    </div>
+    
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث في عنوان الإشعار...">
+      </div>
+      <select class="filter-select">
+        <option>كل الفئات المستهدفة</option>
+        <option>أولياء الأمور</option>
+        <option>المعلمون</option>
+        <option>الطلاب</option>
+        <option>الجميع</option>
+      </select>
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="من تاريخ">
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="إلى تاريخ">
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="notifications-table">
+      <thead>
+        <tr>
+          <th>التاريخ والوقت</th>
+          <th>عنوان الإشعار</th>
+          <th>الفئة المستهدفة</th>
+          <th class="col-hide-mobile">الفصل المستهدف</th>
+          <th style="text-align: center;">المستلمين</th>
+          <th>المُرسِل</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: rgba(229,62,62,0.02);">
+          <td style="font-size: 11px; color: var(--text-secondary);">اليوم<br>08:30 ص</td>
+          <td>
+            <strong class="urgent-title"><i class="fas fa-exclamation-circle urgent-icon"></i> تعليق الدراسة بسبب سوء الأحوال الجوية</strong>
+          </td>
+          <td><span class="badge badge-success">الجميع</span></td>
+          <td class="col-hide-mobile" style="color: var(--text-muted);">-</td>
+          <td style="text-align: center; font-weight: 700;">854</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-blue" style="width:24px;height:24px;font-size:10px;">أد</div>
+              <span style="font-size: 12px;">أحمد الدراجي</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل" onclick="openModal('modal-notification-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="إعادة إرسال"><i class="fas fa-redo"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="font-size: 11px; color: var(--text-secondary);">الأمس<br>14:00 م</td>
+          <td><strong>موعد استلام كشوف النقاط للفصل الأول</strong></td>
+          <td><span class="badge badge-warning">أولياء الأمور</span></td>
+          <td class="col-hide-mobile"><span style="font-size: 11px; font-weight: 600;">الفصل الأول (أ)</span></td>
+          <td style="text-align: center; font-weight: 700;">25</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-green" style="width:24px;height:24px;font-size:10px;">فك</div>
+              <span style="font-size: 12px;">فاطمة كمال</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل" onclick="openModal('modal-notification-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="إعادة إرسال"><i class="fas fa-redo"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="font-size: 11px; color: var(--text-secondary);">2026/03/05<br>10:15 ص</td>
+          <td><strong>اجتماع الهيئة التدريسية الشهري</strong></td>
+          <td><span class="badge badge-info">المعلمون</span></td>
+          <td class="col-hide-mobile" style="color: var(--text-muted);">-</td>
+          <td style="text-align: center; font-weight: 700;">18</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-blue" style="width:24px;height:24px;font-size:10px;">أد</div>
+              <span style="font-size: 12px;">أحمد الدراجي</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل" onclick="openModal('modal-notification-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="إعادة إرسال"><i class="fas fa-redo"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="pagination">
+    <span>عرض 1-3 من أصل 214 إشعار</span>
+    <div class="pagination-btns">
+      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-broadcast">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-title">📢 إرسال إشعار جماعي</div>
+      <button class="modal-close" onclick="closeModal('modal-broadcast')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الفئة المستهدفة *</label>
+        <select class="form-select" id="broadcast-target" onchange="handleTargetChange(this)" required>
+          <option value="">-- اختر الفئة --</option>
+          <option value="parents_all">كل أولياء الأمور</option>
+          <option value="parents_class">أولياء أمور فصل محدد</option>
+          <option value="teachers">كل المعلمين</option>
+          <option value="all">الجميع (أولياء + معلمين + طلاب)</option>
+        </select>
+      </div>
+      <div class="form-group" id="class-select-container" style="display: none;">
+        <label class="form-label">اختر الفصل *</label>
+        <select class="form-select" id="broadcast-class" onchange="updateRecipientsCount(25)">
+          <option value="">-- اختر الفصل --</option>
+          <option value="c1">الفصل الأول (أ)</option>
+          <option value="c2">الفصل الثاني (ب)</option>
+          <option value="c3">الفصل الثالث (ج)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="recipients-preview" id="recipients-preview" style="display: none;">
+      <i class="fas fa-info-circle"></i>
+      <span>سيتم إرسال هذا الإشعار إلى <strong id="recipients-count">0</strong> شخص عبر (التطبيق الداخلي / البريد الإلكتروني).</span>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">عنوان الإشعار *</label>
+      <input type="text" class="form-input" placeholder="مثال: دعوة لحضور اجتماع أولياء الأمور" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">نص الإشعار *</label>
+      <textarea class="form-textarea" rows="4" placeholder="اكتب محتوى الإشعار هنا..." required></textarea>
+    </div>
+
+    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(229,62,62,0.05); border-radius: var(--radius-md); border: 1px dashed rgba(229,62,62,0.3);">
+      <input type="checkbox" id="is_urgent_checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+      <label for="is_urgent_checkbox" style="font-size: 13px; font-weight: 700; cursor: pointer; color: var(--brand-danger); margin: 0;">
+        إشعار عاجل! (سيظهر باللون الأحمر مع تنبيه صوتي للمستلمين)
+      </label>
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 24px;">
+      <button class="btn btn-primary" onclick="submitBroadcast()">
+        <i class="fas fa-paper-plane"></i> إرسال الآن
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-broadcast')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-notification-detail">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-title">📋 تفاصيل الإشعار</div>
+      <button class="modal-close" onclick="closeModal('modal-notification-detail')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+      <h3 style="margin: 0 0 8px 0; font-size: 16px; color: var(--text-primary);">موعد استلام كشوف النقاط للفصل الأول</h3>
+      <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary);">
+        <span><i class="far fa-clock"></i> الأمس 14:00 م</span>
+        <span><i class="fas fa-user-tie"></i> المُرسِل: فاطمة كمال</span>
+        <span><span class="badge badge-warning" style="font-size: 9px; padding: 2px 6px;">أولياء الأمور - الفصل الأول (أ)</span></span>
+      </div>
+    </div>
+
+    <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md); font-size: 13px; line-height: 1.6; color: var(--text-primary); margin-bottom: 24px;">
+      السادة أولياء الأمور الكرام،<br><br>
+      نود إعلامكم بأن كشوف النقاط الخاصة بالفصل الدراسي الأول ستكون جاهزة للاستلام يوم الخميس القادم بدءاً من الساعة 10:00 صباحاً وحتى 14:00 مساءً.<br><br>
+      يرجى الحضور شخصياً للتوقيع على الاستلام ومناقشة مستوى الطلاب مع المعلمين.<br><br>
+      شاكرين لكم حسن تعاونكم.
+    </div>
+
+    <h5 style="margin: 0 0 10px 0; font-size: 13px; color: var(--text-primary);">إحصائيات التسليم</h5>
+    <div style="display: flex; gap: 16px; text-align: center;">
+      <div style="flex: 1; background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+        <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">25</div>
+        <div style="font-size: 11px; color: var(--text-muted);">إجمالي المستلمين</div>
+      </div>
+      <div style="flex: 1; background: rgba(72,187,120,0.05); padding: 12px; border-radius: var(--radius-md); border: 1px dashed rgba(72,187,120,0.3);">
+        <div style="font-size: 20px; font-weight: 800; color: var(--brand-success);">22</div>
+        <div style="font-size: 11px; color: var(--brand-success);">تمت القراءة</div>
+      </div>
+      <div style="flex: 1; background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+        <div style="font-size: 20px; font-weight: 800; color: var(--text-muted);">3</div>
+        <div style="font-size: 11px; color: var(--text-muted);">لم يُقرأ بعد</div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 12px;">
+      <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-secondary); margin-bottom: 4px;">
+        <span>نسبة القراءة: 88%</span>
+      </div>
+      <div class="stats-bar-wrap">
+        <div class="stats-bar-read" style="width: 88%;"></div>
+        <div class="stats-bar-unread" style="width: 12%;"></div>
+      </div>
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 24px;">
+      <button class="btn btn-primary" onclick="showToast('تم جدولة إعادة الإرسال', 'info'); closeModal('modal-notification-detail');">
+        <i class="fas fa-redo"></i> إعادة الإرسال (تذكير)
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-notification-detail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // دالة لإظهار/إخفاء حقل الفصل وتحديث عدد المستلمين بناءً على الفئة المختارة
+  function handleTargetChange(selectElement) {
+    const classContainer = document.getElementById('class-select-container');
+    const classSelect = document.getElementById('broadcast-class');
+    const previewBox = document.getElementById('recipients-preview');
+    
+    const target = selectElement.value;
+    
+    if (target === 'parents_class') {
+      // إظهار اختيار الفصل
+      classContainer.style.display = 'block';
+      previewBox.style.display = 'none'; // نخفيه حتى يختار الفصل
+      classSelect.value = ''; // إعادة تعيين
+    } else {
+      // إخفاء اختيار الفصل
+      classContainer.style.display = 'none';
+      
+      if (target === 'parents_all') {
+        updateRecipientsCount(312); // محاكاة (كل الأولياء)
+      } else if (target === 'teachers') {
+        updateRecipientsCount(18); // محاكاة (كل المعلمين)
+      } else if (target === 'all') {
+        updateRecipientsCount(854); // محاكاة (الجميع)
+      } else {
+        previewBox.style.display = 'none';
+      }
+    }
+  }
+
+  // تحديث نص المعاينة (عدد المستلمين)
+  function updateRecipientsCount(count) {
+    const previewBox = document.getElementById('recipients-preview');
+    const countElement = document.getElementById('recipients-count');
+    
+    countElement.innerText = count;
+    previewBox.style.display = 'flex';
+  }
+
+  // محاكاة إرسال الإشعار
+  function submitBroadcast() {
+    const target = document.getElementById('broadcast-target').value;
+    if (!target) {
+      showToast('يرجى اختيار الفئة المستهدفة', 'error');
+      return;
+    }
+    
+    if (target === 'parents_class' && !document.getElementById('broadcast-class').value) {
+      showToast('يرجى اختيار الفصل المستهدف', 'error');
+      return;
+    }
+
+    const count = document.getElementById('recipients-count').innerText;
+    showToast(`تم إرسال الإشعار لـ ${count} مستلماً بنجاح`, 'success');
+    closeModal('modal-broadcast');
+  }
+</script>

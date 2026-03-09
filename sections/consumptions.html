@@ -1,0 +1,441 @@
+<style>
+  /* إخفاء الأعمدة في الشاشات الصغيرة */
+  @media (max-width: 768px) {
+    .col-hide-mobile { display: none !important; }
+  }
+
+  /* تنسيق بطاقة التنبيه لاستهلاك اليوم */
+  .today-alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(221, 107, 32, 0.08);
+    border: 1px dashed var(--brand-warning);
+    border-radius: var(--radius-md);
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .today-alert.registered {
+    background: rgba(72, 187, 120, 0.08);
+    border-color: var(--brand-success);
+  }
+  .today-alert-content { display: flex; align-items: center; gap: 16px; }
+  .today-alert-icon { font-size: 24px; color: var(--brand-warning); }
+  .today-alert.registered .today-alert-icon { color: var(--brand-success); }
+  .today-alert-text h4 { margin: 0 0 4px 0; font-size: 15px; color: var(--text-primary); }
+  .today-alert-text p { margin: 0; font-size: 12px; color: var(--text-secondary); }
+
+  /* تنسيقات الجدول الديناميكي في المودال */
+  .dynamic-table th { background: var(--bg-surface-2); font-size: 11px; padding: 8px; text-align: center; }
+  .dynamic-table td { padding: 4px; vertical-align: middle; }
+  .dynamic-table .form-input, .dynamic-table .form-select { height: 32px; padding: 4px 8px; font-size: 12px; text-align: center; }
+  .dynamic-table .item-name-select { text-align: right; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">🍽️ الاستهلاك اليومي</div>
+    <div class="page-subtitle">تسجيل استهلاك المواد الغذائية والمستلزمات يومياً</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('consumptions-table','consumptions.csv')">
+      <i class="fas fa-file-excel"></i> تصدير السجل
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openConsumptionModal()">
+      <i class="fas fa-plus"></i> تسجيل استهلاك اليوم
+    </button>
+  </div>
+</div>
+
+<div class="today-alert fade-in" id="today-consumption-alert">
+  <div class="today-alert-content">
+    <i class="fas fa-exclamation-circle today-alert-icon"></i>
+    <div class="today-alert-text">
+      <h4>لم يُسجّل استهلاك اليوم بعد</h4>
+      <p>يجب تسجيل المواد المستهلكة اليوم ليتم خصمها من المخزون واحتساب التكلفة.</p>
+    </div>
+  </div>
+  <button class="btn btn-primary btn-sm" style="background: var(--brand-warning); border-color: var(--brand-warning);" onclick="openConsumptionModal()">
+    <i class="fas fa-edit"></i> سجّل الآن
+  </button>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-coins"></i></div>
+    </div>
+    <div class="kpi-value">3,250 دج</div>
+    <div class="kpi-label">تكلفة اليوم (المسجلة)</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-calendar-week"></i></div>
+    </div>
+    <div class="kpi-value">18,400 دج</div>
+    <div class="kpi-label">تكلفة الأسبوع</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-calendar-alt"></i></div>
+    </div>
+    <div class="kpi-value">67,200 دج</div>
+    <div class="kpi-label">تكلفة الشهر</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-box-open"></i></div>
+    </div>
+    <div class="kpi-value">31</div>
+    <div class="kpi-label">صنفاً مستهلكاً هذا الشهر</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header">
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث في السجلات...">
+      </div>
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="من تاريخ">
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="إلى تاريخ">
+      <select class="filter-select col-hide-mobile">
+        <option>كل المسؤولين</option>
+        <option>أحمد الدراجي</option>
+        <option>طباخ المطعم</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="consumptions-table">
+      <thead>
+        <tr>
+          <th>التاريخ</th>
+          <th style="text-align: center;">الأصناف المستهلكة</th>
+          <th>التكلفة الإجمالية</th>
+          <th class="col-hide-mobile">المسجّل</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>2026/03/08</strong></td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-info);">5 أصناف</td>
+          <td style="font-weight: 800; color: var(--text-primary);">3,250 دج</td>
+          <td class="col-hide-mobile">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-blue" style="width:24px;height:24px;font-size:10px;">أد</div>
+              <span style="font-size: 12px;">أحمد الدراجي</span>
+            </div>
+          </td>
+          <td><span class="badge badge-success">مسجّل</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="عرض التفاصيل" onclick="openModal('modal-consumption-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="لا يمكن التعديل (مر 24 ساعة)"><i class="fas fa-lock"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>2026/03/07</strong></td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-info);">8 أصناف</td>
+          <td style="font-weight: 800; color: var(--text-primary);">4,100 دج</td>
+          <td class="col-hide-mobile">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-green" style="width:24px;height:24px;font-size:10px;">طش</div>
+              <span style="font-size: 12px;">طباخ المطعم</span>
+            </div>
+          </td>
+          <td><span class="badge badge-success">مسجّل</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="عرض التفاصيل" onclick="openModal('modal-consumption-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="لا يمكن التعديل"><i class="fas fa-lock"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr style="background: rgba(229,62,62,0.03);">
+          <td><strong>2026/03/06</strong></td>
+          <td style="text-align: center; color: var(--text-muted);">-</td>
+          <td style="color: var(--text-muted);">-</td>
+          <td class="col-hide-mobile"><span style="color: var(--text-muted);">-</span></td>
+          <td><span class="badge badge-danger">غير مسجّل</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn edit" title="تسجيل متأخر (للمدير)"><i class="fas fa-exclamation-circle" style="color: var(--brand-danger);"></i> تسجيل</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="pagination">
+    <span>عرض 1-3 من أصل 145 سجل</span>
+    <div class="pagination-btns">
+      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-consumption">
+  <div class="modal" style="max-width: 750px; width: 95%;">
+    <div class="modal-header">
+      <div class="modal-title">🍽️ تسجيل استهلاك اليوم</div>
+      <button class="modal-close" onclick="closeModal('modal-add-consumption')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row" style="align-items: center; margin-bottom: 16px; background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+      <div class="form-group" style="margin: 0; flex: 1;">
+        <label class="form-label" style="margin-bottom: 4px;">تاريخ الاستهلاك</label>
+        <input type="date" class="form-input" id="consumption-date" style="font-weight: 700;" readonly>
+      </div>
+      <div style="flex: 2; text-align: left;">
+        <button class="btn btn-ghost btn-sm" style="color: var(--brand-primary); border-color: rgba(26,107,74,0.3);" onclick="addDynamicRow()">
+          <i class="fas fa-plus"></i> إضافة صنف للجدول
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrapper" style="border: 1px solid var(--border-subtle); max-height: 300px; overflow-y: auto;">
+      <table class="data-table dynamic-table" id="consumption-dynamic-table">
+        <thead style="position: sticky; top: 0; z-index: 1;">
+          <tr>
+            <th style="width: 40%;">الصنف (يُجلب من المخزون)</th>
+            <th style="width: 15%;">الكمية</th>
+            <th style="width: 15%;">سعر الوحدة (دج)</th>
+            <th style="width: 20%;">الإجمالي (دج)</th>
+            <th style="width: 10%;">حذف</th>
+          </tr>
+        </thead>
+        <tbody id="consumption-tbody">
+          </tbody>
+      </table>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 16px; background: rgba(43,108,176,0.05); border: 1px dashed rgba(43,108,176,0.3); border-radius: var(--radius-md);">
+      <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">إجمالي تكلفة الاستهلاك:</div>
+      <div style="font-size: 24px; font-weight: 900; color: var(--brand-info); font-family: 'Tajawal', sans-serif;" id="consumption-grand-total">0 دج</div>
+    </div>
+
+    <div class="form-group" style="margin-top: 16px;">
+      <label class="form-label">ملاحظات إضافية (اختياري)</label>
+      <textarea class="form-textarea" placeholder="مثال: وجبة غداء إضافية لضيوف المدرسة..." rows="2"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="submitConsumption()">
+        <i class="fas fa-save"></i> تأكيد وحفظ الاستهلاك
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-consumption')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-consumption-detail">
+  <div class="modal" style="max-width: 650px;">
+    <div class="modal-header">
+      <div class="modal-title">📋 تفاصيل استهلاك يوم: 2026/03/08</div>
+      <button class="modal-close" onclick="closeModal('modal-consumption-detail')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 12px; color: var(--text-secondary);">
+      <span><i class="fas fa-user-edit"></i> المسجّل: أحمد الدراجي</span>
+      <span><i class="far fa-clock"></i> وقت التسجيل: 14:30 م</span>
+    </div>
+
+    <div class="table-wrapper" style="border: 1px solid var(--border-color); margin-bottom: 16px;">
+      <table class="data-table" style="font-size: 11px; text-align: center;">
+        <thead style="background: var(--bg-surface-2);">
+          <tr>
+            <th style="text-align: right;">الصنف</th>
+            <th>الكمية المستهلكة</th>
+            <th>سعر الوحدة</th>
+            <th>الإجمالي</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align: right;"><strong>خبز عادي</strong></td>
+            <td>100 قطعة</td>
+            <td>15 دج</td>
+            <td style="font-weight: 700;">1,500 دج</td>
+          </tr>
+          <tr>
+            <td style="text-align: right;"><strong>زيت طهي (لتر)</strong></td>
+            <td>2 لتر</td>
+            <td>250 دج</td>
+            <td style="font-weight: 700;">500 دج</td>
+          </tr>
+          <tr>
+            <td style="text-align: right;"><strong>لحم مفروم (كغ)</strong></td>
+            <td>1.5 كغ</td>
+            <td>1,200 دج</td>
+            <td style="font-weight: 700;">1,800 دج</td>
+          </tr>
+          <tr style="background: rgba(43,108,176,0.05);">
+            <td colspan="3" style="text-align: left; font-weight: 700; color: var(--brand-info);">الإجمالي الكلي:</td>
+            <td style="font-weight: 800; color: var(--brand-info); font-size: 14px;">3,800 دج</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="font-size: 12px; color: var(--text-primary); background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
+      <strong>ملاحظات:</strong> تم تحضير وجبة الغداء لـ 80 طالباً. لم يتم استخدام كل كمية الخبز المشتراة.
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 20px;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-consumption-detail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // قائمة وهمية للأصناف وأسعارها (للمحاكاة)
+  const inventoryItems = [
+    { id: 1, name: "خبز عادي (قطعة)", price: 15 },
+    { id: 2, name: "زيت طهي (لتر)", price: 250 },
+    { id: 3, name: "لحم مفروم (كغ)", price: 1200 },
+    { id: 4, name: "معكرونة (كغ)", price: 90 },
+    { id: 5, name: "سكر (كغ)", price: 95 }
+  ];
+
+  // 1. فتح المودال وتعيين تاريخ اليوم وإضافة صف مبدئي إذا كان الجدول فارغاً
+  function openConsumptionModal() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('consumption-date').value = today;
+    
+    const tbody = document.getElementById('consumption-tbody');
+    if(tbody.children.length === 0) {
+      addDynamicRow();
+    }
+    
+    openModal('modal-add-consumption');
+  }
+
+  // 2. إضافة صف جديد للجدول
+  function addDynamicRow() {
+    const tbody = document.getElementById('consumption-tbody');
+    const tr = document.createElement('tr');
+    
+    // إنشاء قائمة الخيارات
+    let optionsHtml = '<option value="" data-price="0">-- اختر الصنف --</option>';
+    inventoryItems.forEach(item => {
+      optionsHtml += `<option value="${item.id}" data-price="${item.price}">${item.name}</option>`;
+    });
+
+    tr.innerHTML = `
+      <td>
+        <select class="form-select item-name-select" onchange="handleItemChange(this)">
+          ${optionsHtml}
+        </select>
+      </td>
+      <td><input type="number" class="form-input item-qty" value="1" min="1" oninput="calculateRow(this)"></td>
+      <td><input type="text" class="form-input item-price" value="0" readonly style="background: var(--bg-surface-2);"></td>
+      <td><input type="text" class="form-input item-total" value="0" readonly style="background: var(--bg-surface-2); font-weight: 700; color: var(--brand-info);"></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" style="color: var(--brand-danger); padding: 4px 8px;" onclick="removeRow(this)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    `;
+    
+    tbody.appendChild(tr);
+    calculateGrandTotal();
+  }
+
+  // 3. معالجة تغيير الصنف (تحديث السعر)
+  function handleItemChange(selectElement) {
+    const tr = selectElement.closest('tr');
+    const priceInput = tr.querySelector('.item-price');
+    
+    // الحصول على السعر من الخاصية data-price للخيار المحدد
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const price = selectedOption.getAttribute('data-price');
+    
+    priceInput.value = price;
+    calculateRow(selectElement); // إعادة حساب الصف
+  }
+
+  // 4. حساب إجمالي الصف
+  function calculateRow(element) {
+    const tr = element.closest('tr');
+    const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
+    const price = parseFloat(tr.querySelector('.item-price').value) || 0;
+    const totalInput = tr.querySelector('.item-total');
+    
+    const total = qty * price;
+    totalInput.value = total;
+    
+    calculateGrandTotal(); // إعادة حساب المجموع الكلي
+  }
+
+  // 5. حذف صف
+  function removeRow(btn) {
+    const tr = btn.closest('tr');
+    tr.remove();
+    calculateGrandTotal();
+  }
+
+  // 6. حساب المجموع الكلي
+  function calculateGrandTotal() {
+    const totalInputs = document.querySelectorAll('.item-total');
+    let grandTotal = 0;
+    
+    totalInputs.forEach(input => {
+      grandTotal += parseFloat(input.value) || 0;
+    });
+    
+    // تنسيق الرقم
+    document.getElementById('consumption-grand-total').innerText = grandTotal.toLocaleString('en-US') + ' دج';
+  }
+
+  // 7. تأكيد الحفظ
+  function submitConsumption() {
+    const tbody = document.getElementById('consumption-tbody');
+    if(tbody.children.length === 0) {
+      showToast('يرجى إضافة صنف واحد على الأقل', 'error');
+      return;
+    }
+
+    // التحقق من أن كل الصفوف مختارة
+    let isValid = true;
+    document.querySelectorAll('.item-name-select').forEach(select => {
+      if(select.value === "") isValid = false;
+    });
+
+    if(!isValid) {
+      showToast('يرجى اختيار الصنف لجميع السجلات', 'error');
+      return;
+    }
+
+    showToast('تم تسجيل الاستهلاك اليومي بنجاح وتحديث المخزون', 'success');
+    closeModal('modal-add-consumption');
+    
+    // تغيير بطاقة التنبيه إلى الحالة "مسجل" (محاكاة)
+    const alertBox = document.getElementById('today-consumption-alert');
+    alertBox.classList.add('registered');
+    alertBox.innerHTML = `
+      <div class="today-alert-content">
+        <i class="fas fa-check-circle today-alert-icon"></i>
+        <div class="today-alert-text">
+          <h4 style="color: var(--brand-success)">تم تسجيل استهلاك اليوم</h4>
+          <p>إجمالي التكلفة المسجلة: ${document.getElementById('consumption-grand-total').innerText}</p>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openConsumptionModal()"><i class="fas fa-pen"></i> تعديل</button>
+    `;
+  }
+</script>

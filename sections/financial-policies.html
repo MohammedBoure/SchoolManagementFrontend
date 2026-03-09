@@ -1,0 +1,323 @@
+<style>
+  /* Toggle Switch CSS (لتفعيل/إيقاف السياسة) */
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--text-muted); transition: .3s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+  input:checked + .slider { background-color: #48bb78; }
+  input:checked + .slider:before { transform: translateX(16px); }
+  [data-theme="dark"] .slider { background-color: #4a5568; }
+
+  /* Info Alert Custom Style */
+  .policy-info-alert {
+    background: rgba(43, 108, 176, 0.08);
+    border: 1px solid rgba(43, 108, 176, 0.2);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .policy-info-alert i { color: var(--brand-info); font-size: 24px; margin-top: 2px; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">📜 السياسات المالية</div>
+    <div class="page-subtitle">إدارة سياسات التسعير والخصومات والتقسيط</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-policy')">
+      <i class="fas fa-plus"></i> سياسة جديدة
+    </button>
+  </div>
+</div>
+
+<div class="policy-info-alert fade-in fade-in-delay-1">
+  <i class="fas fa-info-circle"></i>
+  <div>
+    <h4 style="margin: 0 0 4px 0; color: var(--brand-info); font-size: 14px; font-weight: 700;">دليل السياسات المالية</h4>
+    <p style="margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+      السياسات المالية تحدد طريقة احتساب الرسوم لكل طالب بشكل آلي. 
+      يمكنك إنشاء سياسات الدفع النقدي، خطط التقسيط، أو الخصومات الخاصة (مثل خصم الإخوة)، ثم ربط كل طالب بالسياسة المناسبة عند التسجيل.
+    </p>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in fade-in-delay-2">
+  <div class="card-header">
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث باسم السياسة أو الوصف...">
+      </div>
+      <select class="filter-select">
+        <option>جميع أنواع الدفع</option>
+        <option>نقدي كامل</option>
+        <option>تقسيط</option>
+        <option>خصم نسبة</option>
+        <option>إعفاء كامل</option>
+      </select>
+      <select class="filter-select">
+        <option>جميع الحالات</option>
+        <option>نشطة</option>
+        <option>موقوفة</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="policies-table">
+      <thead>
+        <tr>
+          <th>اسم السياسة</th>
+          <th>نوع الدفع</th>
+          <th style="text-align: center;">النسبة / الأقساط</th>
+          <th style="text-align: center;">الطلاب المرتبطين</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>الدفع النقدي الكامل (الافتراضي)</strong>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">دفع الرسوم الدراسية دفعة واحدة بداية العام.</div>
+          </td>
+          <td><span class="badge badge-info"><i class="fas fa-money-bill-wave"></i> نقدي</span></td>
+          <td style="text-align: center; color: var(--text-muted);">-</td>
+          <td style="text-align: center; font-weight: 700;">312</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked disabled title="السياسة الافتراضية لا يمكن إيقافها">
+              <span class="slider" style="opacity: 0.5;"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل" onclick="openModal('modal-policy-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="تعديل" onclick="openModal('modal-add-policy')"><i class="fas fa-pen"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="نسخ السياسة" onclick="showToast('تم إنشاء نسخة من السياسة','success')"><i class="fas fa-copy"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <strong>خصم الإخوة (الابن الثاني)</strong>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">يُطبق للابن الثاني المسجل من نفس العائلة.</div>
+          </td>
+          <td><span class="badge badge-success"><i class="fas fa-tags"></i> خصم نسبة</span></td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-success);">20%</td>
+          <td style="text-align: center; font-weight: 700;">45</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="showToast('تم تحديث حالة السياسة', 'info')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل" onclick="openModal('modal-policy-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="تعديل" onclick="openModal('modal-add-policy')"><i class="fas fa-pen"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="نسخ السياسة"><i class="fas fa-copy"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <strong>تقسيط فصلي (3 دفعات)</strong>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">تقسيم الرسوم الإجمالية على فصول السنة الثلاثة.</div>
+          </td>
+          <td><span class="badge badge-warning"><i class="fas fa-calendar-alt"></i> أقساط</span></td>
+          <td style="text-align: center; font-weight: 700; color: var(--brand-warning);">3 أقساط</td>
+          <td style="text-align: center; font-weight: 700;">120</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="showToast('تم تحديث حالة السياسة', 'info')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل" onclick="openModal('modal-policy-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="تعديل" onclick="openModal('modal-add-policy')"><i class="fas fa-pen"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="نسخ السياسة"><i class="fas fa-copy"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr style="background: rgba(113,128,150,0.05);">
+          <td>
+            <strong>إعفاء أبناء الشهداء</strong>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">منحة مجانية بالكامل. يتطلب تقديم الوثائق الثبوتية.</div>
+          </td>
+          <td><span class="badge badge-gray"><i class="fas fa-hand-holding-heart"></i> إعفاء كامل</span></td>
+          <td style="text-align: center; color: var(--text-muted);">-</td>
+          <td style="text-align: center; font-weight: 700;">10</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="showToast('تم تحديث حالة السياسة', 'info')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="التفاصيل" onclick="openModal('modal-policy-detail')"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="تعديل" onclick="openModal('modal-add-policy')"><i class="fas fa-pen"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="نسخ السياسة"><i class="fas fa-copy"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-policy">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
+      <div class="modal-title">📜 إضافة سياسة مالية جديدة</div>
+      <button class="modal-close" onclick="closeModal('modal-add-policy')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">اسم السياسة *</label>
+      <input type="text" class="form-input" placeholder="مثال: خصم حفظة القرآن 15%" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">نوع الدفع *</label>
+      <select class="form-select" id="policy_type_select" onchange="togglePolicyFields()" required>
+        <option value="">-- اختر نوع الدفع --</option>
+        <option value="cash">نقدي كامل</option>
+        <option value="installments">خطة تقسيط</option>
+        <option value="discount">خصم (نسبة مئوية)</option>
+        <option value="free">إعفاء كامل (مجاني)</option>
+      </select>
+    </div>
+    
+    <div class="form-group" id="field_discount" style="display: none; background: rgba(72,187,120,0.05); padding: 12px; border: 1px dashed rgba(72,187,120,0.4); border-radius: var(--radius-md);">
+      <label class="form-label" style="color: var(--brand-success);">نسبة الخصم (%) *</label>
+      <input type="number" class="form-input" placeholder="0-100" min="1" max="100">
+      <div class="form-hint">سيتم خصم هذه النسبة من إجمالي الرسوم الدراسية للطالب.</div>
+    </div>
+
+    <div class="form-row" id="field_installments" style="display: none; background: rgba(221,107,32,0.05); padding: 12px; border: 1px dashed rgba(221,107,32,0.4); border-radius: var(--radius-md); margin-bottom: 16px;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="color: var(--brand-warning);">عدد الأقساط *</label>
+        <input type="number" class="form-input" placeholder="مثال: 3" min="2" max="12">
+      </div>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="color: var(--brand-warning);">قيمة كل قسط</label>
+        <input type="text" class="form-input" value="تُحسب آلياً" disabled style="opacity: 0.7;">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">الوصف المبسط</label>
+      <textarea class="form-textarea" placeholder="شرح مختصر للسياسة يظهر للإدارة..." rows="2"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">شروط الاستفادة (اختياري)</label>
+      <textarea class="form-textarea" placeholder="مثال: يجب إحضار شهادة إثبات..." rows="2"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم حفظ السياسة المالية بنجاح', 'success');closeModal('modal-add-policy')">
+        <i class="fas fa-save"></i> حفظ السياسة
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-policy')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-policy-detail">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-title">📋 تفاصيل السياسة المالية</div>
+      <button class="modal-close" onclick="closeModal('modal-policy-detail')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div style="background: var(--bg-surface-2); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+        <div>
+          <h4 style="margin: 0 0 4px 0; font-size: 15px;">خصم الإخوة (الابن الثاني)</h4>
+          <span class="badge badge-success">خصم نسبة</span>
+        </div>
+        <div style="text-align: left;">
+          <div style="font-size: 11px; color: var(--text-muted);">نسبة الخصم</div>
+          <strong style="color: var(--brand-success); font-size: 16px;">20%</strong>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+        <strong>الوصف:</strong> يُطبق للابن الثاني المسجل من نفس العائلة لتخفيف العبء المالي.<br>
+        <strong>الشروط:</strong> يجب أن يكون الابن الأول مسجلاً ويدرس حالياً في المدرسة.
+      </div>
+    </div>
+
+    <h5 style="margin: 0 0 10px 0; font-size: 13px; color: var(--text-primary);">الطلاب المستفيدين من السياسة (45 طالب)</h5>
+    <div class="table-wrapper" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color);">
+      <table class="data-table" style="font-size: 11px;">
+        <thead style="position: sticky; top: 0; z-index: 1;">
+          <tr>
+            <th>الطالب</th>
+            <th>الفصل</th>
+            <th>الرسوم الأصلية</th>
+            <th>الرسوم بعد الخصم</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>أحمد محمود</strong></td>
+            <td>الفصل الثاني</td>
+            <td>50,000 دج</td>
+            <td style="color: var(--brand-success); font-weight: 700;">40,000 دج</td>
+          </tr>
+          <tr>
+            <td><strong>سارة خالد</strong></td>
+            <td>الفصل الأول</td>
+            <td>45,000 دج</td>
+            <td style="color: var(--brand-success); font-weight: 700;">36,000 دج</td>
+          </tr>
+          <tr>
+            <td><strong>ياسين علي</strong></td>
+            <td>الفصل الثالث</td>
+            <td>60,000 دج</td>
+            <td style="color: var(--brand-success); font-weight: 700;">48,000 دج</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 20px;">
+      <button class="btn btn-primary" onclick="closeModal('modal-policy-detail'); openModal('modal-add-policy');">
+        <i class="fas fa-pen"></i> تعديل السياسة
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-policy-detail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // دالة إظهار وإخفاء الحقول بناءً على نوع الدفع المختار
+  function togglePolicyFields() {
+    const type = document.getElementById('policy_type_select').value;
+    const discountField = document.getElementById('field_discount');
+    const installmentsField = document.getElementById('field_installments');
+    
+    // إخفاء الكل أولاً
+    discountField.style.display = 'none';
+    installmentsField.style.display = 'none';
+    
+    // إظهار حسب النوع
+    if (type === 'discount') {
+      discountField.style.display = 'block';
+    } else if (type === 'installments') {
+      installmentsField.style.display = 'flex';
+    }
+  }
+</script>

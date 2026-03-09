@@ -1,0 +1,319 @@
+<style>
+  /* تنسيقات خاصة بسجلات النظام */
+  .log-row { cursor: pointer; transition: var(--transition); }
+  .log-row:hover { background-color: rgba(0,0,0,0.02) !important; }
+  
+  .log-time { font-family: monospace; font-size: 11px; color: var(--text-secondary); }
+  .log-ip { font-family: monospace; font-size: 11px; background: var(--bg-surface-2); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); }
+  
+  /* تنسيق عرض الـ JSON في المودال */
+  .json-viewer {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    line-height: 1.5;
+    direction: ltr;
+    text-align: left;
+  }
+  .json-key { color: #9cdcfe; }
+  .json-string { color: #ce9178; }
+  .json-number { color: #b5cea8; }
+
+  /* إخفاء العمود في الشاشات الصغيرة */
+  @media (max-width: 768px) {
+    .hide-mobile { display: none !important; }
+  }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">🔒 سجلات النظام</div>
+    <div class="page-subtitle">مراقبة كل الأحداث والتغييرات في النظام</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('logs-table','logs.csv')">
+      <i class="fas fa-file-excel"></i> تصدير
+    </button>
+    <button class="btn btn-ghost btn-sm" style="color: var(--brand-danger); border-color: rgba(229,62,62,0.3); background: rgba(229,62,62,0.05);" onclick="openModal('modal-clear-logs')">
+      <i class="fas fa-trash-alt"></i> مسح السجلات القديمة
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-list-ul"></i></div>
+    </div>
+    <div class="kpi-value">1,247</div>
+    <div class="kpi-label">إجمالي الأحداث اليوم</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+    </div>
+    <div class="kpi-value">3</div>
+    <div class="kpi-label">تحذيرات</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-times-circle"></i></div>
+    </div>
+    <div class="kpi-value">1</div>
+    <div class="kpi-label">أخطاء</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-users"></i></div>
+    </div>
+    <div class="kpi-value">89</div>
+    <div class="kpi-label">مستخدم نشط الآن</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+    <div class="tabs">
+      <button class="tab-btn active">كل الأحداث</button>
+      <button class="tab-btn">تسجيل الدخول/الخروج</button>
+      <button class="tab-btn">إنشاء/تعديل</button>
+      <button class="tab-btn">حذف</button>
+      <button class="tab-btn">أخطاء</button>
+    </div>
+    
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث بالوصف أو المستخدم...">
+      </div>
+      <select class="filter-select">
+        <option>كل المستخدمين</option>
+        <option>أحمد الدراجي</option>
+        <option>فاطمة كمال</option>
+        <option>النظام الآلي (System)</option>
+      </select>
+      <select class="filter-select">
+        <option>كل أنواع الأحداث</option>
+        <option>AUTH</option>
+        <option>CREATE</option>
+        <option>UPDATE</option>
+        <option>DELETE</option>
+        <option>ERROR</option>
+      </select>
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="من تاريخ">
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="إلى تاريخ">
+      <select class="filter-select hide-mobile">
+        <option>كل المستويات</option>
+        <option>INFO</option>
+        <option>WARNING</option>
+        <option>CRITICAL</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="logs-table">
+      <thead>
+        <tr>
+          <th>الوقت</th>
+          <th>المستخدم</th>
+          <th>النوع</th>
+          <th>الوصف</th>
+          <th>الكيان المتأثر</th>
+          <th>عنوان IP</th>
+          <th class="hide-mobile">المتصفح</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="log-row" style="background: rgba(229,62,62,0.04);" onclick="openModal('modal-log-detail')">
+          <td class="log-time">2026-03-09<br>23:14:05</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue" style="width:28px;height:28px;font-size:10px;">أد</div>
+              <div><strong>أحمد الدراجي</strong><div style="font-size:9px;color:var(--text-muted)">مدير النظام</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-danger">ERROR</span></td>
+          <td style="font-weight: 700; color: var(--brand-danger);">فشل الاتصال بقاعدة بيانات النسخ الاحتياطي</td>
+          <td><span class="badge badge-gray">System Backup</span></td>
+          <td><span class="log-ip">192.168.1.105</span></td>
+          <td class="hide-mobile" style="font-size: 11px; color: var(--text-muted);">Chrome 120 / Windows</td>
+        </tr>
+
+        <tr class="log-row" onclick="openModal('modal-log-detail')">
+          <td class="log-time">2026-03-09<br>23:10:12</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-green" style="width:28px;height:28px;font-size:10px;">فك</div>
+              <div><strong>فاطمة كمال</strong><div style="font-size:9px;color:var(--text-muted)">معلم</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-warning">UPDATE</span></td>
+          <td>تعديل درجة اختبار منتصف الفصل</td>
+          <td><span style="font-size: 11px; font-weight: 600;">طالب #STU-105</span></td>
+          <td><span class="log-ip">41.111.22.33</span></td>
+          <td class="hide-mobile" style="font-size: 11px; color: var(--text-muted);">Safari / macOS</td>
+        </tr>
+
+        <tr class="log-row" onclick="openModal('modal-log-detail')">
+          <td class="log-time">2026-03-09<br>22:45:00</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue" style="width:28px;height:28px;font-size:10px;">أد</div>
+              <div><strong>أحمد الدراجي</strong><div style="font-size:9px;color:var(--text-muted)">مدير النظام</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-danger">DELETE</span></td>
+          <td>حذف مصروف تشغيلي (مرفوض)</td>
+          <td><span style="font-size: 11px; font-weight: 600;">مصروف #EXP-992</span></td>
+          <td><span class="log-ip">192.168.1.105</span></td>
+          <td class="hide-mobile" style="font-size: 11px; color: var(--text-muted);">Chrome 120 / Windows</td>
+        </tr>
+
+        <tr class="log-row" onclick="openModal('modal-log-detail')">
+          <td class="log-time">2026-03-09<br>21:30:11</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-orange" style="width:28px;height:28px;font-size:10px;">سم</div>
+              <div><strong>سعيد محمود</strong><div style="font-size:9px;color:var(--text-muted)">ولي أمر</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-info">AUTH</span></td>
+          <td>تسجيل دخول ناجح للنظام</td>
+          <td><span style="font-size: 11px; font-weight: 600;">حساب #USR-884</span></td>
+          <td><span class="log-ip">105.100.55.12</span></td>
+          <td class="hide-mobile" style="font-size: 11px; color: var(--text-muted);">Firefox / Android</td>
+        </tr>
+
+        <tr class="log-row" onclick="openModal('modal-log-detail')">
+          <td class="log-time">2026-03-09<br>20:15:45</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue" style="width:28px;height:28px;font-size:10px;">أد</div>
+              <div><strong>أحمد الدراجي</strong><div style="font-size:9px;color:var(--text-muted)">مدير النظام</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-success">CREATE</span></td>
+          <td>إضافة سياسة مالية جديدة (خصم الإخوة)</td>
+          <td><span style="font-size: 11px; font-weight: 600;">سياسة #POL-004</span></td>
+          <td><span class="log-ip">192.168.1.105</span></td>
+          <td class="hide-mobile" style="font-size: 11px; color: var(--text-muted);">Chrome 120 / Windows</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="pagination">
+    <span>عرض 1-5 من أصل 1,247 حدث</span>
+    <div class="pagination-btns">
+      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">...</button>
+      <button class="page-btn">250</button>
+      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-log-detail">
+  <div class="modal" style="max-width: 650px;">
+    <div class="modal-header">
+      <div class="modal-title">🔍 تفاصيل الحدث</div>
+      <button class="modal-close" onclick="closeModal('modal-log-detail')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle);">
+      <div>
+        <h4 style="margin: 0 0 8px 0; color: var(--text-primary);">تعديل درجة اختبار منتصف الفصل</h4>
+        <div style="display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary);">
+          <span><i class="far fa-clock"></i> 2026-03-09 23:10:12</span>
+          <span><i class="fas fa-user"></i> فاطمة كمال</span>
+          <span><i class="fas fa-network-wired"></i> 41.111.22.33</span>
+        </div>
+      </div>
+      <div>
+        <span class="badge badge-warning">UPDATE</span>
+      </div>
+    </div>
+
+    <h5 style="margin: 0 0 10px 0; font-size: 13px; color: var(--text-primary);">التغييرات (Diff)</h5>
+    <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+      <div style="flex: 1; background: rgba(229,62,62,0.05); border: 1px solid rgba(229,62,62,0.2); border-radius: var(--radius-md); padding: 12px;">
+        <div style="font-size: 11px; font-weight: 700; color: var(--brand-danger); margin-bottom: 8px;">قبل التعديل (Before)</div>
+        <div style="font-family: monospace; font-size: 12px; color: var(--text-secondary);">
+          "score": 14.5<br>
+          "status": "passed"
+        </div>
+      </div>
+      <div style="flex: 1; background: rgba(72,187,120,0.05); border: 1px solid rgba(72,187,120,0.2); border-radius: var(--radius-md); padding: 12px;">
+        <div style="font-size: 11px; font-weight: 700; color: var(--brand-success); margin-bottom: 8px;">بعد التعديل (After)</div>
+        <div style="font-family: monospace; font-size: 12px; color: var(--text-secondary);">
+          "score": 16.0<br>
+          "status": "passed"
+        </div>
+      </div>
+    </div>
+
+    <h5 style="margin: 0 0 10px 0; font-size: 13px; color: var(--text-primary);">البيانات الكاملة (Payload)</h5>
+    <div class="json-viewer">
+<span class="json-key">"event_id"</span>: <span class="json-string">"evt_98f72a1b"</span>,
+<span class="json-key">"entity_type"</span>: <span class="json-string">"Grade"</span>,
+<span class="json-key">"entity_id"</span>: <span class="json-number">105</span>,
+<span class="json-key">"user_agent"</span>: <span class="json-string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15..."</span>,
+<span class="json-key">"request_url"</span>: <span class="json-string">"/api/grades/105"</span>,
+<span class="json-key">"request_method"</span>: <span class="json-string">"PATCH"</span>,
+<span class="json-key">"changes"</span>: {
+  <span class="json-key">"score"</span>: { <span class="json-key">"old"</span>: <span class="json-number">14.5</span>, <span class="json-key">"new"</span>: <span class="json-number">16.0</span> },
+  <span class="json-key">"updated_by"</span>: { <span class="json-key">"old"</span>: <span class="json-number">1</span>, <span class="json-key">"new"</span>: <span class="json-number">18</span> }
+}
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 20px;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-log-detail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-clear-logs">
+  <div class="modal" style="max-width: 450px;">
+    <div class="modal-header">
+      <div class="modal-title" style="color: var(--brand-danger);">⚠️ مسح السجلات القديمة</div>
+      <button class="modal-close" onclick="closeModal('modal-clear-logs')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+      سيؤدي هذا الإجراء إلى حذف سجلات النظام بشكل نهائي لتوفير مساحة في قاعدة البيانات. يرجى اختيار النطاق الزمني الذي تود مسحه.
+    </p>
+
+    <div class="form-group">
+      <label class="form-label">مسح السجلات الأقدم من *</label>
+      <select class="form-select" required>
+        <option value="">-- اختر النطاق الزمني --</option>
+        <option value="1w">أسبوع واحد</option>
+        <option value="1m">شهر واحد</option>
+        <option value="3m">3 أشهر</option>
+        <option value="6m">6 أشهر</option>
+      </select>
+    </div>
+    
+    <div class="form-group" style="display: flex; align-items: flex-start; gap: 10px; margin-top: 16px;">
+      <input type="checkbox" id="confirm_clear" style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer;" required>
+      <label for="confirm_clear" style="font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-primary);">
+        أؤكد أنني أريد مسح هذه السجلات نهائياً ولا يمكن التراجع عن هذا الإجراء.
+      </label>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="showToast('تم مسح السجلات القديمة بنجاح', 'success');closeModal('modal-clear-logs')">
+        <i class="fas fa-trash-alt"></i> مسح السجلات
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-clear-logs')">إلغاء</button>
+    </div>
+  </div>
+</div>
