@@ -1,0 +1,288 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Financial Policies API Docs",
+        "description": "Strict API specification for the 'financial_policies' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/financial_policies": {
+            "get": {
+                "tags": [
+                    "financial_policies"
+                ],
+                "description": "Retrieve a list of all financial policies records.",
+                "operationId": "getall_financial_policies",
+                "responses": {
+                    "200": {
+                        "description": "The list of financial policies records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FinancialPolicies"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the financial policies records."
+                    }
+                }
+            }
+        },
+        "/crud/financial_policies/": {
+            "post": {
+                "tags": [
+                    "financial_policies"
+                ],
+                "description": "Create a new financial policies.",
+                "operationId": "add_financial_policies",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InsertFinancialPolicies"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The financial policies was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the financial policies."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the financial policies."
+                    },
+                    "422": {
+                        "description": "The financial policies payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the financial policies."
+                    }
+                }
+            }
+        },
+        "/crud/financial_policies/{id}": {
+            "get": {
+                "tags": [
+                    "financial_policies"
+                ],
+                "description": "Retrieve a specific financial policies by its unique identifier.",
+                "operationId": "select_financial_policies",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested financial policies was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FinancialPolicies"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A financial policies with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the financial policies."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "financial_policies"
+                ],
+                "description": "Update an existing financial policies by its unique identifier.",
+                "operationId": "update_financial_policies",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateFinancialPolicies"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The financial policies was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The financial policies requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the financial policies."
+                    },
+                    "422": {
+                        "description": "The update payload for the financial policies failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the financial policies."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "financial_policies"
+                ],
+                "description": "Permanently delete a financial policies by its unique identifier.",
+                "operationId": "delete_financial_policies",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The financial policies was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The financial policies requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the financial policies because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the financial policies."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "FinancialPolicies": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "policy_name"
+                ],
+                "properties": {
+                    "discount_fixed_amount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "discount_percentage": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "policy_name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "InsertFinancialPolicies": {
+                "type": "object",
+                "description": "struct of acadimic years to insert to database",
+                "required": [
+                    "policy_name"
+                ],
+                "properties": {
+                    "discount_fixed_amount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "discount_percentage": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "policy_name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UpdateFinancialPolicies": {
+                "type": "object",
+                "properties": {
+                    "discount_fixed_amount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "discount_percentage": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "policy_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

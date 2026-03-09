@@ -1,0 +1,203 @@
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">📝 طلبات التسجيل</div>
+    <div class="page-subtitle">مراجعة والموافقة على طلبات الالتحاق بالمدرسة</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('enrollments-table','enrollments.csv')">
+      <i class="fas fa-file-excel"></i> تصدير
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-enrollment')">
+      <i class="fas fa-plus"></i> طلب تسجيل جديد
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card orange fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-hourglass-half"></i></div>
+    </div>
+    <div class="kpi-value">7</div>
+    <div class="kpi-label">طلبات معلقة</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-check-double"></i></div>
+    </div>
+    <div class="kpi-value">23</div>
+    <div class="kpi-label">مقبولة هذا الشهر</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-times-circle"></i></div>
+    </div>
+    <div class="kpi-value">3</div>
+    <div class="kpi-label">مرفوضة هذا الشهر</div>
+  </div>
+  <div class="kpi-card blue fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-exclamation-circle"></i></div>
+    </div>
+    <div class="kpi-value">2</div>
+    <div class="kpi-label">فصول ممتلئة</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+    <div class="tabs">
+      <button class="tab-btn active">معلقة</button>
+      <button class="tab-btn">مقبولة</button>
+      <button class="tab-btn">مرفوضة</button>
+      <button class="tab-btn">كل الطلبات</button>
+    </div>
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 1;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث باسم الطالب أو ولي الأمر...">
+      </div>
+      <select class="filter-select">
+        <option>جميع الفصول المطلوبة</option>
+        <option>الفصل الأول</option>
+        <option>الفصل الثاني</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="enrollments-table">
+      <thead>
+        <tr>
+          <th>الطالب</th>
+          <th>الفصل المطلوب</th>
+          <th>المقاعد المتاحة</th>
+          <th>ولي الأمر</th>
+          <th>تاريخ الطلب</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: rgba(240,165,0,0.03);">
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue">يز</div>
+              <div><strong>ياسر زايد</strong><div style="font-size:10px;color:var(--text-muted)">ذكر - مواليد 2018</div></div>
+            </div>
+          </td>
+          <td>الفصل الثاني</td>
+          <td><span class="badge badge-success">5 مقاعد</span></td>
+          <td>محمود زايد</td>
+          <td>08 مارس 2026</td>
+          <td><span class="badge badge-warning">معلق</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="قبول الطلب" onclick="showToast('تم قبول الطالب بنجاح', 'success')"><i class="fas fa-check"></i></button>
+              <button class="action-btn delete" title="رفض الطلب" onclick="openModal('modal-reject-enrollment')"><i class="fas fa-times"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="عرض التفاصيل"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr style="background: rgba(240,165,0,0.03);">
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-orange">لم</div>
+              <div><strong>ليان محمود</strong><div style="font-size:10px;color:var(--text-muted)">أنثى - مواليد 2017</div></div>
+            </div>
+          </td>
+          <td>الفصل الثالث</td>
+          <td><span class="badge badge-danger">ممتلئ (0)</span></td>
+          <td>محمود علي</td>
+          <td>07 مارس 2026</td>
+          <td><span class="badge badge-warning">معلق</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="إضافة لقائمة الانتظار" onclick="showToast('تمت الإضافة لقائمة الانتظار', 'info')"><i class="fas fa-list-ol"></i></button>
+              <button class="action-btn delete" title="رفض الطلب" onclick="openModal('modal-reject-enrollment')"><i class="fas fa-times"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="عرض التفاصيل"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-green">أم</div>
+              <div><strong>أحمد مصطفى</strong><div style="font-size:10px;color:var(--text-muted)">ذكر - مواليد 2019</div></div>
+            </div>
+          </td>
+          <td>الفصل الأول</td>
+          <td><span class="badge badge-gray">-</span></td>
+          <td>مصطفى كمال</td>
+          <td>05 مارس 2026</td>
+          <td><span class="badge badge-success">مقبول</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn" style="color:var(--text-muted)" title="عرض التفاصيل"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-new-enrollment">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📝 تقديم طلب تسجيل جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-new-enrollment')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">اسم الطالب *</label>
+      <input type="text" class="form-input" placeholder="الاسم الكامل للطالب" required>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الفصل المطلوب *</label>
+        <select class="form-select" required>
+          <option value="">-- اختر الفصل --</option>
+          <option>الفصل الأول (متاح 12 مقعد)</option>
+          <option>الفصل الثاني (متاح 5 مقاعد)</option>
+          <option disabled>الفصل الثالث (ممتلئ)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">تاريخ التسجيل المقترح</label>
+        <input type="date" class="form-input">
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم تقديم الطلب بنجاح', 'success');closeModal('modal-new-enrollment')">
+        <i class="fas fa-paper-plane"></i> تقديم الطلب
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-enrollment')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-reject-enrollment">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--brand-danger)">✗ رفض طلب التسجيل</div>
+      <button class="modal-close" onclick="closeModal('modal-reject-enrollment')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">سبب الرفض *</label>
+      <textarea class="form-textarea" placeholder="يرجى كتابة سبب الرفض (سيظهر لولي الأمر)..." required></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="showToast('تم رفض الطلب', 'error');closeModal('modal-reject-enrollment')">
+        تأكيد الرفض
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-reject-enrollment')">تراجع</button>
+    </div>
+  </div>
+</div>

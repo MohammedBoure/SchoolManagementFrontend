@@ -1,0 +1,335 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Programs API Docs",
+        "description": "Strict API specification for the 'programs' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/programs": {
+            "get": {
+                "tags": [
+                    "programs"
+                ],
+                "description": "Retrieve a list of all programs records.",
+                "operationId": "getall_programs",
+                "responses": {
+                    "200": {
+                        "description": "The list of programs records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Programs"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the programs records."
+                    }
+                }
+            }
+        },
+        "/crud/programs/": {
+            "post": {
+                "tags": [
+                    "programs"
+                ],
+                "description": "Create a new programs.",
+                "operationId": "add_programs",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertPrograms"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The programs was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the programs."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the programs."
+                    },
+                    "422": {
+                        "description": "The programs payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the programs."
+                    }
+                }
+            }
+        },
+        "/crud/programs/{id}": {
+            "get": {
+                "tags": [
+                    "programs"
+                ],
+                "description": "Retrieve a specific programs by its unique identifier.",
+                "operationId": "select_programs",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested programs was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Programs"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A programs with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the programs."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "programs"
+                ],
+                "description": "Update an existing programs by its unique identifier.",
+                "operationId": "update_programs",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumUpdatePrograms"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The programs was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The programs requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the programs."
+                    },
+                    "422": {
+                        "description": "The update payload for the programs failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the programs."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "programs"
+                ],
+                "description": "Permanently delete a programs by its unique identifier.",
+                "operationId": "delete_programs",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The programs was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The programs requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the programs because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the programs."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Programs": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "program_name",
+                    "program_type"
+                ],
+                "properties": {
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "price_cash": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "price_installments": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "program_name": {
+                        "type": "string"
+                    },
+                    "program_type": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AxumInsertPrograms": {
+                "type": "object",
+                "required": [
+                    "program_name",
+                    "program_type"
+                ],
+                "properties": {
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "price_cash": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "price_installments": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "program_name": {
+                        "type": "string"
+                    },
+                    "program_type": {
+                        "$ref": "#/components/schemas/ProgramType"
+                    }
+                }
+            },
+            "ProgramType": {
+                "type": "string",
+                "enum": [
+                    "Educational",
+                    "Sport",
+                    "Event",
+                    "Championship"
+                ]
+            },
+            "AxumUpdatePrograms": {
+                "type": "object",
+                "properties": {
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "price_cash": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "price_installments": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "program_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "program_type": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/ProgramType"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

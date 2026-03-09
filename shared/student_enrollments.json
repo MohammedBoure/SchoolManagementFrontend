@@ -1,0 +1,316 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Student Enrollments API Docs",
+        "description": "Strict API specification for the 'student_enrollments' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/student_enrollments": {
+            "get": {
+                "tags": [
+                    "student_enrollments"
+                ],
+                "description": "Retrieve a list of all student enrollments records.",
+                "operationId": "getall_student_enrollments",
+                "responses": {
+                    "200": {
+                        "description": "The list of student enrollments records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/StudentEnrollments"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the student enrollments records."
+                    }
+                }
+            }
+        },
+        "/crud/student_enrollments/": {
+            "post": {
+                "tags": [
+                    "student_enrollments"
+                ],
+                "description": "Create a new student enrollments.",
+                "operationId": "add_student_enrollments",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertStudentEnrollments"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The student enrollments was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the student enrollments."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the student enrollments."
+                    },
+                    "422": {
+                        "description": "The student enrollments payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the student enrollments."
+                    }
+                }
+            }
+        },
+        "/crud/student_enrollments/{id}": {
+            "get": {
+                "tags": [
+                    "student_enrollments"
+                ],
+                "description": "Retrieve a specific student enrollments by its unique identifier.",
+                "operationId": "select_student_enrollments",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested student enrollments was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StudentEnrollments"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A student enrollments with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the student enrollments."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "student_enrollments"
+                ],
+                "description": "Update an existing student enrollments by its unique identifier.",
+                "operationId": "update_student_enrollments",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertStudentEnrollments"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The student enrollments was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The student enrollments requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the student enrollments."
+                    },
+                    "422": {
+                        "description": "The update payload for the student enrollments failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the student enrollments."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "student_enrollments"
+                ],
+                "description": "Permanently delete a student enrollments by its unique identifier.",
+                "operationId": "delete_student_enrollments",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The student enrollments was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The student enrollments requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the student enrollments because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the student enrollments."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "StudentEnrollments": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "academic_year_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "enrollment_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "group_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "program_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "student_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            },
+            "AxumInsertStudentEnrollments": {
+                "type": "object",
+                "properties": {
+                    "academic_year_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "enrollment_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "group_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "program_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "student_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            }
+        }
+    }
+}

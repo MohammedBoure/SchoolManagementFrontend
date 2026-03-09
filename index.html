@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة المدرسة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================================================================
+  كل ما يوجد هنا هو محتوى الصفحات فقط.
+  Sidebar + Header يُحقنان تلقائياً من layout.js
+  لإضافة صفحة جديدة: أضف <div class="page" id="page-XXXX"> هنا
+================================================================ -->
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE: dashboard
+     ════════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+
+  <div class="page-header-row fade-in">
+    <div class="page-header">
+      <div class="page-title">🏠 لوحة القيادة</div>
+      <div class="page-subtitle" id="dashboard-date">مرحباً، أحمد</div>
+    </div>
+    <div class="qa-grid">
+      <button class="qa-btn primary" onclick="openModal('modal-new-student')">
+        <i class="fas fa-user-plus"></i> تسجيل طالب
+      </button>
+      <button class="qa-btn accent" onclick="openModal('modal-payment')">
+        <i class="fas fa-money-bill-wave"></i> تحصيل رسوم
+      </button>
+      <button class="qa-btn outline" onclick="openModal('modal-expense')">
+        <i class="fas fa-plus-circle"></i> إضافة مصروف
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card green fade-in fade-in-delay-1">
+      <div class="kpi-top">
+        <div class="kpi-icon green"><i class="fas fa-user-graduate"></i></div>
+        <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</div>
+      </div>
+      <div class="kpi-value">487</div>
+      <div class="kpi-label">إجمالي الطلاب النشطين</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width:78%;background:linear-gradient(90deg,#276749,#48bb78)"></div>
+      </div></div>
+    </div>
+    <div class="kpi-card blue fade-in fade-in-delay-2">
+      <div class="kpi-top">
+        <div class="kpi-icon blue"><i class="fas fa-coins"></i></div>
+        <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8%</div>
+      </div>
+      <div class="kpi-value">12,450</div>
+      <div class="kpi-label">إيرادات اليوم (دج)</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width:62%;background:linear-gradient(90deg,#2b6cb0,#4299e1)"></div>
+      </div></div>
+    </div>
+    <div class="kpi-card orange fade-in fade-in-delay-3">
+      <div class="kpi-top">
+        <div class="kpi-icon orange"><i class="fas fa-clock"></i></div>
+        <div class="kpi-trend down"><i class="fas fa-arrow-up"></i> 3</div>
+      </div>
+      <div class="kpi-value">7</div>
+      <div class="kpi-label">طلبات التسجيل المعلقة</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width:35%;background:linear-gradient(90deg,#c05621,var(--brand-accent))"></div>
+      </div></div>
+    </div>
+    <div class="kpi-card red fade-in fade-in-delay-4">
+      <div class="kpi-top">
+        <div class="kpi-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="kpi-trend down"><i class="fas fa-arrow-down"></i> 2</div>
+      </div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-label">تنبيهات نقص المخزون</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width:20%;background:linear-gradient(90deg,#c53030,#fc8181)"></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="card fade-in">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fas fa-chart-bar" style="color:var(--brand-primary);margin-left:8px"></i>معدل الحضور والغياب اليومي</div>
+          <div class="card-subtitle">آخر 7 أيام</div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active">أسبوعي</button>
+          <button class="tab-btn">شهري</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="bar-chart" id="attendance-chart"></div>
+        <div style="display:flex;gap:16px;margin-top:12px;font-size:11px">
+          <div style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:linear-gradient(to top,#276749,#48bb78);display:inline-block"></span>حاضر</div>
+          <div style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:linear-gradient(to top,#c53030,#fc8181);display:inline-block"></span>غائب</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card fade-in">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fas fa-chart-pie" style="color:var(--brand-accent);margin-left:8px"></i>الميزانية الشهرية</div>
+          <div class="card-subtitle">مارس 2026</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="donut-wrap">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="54" fill="none" stroke="var(--bg-base)" stroke-width="20"/>
+            <circle cx="70" cy="70" r="54" fill="none" stroke="#48bb78" stroke-width="20" stroke-dasharray="230 109" stroke-dashoffset="0" transform="rotate(-90 70 70)" stroke-linecap="round"/>
+            <circle cx="70" cy="70" r="54" fill="none" stroke="#fc8181" stroke-width="20" stroke-dasharray="100 239" stroke-dashoffset="-230" transform="rotate(-90 70 70)" stroke-linecap="round"/>
+            <text x="70" y="65" text-anchor="middle" font-size="18" font-weight="900" fill="var(--text-primary)" font-family="Tajawal">68%</text>
+            <text x="70" y="82" text-anchor="middle" font-size="9" fill="var(--text-muted)" font-family="Cairo">نسبة الربح</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#48bb78"></div><span class="legend-name">الإيرادات</span></div><span class="legend-val" style="color:#48bb78">148,000 دج</span></div>
+            <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#fc8181"></div><span class="legend-name">المصروفات</span></div><span class="legend-val" style="color:#fc8181">47,500 دج</span></div>
+            <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:var(--brand-accent)"></div><span class="legend-name">الرواتب</span></div><span class="legend-val" style="color:var(--brand-accent)">28,000 دج</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Grid -->
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-user-plus" style="color:var(--brand-primary);margin-left:8px"></i>طلبات التسجيل الأخيرة</div>
+        <button class="btn btn-sm btn-ghost" onclick="navigateTo('enrollments')">عرض الكل</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="data-table">
+          <thead><tr><th>الطالب</th><th>الفصل</th><th>الحالة</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">أح</div><strong>أحمد محمد</strong></div></td>
+              <td>الفصل الثالث</td>
+              <td><span class="badge badge-warning">معلق</span></td>
+              <td><div class="action-btns"><button class="action-btn view" title="موافقة" onclick="showToast('تمت الموافقة','success')"><i class="fas fa-check"></i></button><button class="action-btn delete" title="رفض" onclick="showToast('تم الرفض','error')"><i class="fas fa-times"></i></button></div></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">سر</div><strong>سارة الرشيد</strong></div></td>
+              <td>الفصل الأول</td>
+              <td><span class="badge badge-warning">معلق</span></td>
+              <td><div class="action-btns"><button class="action-btn view" onclick="showToast('تمت الموافقة','success')"><i class="fas fa-check"></i></button><button class="action-btn delete"><i class="fas fa-times"></i></button></div></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">عم</div><strong>عمر المالكي</strong></div></td>
+              <td>الفصل الثاني</td>
+              <td><span class="badge badge-success">مقبول</span></td>
+              <td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-bell" style="color:var(--brand-danger);margin-left:8px"></i>تنبيهات النظام</div>
+      </div>
+      <div class="card-body">
+        <div class="alert-list">
+          <div class="alert-item danger"><i class="fas fa-boxes alert-icon"></i><div class="alert-text"><div class="alert-title">نقص في المخزون</div><div class="alert-desc">الأوراق A4 — المتبقي: 50 رزمة (الحد الأدنى: 100)</div><div class="alert-time"><i class="fas fa-clock" style="font-size:9px"></i> الآن</div></div></div>
+          <div class="alert-item warning"><i class="fas fa-money-bill-wave alert-icon"></i><div class="alert-text"><div class="alert-title">رسوم متأخرة</div><div class="alert-desc">12 طالباً لديهم رسوم متأخرة عن شهر فبراير</div><div class="alert-time"><i class="fas fa-clock" style="font-size:9px"></i> منذ يومين</div></div></div>
+          <div class="alert-item info"><i class="fas fa-calendar-check alert-icon"></i><div class="alert-text"><div class="alert-title">تذكير: إغلاق الصندوق</div><div class="alert-desc">لم يتم إقفال صندوق أمس بعد</div><div class="alert-time"><i class="fas fa-clock" style="font-size:9px"></i> منذ ساعتين</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /page-dashboard -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE: students
+     ════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-students">
+  <div class="page-header-row fade-in">
+    <div class="page-header">
+      <div class="page-title">👨‍🎓 قاعدة بيانات الطلاب</div>
+      <div class="page-subtitle">إدارة جميع الطلاب وملفاتهم الشخصية</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('students-table','students.csv')"><i class="fas fa-file-excel"></i> تصدير</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-student')"><i class="fas fa-plus"></i> طالب جديد</button>
+    </div>
+  </div>
+
+  <div class="card data-table-card fade-in">
+    <div class="card-header">
+      <div class="table-controls">
+        <div class="search-input-wrap"><i class="fas fa-search"></i><input type="text" class="search-input" placeholder="بحث بالاسم أو الرقم..."></div>
+        <select class="filter-select"><option>جميع الحالات</option><option>نشط</option><option>موقوف</option><option>منسحب</option></select>
+        <select class="filter-select"><option>جميع الفصول</option><option>الفصل الأول</option><option>الفصل الثاني</option><option>الفصل الثالث</option></select>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table" id="students-table">
+        <thead><tr><th><input type="checkbox"></th><th>الطالب</th><th>الفصل</th><th>ولي الأمر</th><th>فصيلة الدم</th><th>السياسة المالية</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+        <tbody>
+          <tr><td><input type="checkbox"></td><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-green">أم</div><div><strong>أحمد محمود</strong><div style="font-size:10px;color:var(--text-muted)">#STU-001</div></div></div></td><td>الفصل الثاني مستوى أول</td><td>محمود علي</td><td><span class="badge badge-info">A+</span></td><td>خصم 10%</td><td><span class="badge badge-success"><i class="fas fa-circle" style="font-size:6px"></i> نشط</span></td><td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button><button class="action-btn edit"><i class="fas fa-pen"></i></button><button class="action-btn delete" onclick="showToast('تم تغيير حالة الطالب','warning')"><i class="fas fa-ban"></i></button></div></td></tr>
+          <tr><td><input type="checkbox"></td><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-purple">سع</div><div><strong>سارة العمري</strong><div style="font-size:10px;color:var(--text-muted)">#STU-002</div></div></div></td><td>الفصل الأول مستوى ثاني</td><td>خالد العمري</td><td><span class="badge badge-info">B+</span></td><td>لا يوجد</td><td><span class="badge badge-success"><i class="fas fa-circle" style="font-size:6px"></i> نشط</span></td><td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button><button class="action-btn edit"><i class="fas fa-pen"></i></button><button class="action-btn delete"><i class="fas fa-ban"></i></button></div></td></tr>
+          <tr><td><input type="checkbox"></td><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-orange">عخ</div><div><strong>عمر الخالدي</strong><div style="font-size:10px;color:var(--text-muted)">#STU-003</div></div></div></td><td>الفصل الثالث مستوى ثالث</td><td>علي الخالدي</td><td><span class="badge badge-warning">O-</span></td><td>خصم أسري</td><td><span class="badge badge-warning"><i class="fas fa-circle" style="font-size:6px"></i> موقوف</span></td><td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button><button class="action-btn edit"><i class="fas fa-pen"></i></button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span>عرض 1-10 من أصل 487 طالب</span>
+      <div class="pagination-btns">
+        <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+        <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button>
+        <button class="page-btn">...</button><button class="page-btn">49</button>
+        <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+      </div>
+    </div>
+  </div>
+</div><!-- /page-students -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE STUBS — باقي الصفحات (prompt جاهز للتنفيذ)
+     لكل صفحة: اسم الملف الذي يجب إنشاؤه + الـ PROMPT
+     ════════════════════════════════════════════════════════════ -->
+
+<!-- STUB MACRO: يُستخدم للصفحات غير المنفذة بعد -->
+<div class="page" id="page-fees">          <div id="stub-fees"></div></div>
+<div class="page" id="page-payrolls">      <div id="stub-payrolls"></div></div>
+<div class="page" id="page-expenses">      <div id="stub-expenses"></div></div>
+<div class="page" id="page-attendance">    <div id="stub-attendance"></div></div>
+<div class="page" id="page-inventory">     <div id="stub-inventory"></div></div>
+<div class="page" id="page-messages">      <div id="stub-messages"></div></div>
+<div class="page" id="page-branches">      <div id="stub-branches"></div></div>
+<div class="page" id="page-academic-years"><div id="stub-academic-years"></div></div>
+<div class="page" id="page-financial-policies"><div id="stub-financial-policies"></div></div>
+<div class="page" id="page-system-logs">   <div id="stub-system-logs"></div></div>
+<div class="page" id="page-users">         <div id="stub-users"></div></div>
+<div class="page" id="page-teachers">      <div id="stub-teachers"></div></div>
+<div class="page" id="page-parents">       <div id="stub-parents"></div></div>
+<div class="page" id="page-programs">      <div id="stub-programs"></div></div>
+<div class="page" id="page-classes">       <div id="stub-classes"></div></div>
+<div class="page" id="page-enrollments">   <div id="stub-enrollments"></div></div>
+<div class="page" id="page-assignments">   <div id="stub-assignments"></div></div>
+<div class="page" id="page-schedules">     <div id="stub-schedules"></div></div>
+<div class="page" id="page-grades">        <div id="stub-grades"></div></div>
+<div class="page" id="page-stock-actions"> <div id="stub-stock-actions"></div></div>
+<div class="page" id="page-consumptions">  <div id="stub-consumptions"></div></div>
+<div class="page" id="page-obligations">   <div id="stub-obligations"></div></div>
+<div class="page" id="page-cash-handovers"><div id="stub-cash-handovers"></div></div>
+<div class="page" id="page-notifications"> <div id="stub-notifications"></div></div>
+
+
+<!-- ================================================================
+     GLOBAL MODALS (مشتركة بين أكثر من صفحة)
+================================================================ -->
+
+<!-- Modal: New Student -->
+<div class="modal-overlay" id="modal-new-student">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👨‍🎓 تسجيل طالب جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-new-student')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">الاسم الكامل *</label><input type="text" class="form-input" placeholder="مثال: أحمد محمود علي"></div>
+      <div class="form-group"><label class="form-label">تاريخ الميلاد *</label><input type="date" class="form-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">الجنس</label><select class="form-select"><option>ذكر</option><option>أنثى</option></select></div>
+      <div class="form-group"><label class="form-label">فصيلة الدم</label><select class="form-select"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">ولي الأمر</label><select class="form-select"><option>-- اختر ولي أمر موجود --</option><option>محمود علي</option><option>خالد العمري</option></select><div class="form-hint">أو <a href="#" style="color:var(--brand-primary)">إضافة ولي أمر جديد</a></div></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">الفصل الدراسي *</label><select class="form-select"><option>-- اختر الفصل --</option><option>الفصل الأول مستوى أول</option><option>الفصل الثاني مستوى أول</option></select></div>
+      <div class="form-group"><label class="form-label">السياسة المالية</label><select class="form-select"><option>لا يوجد</option><option>خصم 10%</option><option>خصم أسري</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">معلومات طبية</label><textarea class="form-textarea" placeholder="أي حالات طبية خاصة، حساسيات، أدوية..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم تسجيل الطالب بنجاح','success');closeModal('modal-new-student')"><i class="fas fa-save"></i> حفظ وتسجيل</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-student')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Payment -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💳 معالجة الدفع</div>
+      <button class="modal-close" onclick="closeModal('modal-payment')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group"><label class="form-label">اسم الطالب *</label><input type="text" class="form-input" placeholder="ابحث عن الطالب..."></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">المبلغ الإجمالي</label><input type="text" class="form-input" value="15,000 دج" disabled style="opacity:0.6"></div>
+      <div class="form-group"><label class="form-label">المدفوع مسبقاً</label><input type="text" class="form-input" value="5,000 دج" disabled style="opacity:0.6"></div>
+    </div>
+    <div class="form-group"><label class="form-label">المبلغ المدفوع الآن *</label><input type="number" class="form-input" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">طريقة الدفع *</label><select class="form-select"><option>نقداً (Cash)</option><option>بطاقة (Card)</option><option>تحويل بنكي</option></select></div>
+    <div class="form-group"><label class="form-label">ملاحظات</label><input type="text" class="form-input" placeholder="ملاحظة اختيارية..."></div>
+    <div class="modal-footer">
+      <button class="btn btn-accent" onclick="showToast('تم تحصيل الدفعة وإصدار الإيصال','success');closeModal('modal-payment')"><i class="fas fa-print"></i> تحصيل وإصدار إيصال</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-payment')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Expense -->
+<div class="modal-overlay" id="modal-expense">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📝 إضافة مصروف جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-expense')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group"><label class="form-label">وصف المصروف *</label><input type="text" class="form-input" placeholder="مثال: شراء أقلام ومواد تدريس"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">الفئة *</label><select class="form-select"><option>مستلزمات مكتبية</option><option>صيانة</option><option>كهرباء وماء</option><option>وجبات</option><option>أخرى</option></select></div>
+      <div class="form-group"><label class="form-label">المبلغ *</label><input type="number" class="form-input" placeholder="0.00"></div>
+    </div>
+    <div class="form-group"><label class="form-label">طريقة الدفع</label><select class="form-select"><option>نقداً</option><option>بطاقة</option></select></div>
+    <div class="form-group"><label class="form-label">إرفاق فاتورة</label><input type="file" class="form-input"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم إرسال المصروف للاعتماد','info');closeModal('modal-expense')"><i class="fas fa-paper-plane"></i> إرسال للاعتماد</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-expense')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     SCRIPTS
+================================================================ -->
+<script src="layout.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════
+// تشغيل الـ Layout
+// ════════════════════════════════════════════════════════════
+Layout.init({
+  pageId: 'dashboard',
+  user: { name: 'أحمد الدراجي', role: 'مدير النظام', initials: 'أد' }
+});
+
+// ════════════════════════════════════════════════════════════
+// DASHBOARD: Bar Chart للحضور
+// ════════════════════════════════════════════════════════════
+function onPageInit(pageId) {
+  if (pageId === 'dashboard') _buildDashboard();
+}
+
+const loadedPages = new Set();
+function onPageChange(pageId) {
+  // تحديث الداشبورد إذا كنا فيها
+  if (pageId === 'dashboard') {
+    if(typeof _buildDashboard === 'function') _buildDashboard();
+    return;
+  }
+
+  // إذا تم تحميل الصفحة بنجاح مسبقاً، لا تفعل شيئاً
+  if (loadedPages.has(pageId)) return;
+
+  const pageContainer = document.getElementById(`page-${pageId}`);
+  if (!pageContainer) return;
+
+  // إظهار مؤشر التحميل
+  pageContainer.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><br>جاري التحميل...</div>';
+
+  // محاولة جلب الملف الخارجي
+  fetch(`sections/${pageId}.html`)
+    .then(response => {
+      if (!response.ok) throw new Error(`الملف غير موجود (${response.status})`);
+      return response.text();
+    })
+    .then(html => {
+      // في حال نجاح جلب الملف
+      pageContainer.innerHTML = html;
+      loadedPages.add(pageId); // تسجيل أن الصفحة محملة
+    })
+    .catch(error => {
+      // في حال فشل جلب الملف (الملف غير موجود 404)
+      console.warn(`[النظام] ${error.message} للصفحة: ${pageId}`);
+      _injectStubPage(pageId); // عرض قالب "قريباً" والـ Prompt
+    });
+}
+
+function _buildDashboard() {
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ar-DZ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const el = document.getElementById('dashboard-date');
+  if (el) el.textContent = `مرحباً، أحمد — ${dateStr}`;
+
+  Layout.buildBarChart('attendance-chart', [
+    { day:'أحد',     bars:[{cls:'present',val:92,label:'حاضر'},{cls:'absent',val:8,label:'غائب'}]},
+    { day:'اثنين',   bars:[{cls:'present',val:88,label:'حاضر'},{cls:'absent',val:12,label:'غائب'}]},
+    { day:'ثلاثاء',  bars:[{cls:'present',val:95,label:'حاضر'},{cls:'absent',val:5,label:'غائب'}]},
+    { day:'أربعاء',  bars:[{cls:'present',val:85,label:'حاضر'},{cls:'absent',val:15,label:'غائب'}]},
+    { day:'خميس',    bars:[{cls:'present',val:90,label:'حاضر'},{cls:'absent',val:10,label:'غائب'}]},
+    { day:'جمعة',    bars:[{cls:'present',val:78,label:'حاضر'},{cls:'absent',val:22,label:'غائب'}]},
+    { day:'سبت',     bars:[{cls:'present',val:93,label:'حاضر'},{cls:'absent',val:7,label:'غائب'}]},
+  ]);
+}
+
+// ════════════════════════════════════════════════════════════
+// STUB PAGES INJECTOR
+// يحقن محتوى "قريباً" عند أول زيارة للصفحة غير المنفذة
+// ════════════════════════════════════════════════════════════
+const _visitedStubs = new Set();
+function _injectStubPage(pageId) {
+  // نستهدف الحاوية الرئيسية للصفحة مباشرة
+  const el = document.getElementById('page-' + pageId);
+  if (!el) return;
+
+  const pageInfo = {
+    'fees':              { icon:'💰', title:'رسوم الطلاب والتحصيل',    file:'sections/fees.html' },
+    'payrolls':          { icon:'💼', title:'إدارة الرواتب',            file:'sections/payrolls.html' },
+    'expenses':          { icon:'📋', title:'المصروفات التشغيلية',       file:'sections/expenses.html' },
+    'attendance':        { icon:'✅', title:'مراقبة الحضور والغياب',     file:'sections/attendance.html' },
+    'inventory':         { icon:'📦', title:'كتالوج المخزون',            file:'sections/inventory.html' },
+    'messages':          { icon:'💬', title:'صندوق الرسائل',             file:'sections/messages.html' },
+    'branches':          { icon:'🏢', title:'إدارة الفروع',              file:'sections/branches.html' },
+    'academic-years':    { icon:'📅', title:'السنوات الدراسية',          file:'sections/academic-years.html' },
+    'financial-policies':{ icon:'📜', title:'السياسات المالية',          file:'sections/financial-policies.html' },
+    'system-logs':       { icon:'🔒', title:'سجلات النظام',              file:'sections/system-logs.html' },
+    'users':             { icon:'👥', title:'إدارة المستخدمين',          file:'sections/users.html' },
+    'teachers':          { icon:'👨‍🏫', title:'إدارة المعلمين',          file:'sections/teachers.html' },
+    'parents':           { icon:'👨‍👩‍👦', title:'أولياء الأمور',       file:'sections/parents.html' },
+    'programs':          { icon:'📚', title:'البرامج والمواد',           file:'sections/programs.html' },
+    'classes':           { icon:'🏫', title:'إدارة الفصول',             file:'sections/classes.html' },
+    'enrollments':       { icon:'📝', title:'طلبات التسجيل',            file:'sections/enrollments.html' },
+    'students':          { icon:'👨‍🎓', title:'قاعدة الطلاب',             file:'sections/students.html' },
+    'assignments':       { icon:'📋', title:'إسناد المهام للمعلمين',    file:'sections/assignments.html' },
+    'schedules':         { icon:'🗓️', title:'الجداول الدراسية',         file:'sections/schedules.html' },
+    'grades':            { icon:'⭐', title:'الدرجات والتقييمات',        file:'sections/grades.html' },
+    'stock-actions':     { icon:'🔄', title:'حركة المخزون',             file:'sections/stock-actions.html' },
+    'consumptions':      { icon:'🍽️', title:'الاستهلاك اليومي',         file:'sections/consumptions.html' },
+    'obligations':       { icon:'📌', title:'الالتزامات الخارجية',       file:'sections/obligations.html' },
+    'cash-handovers':    { icon:'💵', title:'تسليم العهدة النقدية',      file:'sections/cash-handovers.html' },
+    'notifications':     { icon:'📢', title:'مركز الإرسال الجماعي',      file:'sections/notifications.html' },
+  };
+
+  const info = pageInfo[pageId] || { icon:'📄', title:'صفحة جديدة', file:`sections/${pageId}.html` };
+
+  // حقن الـ HTML المخصص للـ Prompt مباشرة داخل الـ Page
+  el.innerHTML = `
+    <div class="page-header fade-in" style="margin-bottom:24px">
+      <div class="page-title">${info.icon} ${info.title}</div>
+    </div>
+    <div class="prompt-banner fade-in">
+      <div class="prompt-icon">${info.icon}</div>
+      <h3>${info.title} — جاهزة للتنفيذ</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin:8px 0 12px">
+        قم بإنشاء ملف <code style="background:var(--bg-base);padding:2px 8px;border-radius:4px;font-family:monospace">${info.file}</code>
+        في مجلد المشروع الخاص بك.
+      </p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        <button class="btn btn-primary btn-sm" onclick="showToast('انسخ الـ Prompt الخاص بالصفحة لتوليد الكود','info')">
+          <i class="fas fa-terminal"></i> كيف أبرمج هذه الصفحة؟
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// تشغيل فوري للـ dashboard
+_buildDashboard();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,264 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Subjects API Docs",
+        "description": "Strict API specification for the 'subjects' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/subjects": {
+            "get": {
+                "tags": [
+                    "subjects"
+                ],
+                "description": "Retrieve a list of all subjects records.",
+                "operationId": "getall_subjects",
+                "responses": {
+                    "200": {
+                        "description": "The list of subjects records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Subjects"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the subjects records."
+                    }
+                }
+            }
+        },
+        "/crud/subjects/": {
+            "post": {
+                "tags": [
+                    "subjects"
+                ],
+                "description": "Create a new subjects.",
+                "operationId": "add_subjects",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InsertSubjects"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The subjects was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the subjects."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the subjects."
+                    },
+                    "422": {
+                        "description": "The subjects payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the subjects."
+                    }
+                }
+            }
+        },
+        "/crud/subjects/{id}": {
+            "get": {
+                "tags": [
+                    "subjects"
+                ],
+                "description": "Retrieve a specific subjects by its unique identifier.",
+                "operationId": "select_subjects",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested subjects was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Subjects"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A subjects with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the subjects."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "subjects"
+                ],
+                "description": "Update an existing subjects by its unique identifier.",
+                "operationId": "update_subjects",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSubjects"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The subjects was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The subjects requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the subjects."
+                    },
+                    "422": {
+                        "description": "The update payload for the subjects failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the subjects."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "subjects"
+                ],
+                "description": "Permanently delete a subjects by its unique identifier.",
+                "operationId": "delete_subjects",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The subjects was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The subjects requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the subjects because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the subjects."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Subjects": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "subject_name"
+                ],
+                "properties": {
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "subject_name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "InsertSubjects": {
+                "type": "object",
+                "description": "struct of acadimic years to insert to database",
+                "required": [
+                    "subject_name"
+                ],
+                "properties": {
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "subject_name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UpdateSubjects": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "subject_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

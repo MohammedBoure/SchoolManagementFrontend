@@ -1,0 +1,452 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Users API Docs",
+        "description": "Strict API specification for the 'users' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/users": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "description": "Retrieve a list of all user records.",
+                "operationId": "getall_users",
+                "responses": {
+                    "200": {
+                        "description": "The list of user records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Users"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the user records."
+                    }
+                }
+            }
+        },
+        "/crud/users/": {
+            "post": {
+                "tags": [
+                    "users"
+                ],
+                "description": "Create a new user.",
+                "operationId": "add_users",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertUsers"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The user was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the user."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the user."
+                    },
+                    "422": {
+                        "description": "The user payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the user."
+                    }
+                }
+            }
+        },
+        "/crud/users/{id}": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "description": "Retrieve a specific user by its unique identifier.",
+                "operationId": "select_users",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested user was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Users"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A user with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the user."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "users"
+                ],
+                "description": "Update an existing user by its unique identifier.",
+                "operationId": "update_users",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumUpdateUsers"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The user was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The user requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the user."
+                    },
+                    "422": {
+                        "description": "The update payload for the user failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the user."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "users"
+                ],
+                "description": "Permanently delete a user by its unique identifier.",
+                "operationId": "delete_users",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The user was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The user requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the user because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the user."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Users": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "username",
+                    "password",
+                    "full_name",
+                    "role"
+                ],
+                "properties": {
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "full_name_ar": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "full_name_fr": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "is_active": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AxumInsertUsers": {
+                "type": "object",
+                "required": [
+                    "username",
+                    "password",
+                    "full_name",
+                    "role"
+                ],
+                "properties": {
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "full_name_ar": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "full_name_fr": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "is_active": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/Role"
+                    },
+                    "username": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Role": {
+                "type": "string",
+                "enum": [
+                    "Admin",
+                    "Teacher",
+                    "Student",
+                    "Parent",
+                    "Accountant",
+                    "Staff"
+                ]
+            },
+            "AxumUpdateUsers": {
+                "type": "object",
+                "required": [
+                    "created_at"
+                ],
+                "properties": {
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "full_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "full_name_ar": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "full_name_fr": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "is_active": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "password": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "role": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Role"
+                            }
+                        ]
+                    },
+                    "username": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,130 @@
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">💰 رسوم الطلاب والتحصيل</div>
+    <div class="page-subtitle">متابعة الفواتير والمدفوعات والديون المتأخرة</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('fees-table','fees.csv')">
+      <i class="fas fa-file-excel"></i> تصدير Excel
+    </button>
+    <button class="btn btn-ghost btn-sm">
+      <i class="fas fa-file-pdf"></i> تصدير PDF
+    </button>
+    <button class="btn btn-accent btn-sm" onclick="openModal('modal-payment')">
+      <i class="fas fa-hand-holding-usd"></i> تحصيل دفعة
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card green fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-wallet"></i></div>
+    </div>
+    <div class="kpi-value">148,000 دج</div>
+    <div class="kpi-label">إجمالي الإيرادات الشهر</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-exclamation-circle"></i></div>
+    </div>
+    <div class="kpi-value">32,500 دج</div>
+    <div class="kpi-label">الديون المتأخرة</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-clock"></i></div>
+    </div>
+    <div class="kpi-value">12 طالب</div>
+    <div class="kpi-label">لديهم فواتير معلقة</div>
+  </div>
+  <div class="kpi-card blue fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-chart-pie"></i></div>
+    </div>
+    <div class="kpi-value">89%</div>
+    <div class="kpi-label">نسبة التحصيل</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+    <div class="tabs">
+      <button class="tab-btn active">كل الفواتير</button>
+      <button class="tab-btn">متأخرة</button>
+      <button class="tab-btn">مدفوعة</button>
+      <button class="tab-btn">جزئية</button>
+    </div>
+    
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث بالاسم أو رقم الفاتورة...">
+      </div>
+      <select class="filter-select">
+        <option>جميع الفصول</option>
+      </select>
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="من تاريخ">
+      <input type="date" class="filter-select" style="color:var(--text-muted)" title="إلى تاريخ">
+      <select class="filter-select">
+        <option>كل طرق الدفع</option>
+        <option>نقداً</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="fees-table">
+      <thead>
+        <tr>
+          <th>رقم الفاتورة</th>
+          <th>الطالب</th>
+          <th>المبلغ الإجمالي</th>
+          <th>المدفوع</th>
+          <th>المتبقي</th>
+          <th>الحالة</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: rgba(229,62,62,0.03);">
+          <td><strong>#INV-2026-001</strong></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-red">خا</div>
+              <div><strong>خالد أحمد</strong></div>
+            </div>
+          </td>
+          <td>15,000 دج</td>
+          <td>5,000 دج</td>
+          <td style="color:var(--brand-danger);font-weight:700">10,000 دج</td>
+          <td><span class="badge badge-danger">متأخرة</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn edit" title="تحصيل دفعة" onclick="openModal('modal-payment')"><i class="fas fa-hand-holding-usd"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💳 معالجة الدفع</div>
+      <button class="modal-close" onclick="closeModal('modal-payment')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">المبلغ المدفوع الآن *</label>
+      <input type="number" class="form-input" placeholder="0.00">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-accent" onclick="showToast('تم التحصيل بنجاح','success');closeModal('modal-payment')">
+        <i class="fas fa-print"></i> تحصيل وإصدار إيصال
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-payment')">إلغاء</button>
+    </div>
+  </div>
+</div>

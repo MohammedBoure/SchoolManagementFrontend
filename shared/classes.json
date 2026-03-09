@@ -1,0 +1,341 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Classes API Docs",
+        "description": "Strict API specification for the 'classes' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/classes": {
+            "get": {
+                "tags": [
+                    "classes"
+                ],
+                "description": "Retrieve a list of all classes records.",
+                "operationId": "getall_classes",
+                "responses": {
+                    "200": {
+                        "description": "The list of classes records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Classes"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the classes records."
+                    }
+                }
+            }
+        },
+        "/crud/classes/": {
+            "post": {
+                "tags": [
+                    "classes"
+                ],
+                "description": "Create a new classes.",
+                "operationId": "add_classes",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertClasses"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The classes was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the classes."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the classes."
+                    },
+                    "422": {
+                        "description": "The classes payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the classes."
+                    }
+                }
+            }
+        },
+        "/crud/classes/{id}": {
+            "get": {
+                "tags": [
+                    "classes"
+                ],
+                "description": "Retrieve a specific classes by its unique identifier.",
+                "operationId": "select_classes",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested classes was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Classes"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A classes with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the classes."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "classes"
+                ],
+                "description": "Update an existing classes by its unique identifier.",
+                "operationId": "update_classes",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumUpdateClasses"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The classes was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The classes requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the classes."
+                    },
+                    "422": {
+                        "description": "The update payload for the classes failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the classes."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "classes"
+                ],
+                "description": "Permanently delete a classes by its unique identifier.",
+                "operationId": "delete_classes",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The classes was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The classes requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the classes because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the classes."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Classes": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "class_name"
+                ],
+                "properties": {
+                    "age_group": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "capacity": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "class_name": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "level": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "AxumInsertClasses": {
+                "type": "object",
+                "required": [
+                    "class_name"
+                ],
+                "properties": {
+                    "age_group": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AgeGroup"
+                            }
+                        ]
+                    },
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "capacity": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "class_name": {
+                        "type": "string"
+                    },
+                    "level": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "AgeGroup": {
+                "type": "string",
+                "enum": [
+                    "Bebe",
+                    "Pitsection",
+                    "MyenSection",
+                    "GandSection",
+                    "SchoolAge"
+                ]
+            },
+            "AxumUpdateClasses": {
+                "type": "object",
+                "properties": {
+                    "age_group": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AgeGroup"
+                            }
+                        ]
+                    },
+                    "branch_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "capacity": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "class_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "level": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,253 @@
+<style>
+  /* Toggle Switch CSS */
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--text-muted); transition: .3s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+  input:checked + .slider { background-color: #48bb78; }
+  input:checked + .slider:before { transform: translateX(16px); }
+  [data-theme="dark"] .slider { background-color: #4a5568; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">👥 إدارة المستخدمين</div>
+    <div class="page-subtitle">إدارة حسابات المستخدمين وصلاحياتهم</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('users-table','users.csv')">
+      <i class="fas fa-file-excel"></i> تصدير
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-user')">
+      <i class="fas fa-user-plus"></i> مستخدم جديد
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-user-tie"></i></div>
+    </div>
+    <div class="kpi-value">3</div>
+    <div class="kpi-label">مديرون</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-chalkboard-teacher"></i></div>
+    </div>
+    <div class="kpi-value">18</div>
+    <div class="kpi-label">معلمون</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-users"></i></div>
+    </div>
+    <div class="kpi-value">145</div>
+    <div class="kpi-label">أولياء أمور</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-user-lock"></i></div>
+    </div>
+    <div class="kpi-value">2</div>
+    <div class="kpi-label">حسابات موقوفة</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header">
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث بالاسم أو البريد الإلكتروني...">
+      </div>
+      <select class="filter-select">
+        <option>جميع الأدوار</option>
+        <option>مدير</option>
+        <option>معلم</option>
+        <option>ولي أمر</option>
+      </select>
+      <select class="filter-select">
+        <option>جميع الحالات</option>
+        <option>نشط</option>
+        <option>موقوف</option>
+      </select>
+      <select class="filter-select">
+        <option>جميع الفروع</option>
+        <option>الفرع الرئيسي</option>
+        <option>فرع الشمال</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="users-table">
+      <thead>
+        <tr>
+          <th>المستخدم</th>
+          <th>الدور</th>
+          <th>الفرع</th>
+          <th>آخر دخول</th>
+          <th>تاريخ التسجيل</th>
+          <th>الحالة (نشط)</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-blue">أد</div>
+              <div><strong>أحمد الدراجي</strong><div style="font-size:10px;color:var(--text-muted)">ahmed.d@school.com</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-info"><i class="fas fa-shield-alt"></i> مدير النظام</span></td>
+          <td>الفرع الرئيسي</td>
+          <td>منذ ساعتين</td>
+          <td>01 سبتمبر 2023</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الحساب', 'info')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="عرض الملف"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="تعديل الصلاحيات"><i class="fas fa-user-cog"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-green">فك</div>
+              <div><strong>فاطمة كمال</strong><div style="font-size:10px;color:var(--text-muted)">fatima.k@school.com</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-success"><i class="fas fa-chalkboard-teacher"></i> معلم</span></td>
+          <td>فرع الشمال</td>
+          <td>أمس</td>
+          <td>15 أغسطس 2024</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الحساب', 'info')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="عرض الملف"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="تعديل الصلاحيات"><i class="fas fa-user-cog"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr style="background: rgba(229,62,62,0.03);">
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar avatar-orange">سم</div>
+              <div><strong>سعيد محمود</strong><div style="font-size:10px;color:var(--text-muted)">saeed.m@gmail.com</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-warning"><i class="fas fa-user-friends"></i> ولي أمر</span></td>
+          <td>الفرع الرئيسي</td>
+          <td>منذ شهرين</td>
+          <td>10 أكتوبر 2025</td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" onchange="showToast('تم تفعيل الحساب', 'success')">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn view" title="عرض الملف"><i class="fas fa-eye"></i></button>
+              <button class="action-btn edit" title="تعديل الصلاحيات"><i class="fas fa-user-cog"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="pagination">
+    <span>عرض 1-3 من أصل 166 مستخدم</span>
+    <div class="pagination-btns">
+      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">...</button>
+      <button class="page-btn">17</button>
+      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-user">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👤 إضافة مستخدم جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-add-user')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الاسم الكامل *</label>
+        <input type="text" class="form-input" placeholder="الاسم الرباعي" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني *</label>
+        <input type="email" class="form-input" placeholder="email@example.com" required>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">رقم الهاتف</label>
+        <input type="tel" class="form-input" placeholder="+213 00 00 00 00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">الفرع *</label>
+        <select class="form-select" required>
+          <option value="main">الفرع الرئيسي</option>
+          <option value="north">فرع الشمال</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">الدور / الصلاحية *</label>
+      <select class="form-select" required>
+        <option value="">-- اختر الدور --</option>
+        <option value="admin">مدير نظام</option>
+        <option value="teacher">معلم</option>
+        <option value="parent">ولي أمر</option>
+      </select>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">كلمة المرور *</label>
+        <input type="password" class="form-input" placeholder="••••••••" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">تأكيد كلمة المرور *</label>
+        <input type="password" class="form-input" placeholder="••••••••" required>
+      </div>
+    </div>
+    <div class="form-hint" style="margin-top:-10px; margin-bottom: 16px;">
+      يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم إنشاء حساب المستخدم بنجاح', 'success');closeModal('modal-add-user')">
+        <i class="fas fa-user-check"></i> إنشاء الحساب
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-user')">إلغاء</button>
+    </div>
+  </div>
+</div>

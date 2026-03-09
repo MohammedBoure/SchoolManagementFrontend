@@ -1,0 +1,241 @@
+<style>
+  /* تنسيقات خاصة بصفحة الدردشة */
+  .chat-container {
+    display: flex;
+    height: calc(100vh - 160px);
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .chat-sidebar {
+    width: 320px;
+    border-left: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface);
+  }
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-base);
+  }
+  .chat-search { padding: 16px; border-bottom: 1px solid var(--border-subtle); }
+  .chat-list { flex: 1; overflow-y: auto; }
+  .chat-card {
+    display: flex; gap: 12px; padding: 16px; border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer; transition: var(--transition);
+  }
+  .chat-card:hover { background: var(--bg-surface-2); }
+  .chat-card.active { background: rgba(26,107,74,0.05); border-right: 3px solid var(--brand-primary); }
+  .chat-card-info { flex: 1; overflow: hidden; }
+  .chat-card-title { font-size: 13px; font-weight: 700; color: var(--text-primary); display: flex; justify-content: space-between; margin-bottom: 4px;}
+  .chat-card-time { font-size: 10px; color: var(--text-muted); font-weight: 400; }
+  .chat-card-desc { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-card-role { font-size: 10px; color: var(--brand-primary); margin-bottom: 2px; }
+  
+  .chat-header {
+    height: 64px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle);
+  }
+  .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  .bubble-wrap { display: flex; flex-direction: column; max-width: 70%; }
+  .bubble-wrap.sent { align-self: flex-start; }
+  .bubble-wrap.received { align-self: flex-end; }
+  .bubble {
+    padding: 12px 16px; border-radius: var(--radius-md); font-size: 13px; line-height: 1.5;
+  }
+  .bubble-wrap.sent .bubble { background: var(--brand-primary); color: #fff; border-radius: 16px 0 16px 16px; }
+  .bubble-wrap.received .bubble { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 0 16px 16px 16px; }
+  .bubble-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+  .bubble-wrap.sent .bubble-time { text-align: left; }
+  .bubble-wrap.received .bubble-time { text-align: right; }
+  
+  .chat-input-area {
+    padding: 16px 20px; background: var(--bg-surface); border-top: 1px solid var(--border-subtle);
+    display: flex; align-items: flex-end; gap: 12px;
+  }
+  .chat-textarea {
+    flex: 1; resize: none; border: 1px solid var(--border-color); border-radius: var(--radius-md);
+    padding: 10px 16px; font-size: 13px; font-family: inherit; outline: none; background: var(--bg-base);
+    min-height: 44px; max-height: 120px;
+  }
+  .chat-textarea:focus { border-color: var(--brand-primary); background: var(--bg-surface); }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid #fff; }
+  .status-dot.online { background: #48bb78; }
+  .status-dot.offline { background: var(--text-muted); }
+  
+  .attachment { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(0,0,0,0.1); border-radius: var(--radius-sm); margin-top: 8px; font-size: 11px; }
+  .bubble-wrap.received .attachment { background: var(--bg-base); border: 1px solid var(--border-color); }
+</style>
+
+<div class="page-header-row fade-in" style="margin-bottom: 16px;">
+  <div class="page-header" style="margin-bottom: 0;">
+    <div class="page-title">💬 صندوق الرسائل</div>
+    <div class="page-subtitle">التواصل الداخلي مع المعلمين وأولياء الأمور</div>
+  </div>
+  <div>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-broadcast-msg')">
+      <i class="fas fa-bullhorn"></i> رسالة جماعية
+    </button>
+  </div>
+</div>
+
+<div class="chat-container fade-in">
+  
+  <div class="chat-sidebar">
+    <div class="chat-search">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث في المحادثات...">
+      </div>
+      <div class="tabs" style="margin-top: 12px; display: flex;">
+        <button class="tab-btn active" style="flex: 1;">فردية</button>
+        <button class="tab-btn" style="flex: 1;">جماعية</button>
+      </div>
+    </div>
+    
+    <div class="chat-list">
+      <div class="chat-card active">
+        <div class="avatar avatar-blue" style="position: relative;">
+          مح
+          <span class="status-dot online" style="position: absolute; bottom: -2px; right: -2px;"></span>
+        </div>
+        <div class="chat-card-info">
+          <div class="chat-card-title">محمد علي <span class="chat-card-time">10:30 ص</span></div>
+          <div class="chat-card-role">ولي أمر الطالب: أحمد</div>
+          <div class="chat-card-desc">السلام عليكم، متى موعد استلام الشهادات؟</div>
+        </div>
+      </div>
+      
+      <div class="chat-card">
+        <div class="avatar avatar-green" style="position: relative;">
+          سع
+          <span class="status-dot offline" style="position: absolute; bottom: -2px; right: -2px;"></span>
+        </div>
+        <div class="chat-card-info">
+          <div class="chat-card-title">سعاد كمال <span class="chat-card-time">أمس</span></div>
+          <div class="chat-card-role">معلمة لغة إنجليزية</div>
+          <div class="chat-card-desc">أرسلت لك تقرير غياب الأسبوع الماضي.</div>
+        </div>
+        <span class="badge" style="background: var(--brand-danger); color: #fff; height: fit-content; padding: 2px 6px;">2</span>
+      </div>
+      
+      <div class="chat-card">
+        <div class="avatar avatar-orange" style="position: relative;">إد</div>
+        <div class="chat-card-info">
+          <div class="chat-card-title">الإدارة المالية <span class="chat-card-time">الإثنين</span></div>
+          <div class="chat-card-role">قسم الداخلي</div>
+          <div class="chat-card-desc">تم تأكيد استلام الدفعات. شكراً.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-main">
+    
+    <div class="chat-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="avatar avatar-blue">مح</div>
+        <div>
+          <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">محمد علي</div>
+          <div style="font-size: 11px; color: var(--text-muted);"><i class="fas fa-circle" style="color: #48bb78; font-size: 8px;"></i> متصل الآن — ولي أمر الطالب أحمد</div>
+        </div>
+      </div>
+      <div>
+        <button class="action-btn" title="معلومات"><i class="fas fa-info-circle"></i></button>
+      </div>
+    </div>
+    
+    <div class="chat-messages" id="chat-box">
+      <div style="text-align: center; margin-bottom: 10px;">
+        <span style="font-size: 10px; background: var(--border-subtle); padding: 4px 10px; border-radius: 12px; color: var(--text-muted);">اليوم</span>
+      </div>
+      
+      <div class="bubble-wrap received">
+        <div class="bubble">
+          السلام عليكم أستاذ، أردت الاستفسار عن موعد استلام شهادات الفصل الثاني للطالب أحمد.
+        </div>
+        <div class="bubble-time">10:28 ص</div>
+      </div>
+      
+      <div class="bubble-wrap sent">
+        <div class="bubble">
+          وعليكم السلام ورحمة الله وبركاته أستاذ محمد.<br>
+          سيتم تسليم الشهادات يوم الخميس القادم بإذن الله في تمام الساعة 10 صباحاً.
+        </div>
+        <div class="bubble-time">10:35 ص</div>
+      </div>
+
+      <div class="bubble-wrap received">
+        <div class="bubble">
+          ممتاز، هل أحتاج لإحضار أي وثائق معي؟ أرفقت لك وصل الدفع الأخير للرسوم.
+          <div class="attachment">
+            <i class="fas fa-file-pdf" style="color:#c53030; font-size: 16px;"></i>
+            <span style="flex:1;">receipt_march.pdf</span>
+            <i class="fas fa-download" style="cursor: pointer;"></i>
+          </div>
+        </div>
+        <div class="bubble-time">10:38 ص</div>
+      </div>
+    </div>
+    
+    <div class="chat-input-area">
+      <button class="action-btn" style="color:var(--text-secondary); width: 44px; height: 44px; background: var(--bg-base);" title="إرفاق ملف">
+        <i class="fas fa-paperclip" style="font-size: 16px;"></i>
+      </button>
+      <textarea class="chat-textarea" placeholder="اكتب رسالتك هنا..."></textarea>
+      <button class="btn btn-primary" style="height: 44px; padding: 0 20px;" onclick="showToast('تم إرسال الرسالة', 'success')">
+        <i class="fas fa-paper-plane"></i> إرسال
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-broadcast-msg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📢 رسالة جماعية</div>
+      <button class="modal-close" onclick="closeModal('modal-broadcast-msg')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الفئة المستهدفة *</label>
+        <select class="form-select" required onchange="document.getElementById('class-select-group').style.display = this.value === 'parents_class' ? 'block' : 'none'">
+          <option value="all_teachers">كل المعلمين</option>
+          <option value="all_parents">كل أولياء الأمور</option>
+          <option value="parents_class">أولياء أمور فصل محدد</option>
+          <option value="all">الجميع</option>
+        </select>
+      </div>
+      <div class="form-group" id="class-select-group" style="display: none;">
+        <label class="form-label">اختر الفصل *</label>
+        <select class="form-select">
+          <option>الفصل الأول</option>
+          <option>الفصل الثاني</option>
+          <option>الفصل الثالث</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">موضوع الرسالة *</label>
+      <input type="text" class="form-input" placeholder="مثال: دعوة لحضور اجتماع أولياء الأمور" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">نص الرسالة *</label>
+      <textarea class="form-textarea" style="min-height: 120px;" placeholder="اكتب تفاصيل الإعلان هنا..." required></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم إرسال الرسالة الجماعية بنجاح', 'success');closeModal('modal-broadcast-msg')">
+        <i class="fas fa-paper-plane"></i> إرسال للجميع
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-broadcast-msg')">إلغاء</button>
+    </div>
+  </div>
+</div>

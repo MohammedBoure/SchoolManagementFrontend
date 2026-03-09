@@ -1,0 +1,265 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Teachers API Docs",
+        "description": "Strict API specification for the 'teachers' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/teachers": {
+            "get": {
+                "tags": [
+                    "teachers"
+                ],
+                "description": "Retrieve a list of all teacher records.",
+                "operationId": "getall_teachers",
+                "responses": {
+                    "200": {
+                        "description": "The list of teacher records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Teachers"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the teacher records."
+                    }
+                }
+            }
+        },
+        "/crud/teachers/": {
+            "post": {
+                "tags": [
+                    "teachers"
+                ],
+                "description": "Create a new teacher.",
+                "operationId": "add_teachers",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InsertTeachers"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The teacher was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the teacher."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the teacher."
+                    },
+                    "422": {
+                        "description": "The teacher payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the teacher."
+                    }
+                }
+            }
+        },
+        "/crud/teachers/{id}": {
+            "get": {
+                "tags": [
+                    "teachers"
+                ],
+                "description": "Retrieve a specific teacher by its unique identifier.",
+                "operationId": "select_teachers",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested teacher was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Teachers"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A teacher with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the teacher."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "teachers"
+                ],
+                "description": "Update an existing teacher by its unique identifier.",
+                "operationId": "update_teachers",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InsertTeachers"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The teacher was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The teacher requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the teacher."
+                    },
+                    "422": {
+                        "description": "The update payload for the teacher failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the teacher."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "teachers"
+                ],
+                "description": "Permanently delete a teacher by its unique identifier.",
+                "operationId": "delete_teachers",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The teacher was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The teacher requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the teacher because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the teacher."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Teachers": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "hire_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "specialty": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "user_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            },
+            "InsertTeachers": {
+                "type": "object",
+                "description": "struct of acadimic years to insert to database",
+                "properties": {
+                    "hire_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "specialty": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "user_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            }
+        }
+    }
+}

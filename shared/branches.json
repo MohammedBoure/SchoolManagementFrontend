@@ -1,0 +1,278 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Branches API Docs",
+        "description": "Strict API specification for the 'branches' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/branches": {
+            "get": {
+                "tags": [
+                    "branches"
+                ],
+                "description": "Retrieve a list of all branch records.",
+                "operationId": "getall_branches",
+                "responses": {
+                    "200": {
+                        "description": "The list of branch records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Branches"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the branch records."
+                    }
+                }
+            }
+        },
+        "/crud/branches/": {
+            "post": {
+                "tags": [
+                    "branches"
+                ],
+                "description": "Create a new branch.",
+                "operationId": "add_branches",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InsertBranches"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The branch was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the branch."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the branch."
+                    },
+                    "422": {
+                        "description": "The branch payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the branch."
+                    }
+                }
+            }
+        },
+        "/crud/branches/{id}": {
+            "get": {
+                "tags": [
+                    "branches"
+                ],
+                "description": "Retrieve a specific branch by its unique identifier.",
+                "operationId": "select_branches",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested branch was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Branches"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A branch with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the branch."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "branches"
+                ],
+                "description": "Update an existing branch by its unique identifier.",
+                "operationId": "update_branches",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBranches"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The branch was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The branch requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the branch."
+                    },
+                    "422": {
+                        "description": "The update payload for the branch failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the branch."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "branches"
+                ],
+                "description": "Permanently delete a branch by its unique identifier.",
+                "operationId": "delete_branches",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The branch was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The branch requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the branch because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the branch."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Branches": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "branch_name",
+                    "branch_type"
+                ],
+                "properties": {
+                    "branch_name": {
+                        "type": "string"
+                    },
+                    "branch_type": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "location": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "InsertBranches": {
+                "type": "object",
+                "description": "struct of acadimic years to insert to database",
+                "required": [
+                    "branch_name",
+                    "branch_type"
+                ],
+                "properties": {
+                    "branch_name": {
+                        "type": "string"
+                    },
+                    "branch_type": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "UpdateBranches": {
+                "type": "object",
+                "properties": {
+                    "branch_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "branch_type": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "location": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

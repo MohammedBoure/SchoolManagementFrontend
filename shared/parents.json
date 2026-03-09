@@ -1,0 +1,239 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Parents API Docs",
+        "description": "Strict API specification for the 'parents' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/parents": {
+            "get": {
+                "tags": [
+                    "parents"
+                ],
+                "description": "Retrieve a list of all parent records.",
+                "operationId": "getall_parents",
+                "responses": {
+                    "200": {
+                        "description": "The list of parent records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Parents"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the parent records."
+                    }
+                }
+            }
+        },
+        "/crud/parents/": {
+            "post": {
+                "tags": [
+                    "parents"
+                ],
+                "description": "Create a new parent.",
+                "operationId": "add_parents",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InsertParents"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The parent was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the parent."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the parent."
+                    },
+                    "422": {
+                        "description": "The parent payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the parent."
+                    }
+                }
+            }
+        },
+        "/crud/parents/{id}": {
+            "get": {
+                "tags": [
+                    "parents"
+                ],
+                "description": "Retrieve a specific parent by its unique identifier.",
+                "operationId": "select_parents",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested parent was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Parents"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A parent with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the parent."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "parents"
+                ],
+                "description": "Update an existing parent by its unique identifier.",
+                "operationId": "update_parents",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InsertParents"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The parent was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The parent requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the parent."
+                    },
+                    "422": {
+                        "description": "The update payload for the parent failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the parent."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "parents"
+                ],
+                "description": "Permanently delete a parent by its unique identifier.",
+                "operationId": "delete_parents",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The parent was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The parent requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the parent because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the parent."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Parents": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "user_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            },
+            "InsertParents": {
+                "type": "object",
+                "description": "struct of acadimic years to insert to database",
+                "properties": {
+                    "user_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            }
+        }
+    }
+}

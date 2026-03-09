@@ -1,0 +1,351 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Attendance API Docs",
+        "description": "Strict API specification for the 'attendance' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/attendance": {
+            "get": {
+                "tags": [
+                    "attendance"
+                ],
+                "description": "Retrieve a list of all attendance records.",
+                "operationId": "getall_attendance",
+                "responses": {
+                    "200": {
+                        "description": "The list of attendance records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Attendance"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the attendance records."
+                    }
+                }
+            }
+        },
+        "/crud/attendance/": {
+            "post": {
+                "tags": [
+                    "attendance"
+                ],
+                "description": "Create a new attendance.",
+                "operationId": "add_attendance",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertAttendance"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The attendance was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the attendance."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the attendance."
+                    },
+                    "422": {
+                        "description": "The attendance payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the attendance."
+                    }
+                }
+            }
+        },
+        "/crud/attendance/{id}": {
+            "get": {
+                "tags": [
+                    "attendance"
+                ],
+                "description": "Retrieve a specific attendance by its unique identifier.",
+                "operationId": "select_attendance",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested attendance was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Attendance"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A attendance with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the attendance."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "attendance"
+                ],
+                "description": "Update an existing attendance by its unique identifier.",
+                "operationId": "update_attendance",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumUpdateAttendance"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The attendance was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The attendance requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the attendance."
+                    },
+                    "422": {
+                        "description": "The update payload for the attendance failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the attendance."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "attendance"
+                ],
+                "description": "Permanently delete a attendance by its unique identifier.",
+                "operationId": "delete_attendance",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The attendance was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The attendance requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the attendance because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the attendance."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Attendance": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "date",
+                    "status"
+                ],
+                "properties": {
+                    "academic_year_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "is_justified": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "justification_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "student_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            },
+            "AxumInsertAttendance": {
+                "type": "object",
+                "required": [
+                    "date",
+                    "status"
+                ],
+                "properties": {
+                    "academic_year_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "is_justified": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "justification_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/Status"
+                    },
+                    "student_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            },
+            "Status": {
+                "type": "string",
+                "enum": [
+                    "Active",
+                    "Inactive"
+                ]
+            },
+            "AxumUpdateAttendance": {
+                "type": "object",
+                "properties": {
+                    "academic_year_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "is_justified": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "justification_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Status"
+                            }
+                        ]
+                    },
+                    "student_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            }
+        }
+    }
+}

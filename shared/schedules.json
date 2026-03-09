@@ -1,0 +1,302 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Schedules API Docs",
+        "description": "Strict API specification for the 'schedules' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/schedules": {
+            "get": {
+                "tags": [
+                    "schedules"
+                ],
+                "description": "Retrieve a list of all schedules records.",
+                "operationId": "getall_schedules",
+                "responses": {
+                    "200": {
+                        "description": "The list of schedules records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Schedules"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the schedules records."
+                    }
+                }
+            }
+        },
+        "/crud/schedules/": {
+            "post": {
+                "tags": [
+                    "schedules"
+                ],
+                "description": "Create a new schedules.",
+                "operationId": "add_schedules",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertSchedules"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The schedules was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the schedules."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the schedules."
+                    },
+                    "422": {
+                        "description": "The schedules payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the schedules."
+                    }
+                }
+            }
+        },
+        "/crud/schedules/{id}": {
+            "get": {
+                "tags": [
+                    "schedules"
+                ],
+                "description": "Retrieve a specific schedules by its unique identifier.",
+                "operationId": "select_schedules",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested schedules was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Schedules"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A schedules with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the schedules."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "schedules"
+                ],
+                "description": "Update an existing schedules by its unique identifier.",
+                "operationId": "update_schedules",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertSchedules"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The schedules was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The schedules requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the schedules."
+                    },
+                    "422": {
+                        "description": "The update payload for the schedules failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the schedules."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "schedules"
+                ],
+                "description": "Permanently delete a schedules by its unique identifier.",
+                "operationId": "delete_schedules",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The schedules was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The schedules requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the schedules because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the schedules."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Schedules": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "assignment_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "day_of_week": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "end_time": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "room_number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "start_time": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "AxumInsertSchedules": {
+                "type": "object",
+                "properties": {
+                    "assignment_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "day_of_week": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/DayOfWeeks"
+                            }
+                        ]
+                    },
+                    "end_time": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "room_number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "start_time": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "DayOfWeeks": {
+                "type": "string",
+                "enum": [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday"
+                ]
+            }
+        }
+    }
+}

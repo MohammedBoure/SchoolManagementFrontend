@@ -1,0 +1,302 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Assessments API Docs",
+        "description": "Strict API specification for the 'assessments' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/assessments": {
+            "get": {
+                "tags": [
+                    "assessments"
+                ],
+                "description": "Retrieve a list of all assessment records.",
+                "operationId": "getall_assessments",
+                "responses": {
+                    "200": {
+                        "description": "The list of assessment records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Assessments"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the assessment records."
+                    }
+                }
+            }
+        },
+        "/crud/assessments/": {
+            "post": {
+                "tags": [
+                    "assessments"
+                ],
+                "description": "Create a new assessment.",
+                "operationId": "add_assessments",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertAssessments"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The assessment was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the assessment."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the assessment."
+                    },
+                    "422": {
+                        "description": "The assessment payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the assessment."
+                    }
+                }
+            }
+        },
+        "/crud/assessments/{id}": {
+            "get": {
+                "tags": [
+                    "assessments"
+                ],
+                "description": "Retrieve a specific assessment by its unique identifier.",
+                "operationId": "select_assessments",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested assessment was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Assessments"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A assessment with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the assessment."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "assessments"
+                ],
+                "description": "Update an existing assessment by its unique identifier.",
+                "operationId": "update_assessments",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertAssessments"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The assessment was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The assessment requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the assessment."
+                    },
+                    "422": {
+                        "description": "The update payload for the assessment failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the assessment."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "assessments"
+                ],
+                "description": "Permanently delete a assessment by its unique identifier.",
+                "operationId": "delete_assessments",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The assessment was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The assessment requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the assessment because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the assessment."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Assessments": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "assignment_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "due_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "max_grade": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "type_": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "AxumInsertAssessments": {
+                "type": "object",
+                "properties": {
+                    "assignment_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "due_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "max_grade": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "type_": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Type"
+                            }
+                        ]
+                    }
+                }
+            },
+            "Type": {
+                "type": "string",
+                "enum": [
+                    "Homework",
+                    "Exam",
+                    "Quiz"
+                ]
+            }
+        }
+    }
+}

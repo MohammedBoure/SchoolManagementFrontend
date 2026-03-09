@@ -1,0 +1,355 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Students API Docs",
+        "description": "Strict API specification for the 'students' table. Use this to generate frontend services, API calls, and UI components.",
+        "version": "0.2.0"
+    },
+    "servers": [
+        {
+            "url": "http://qylad.duckdns.org:2000",
+            "description": "Production Backend Server"
+        }
+    ],
+    "paths": {
+        "/crud/students": {
+            "get": {
+                "tags": [
+                    "students"
+                ],
+                "description": "Retrieve a list of all student records.",
+                "operationId": "getall_students",
+                "responses": {
+                    "200": {
+                        "description": "The list of student records was retrieved successfully. The list may be empty.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Students"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while fetching the student records."
+                    }
+                }
+            }
+        },
+        "/crud/students/": {
+            "post": {
+                "tags": [
+                    "students"
+                ],
+                "description": "Create a new student.",
+                "operationId": "add_students",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertStudents"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "The student was successfully created."
+                    },
+                    "400": {
+                        "description": "Malformed request syntax. failed to parse the JSON payload for the student."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the student."
+                    },
+                    "422": {
+                        "description": "The student payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while creating the student."
+                    }
+                }
+            }
+        },
+        "/crud/students/{id}": {
+            "get": {
+                "tags": [
+                    "students"
+                ],
+                "description": "Retrieve a specific student by its unique identifier.",
+                "operationId": "select_students",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested student was retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Students"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
+                    },
+                    "404": {
+                        "description": "A student with the specified ID was not found in the database."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database or server error occurred while retrieving the student."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "students"
+                ],
+                "description": "Update an existing student by its unique identifier.",
+                "operationId": "update_students",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AxumInsertStudents"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "The student was updated successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                    },
+                    "404": {
+                        "description": "The student requested for update was not found in the database."
+                    },
+                    "409": {
+                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the student."
+                    },
+                    "422": {
+                        "description": "The update payload for the student failed semantic validation."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to update the student."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "students"
+                ],
+                "description": "Permanently delete a student by its unique identifier.",
+                "operationId": "delete_students",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The student was deleted successfully. No content is returned."
+                    },
+                    "400": {
+                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                    },
+                    "404": {
+                        "description": "The student requested for deletion was not found in the database."
+                    },
+                    "409": {
+                        "description": "Cannot delete the student because it is currently referenced by other records (Foreign Key Violation)."
+                    },
+                    "500": {
+                        "description": "An unexpected internal database error occurred while attempting to delete the student."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Students": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "blood_group": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "class_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "date_of_birth": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "medical_info": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "parent_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "policy_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "registration_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "user_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            },
+            "AxumInsertStudents": {
+                "type": "object",
+                "properties": {
+                    "blood_group": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "class_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "date_of_birth": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "medical_info": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "parent_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "policy_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "registration_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "status": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Status"
+                            }
+                        ]
+                    },
+                    "user_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    }
+                }
+            },
+            "Status": {
+                "type": "string",
+                "enum": [
+                    "Active",
+                    "Inactive"
+                ]
+            }
+        }
+    }
+}

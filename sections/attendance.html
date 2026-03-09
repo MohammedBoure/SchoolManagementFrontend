@@ -1,0 +1,268 @@
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">✅ مراقبة الحضور والغياب</div>
+    <div class="page-subtitle">مراجعة غيابات الطلاب وتبرير الغياب</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('attendance-table','attendance.csv')">
+      <i class="fas fa-file-excel"></i> تصدير
+    </button>
+    <button class="btn btn-ghost btn-sm">
+      <i class="fas fa-chart-line"></i> تقرير الحضور
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card green fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-user-check"></i></div>
+    </div>
+    <div class="kpi-value">91%</div>
+    <div class="kpi-label">نسبة الحضور اليوم</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-track">
+      <div class="progress-bar-fill" style="width:91%;background:linear-gradient(90deg,#276749,#48bb78)"></div>
+    </div></div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-user-times"></i></div>
+    </div>
+    <div class="kpi-value">44</div>
+    <div class="kpi-label">إجمالي الغيابات اليوم</div>
+  </div>
+  <div class="kpi-card blue fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-notes-medical"></i></div>
+    </div>
+    <div class="kpi-value">12</div>
+    <div class="kpi-label">غيابات مبررة</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+    </div>
+    <div class="kpi-value">32</div>
+    <div class="kpi-label">غيابات غير مبررة</div>
+  </div>
+</div>
+
+<div class="charts-grid fade-in">
+
+  <div class="card data-table-card" style="margin-bottom: 0;">
+    <div class="card-header">
+      <div class="table-controls" style="width: 100%;">
+        <div class="search-input-wrap" style="flex: 2;">
+          <i class="fas fa-search"></i>
+          <input type="text" class="search-input" placeholder="بحث باسم الطالب أو الرقم...">
+        </div>
+        <select class="filter-select">
+          <option>جميع الفصول</option>
+          <option>الفصل الأول</option>
+          <option>الفصل الثاني</option>
+          <option>الفصل الثالث</option>
+        </select>
+        <select class="filter-select">
+          <option>جميع الحالات</option>
+          <option>حاضر</option>
+          <option>غائب</option>
+          <option>غائب (مبرر)</option>
+        </select>
+        <input type="date" class="filter-select" style="color:var(--text-primary)" value="2026-03-09" title="التاريخ">
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="data-table" id="attendance-table">
+        <thead>
+          <tr>
+            <th>الطالب</th>
+            <th>الفصل</th>
+            <th>المادة</th>
+            <th>المعلم</th>
+            <th>التاريخ</th>
+            <th>الحالة</th>
+            <th>سبب التبرير</th>
+            <th>الإجراء</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: rgba(229,62,62,0.03);">
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="avatar avatar-red">عخ</div>
+                <div><strong>عمر الخالدي</strong><div style="font-size:10px;color:var(--text-muted)">#STU-003</div></div>
+              </div>
+            </td>
+            <td>الفصل الثالث</td>
+            <td>رياضيات</td>
+            <td>محمد علي</td>
+            <td>09 مارس 2026</td>
+            <td><span class="badge badge-danger">غائب</span></td>
+            <td style="color:var(--text-muted)">-</td>
+            <td>
+              <div class="action-btns">
+                <button class="btn btn-ghost btn-sm" style="color:var(--brand-info); font-size:10px; padding: 4px 8px;" onclick="openModal('modal-justify-absence')">
+                  <i class="fas fa-edit"></i> تبرير
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr style="background: rgba(66,153,225,0.03);">
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="avatar avatar-blue">سع</div>
+                <div><strong>سارة العمري</strong><div style="font-size:10px;color:var(--text-muted)">#STU-002</div></div>
+              </div>
+            </td>
+            <td>الفصل الأول</td>
+            <td>لغة عربية</td>
+            <td>أحمد كمال</td>
+            <td>09 مارس 2026</td>
+            <td><span class="badge badge-info">مبرر</span></td>
+            <td style="font-size:11px;">عذر طبي (مرفق تقرير)</td>
+            <td>
+              <span style="color:var(--text-muted); font-size:10px;">-</span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="avatar avatar-green">أم</div>
+                <div><strong>أحمد محمود</strong><div style="font-size:10px;color:var(--text-muted)">#STU-001</div></div>
+              </div>
+            </td>
+            <td>الفصل الثاني</td>
+            <td>علوم طبيعية</td>
+            <td>فاطمة الزهراء</td>
+            <td>09 مارس 2026</td>
+            <td><span class="badge badge-success">حاضر</span></td>
+            <td style="color:var(--text-muted)">-</td>
+            <td>
+              <span style="color:var(--text-muted); font-size:10px;">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="pagination">
+      <span>عرض 1-3 من أصل 487 سجل</span>
+      <div class="pagination-btns">
+        <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-chart-bar" style="color:var(--brand-danger);margin-left:8px"></i>أكثر الطلاب غياباً</div>
+      <div class="card-subtitle">خلال الفصل الدراسي الحالي</div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <table class="data-table" style="font-size: 11px;">
+        <thead>
+          <tr>
+            <th style="padding: 8px 12px;">الطالب</th>
+            <th style="padding: 8px 12px; text-align: center;">الغيابات</th>
+            <th style="padding: 8px 12px; text-align: center;">النسبة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding: 8px 12px;">
+              <div style="font-weight:700;color:var(--text-primary);">زياد طارق</div>
+              <div style="font-size:9px;color:var(--text-muted);">الفصل الثالث</div>
+            </td>
+            <td style="padding: 8px 12px; text-align: center; color:var(--brand-danger); font-weight:700;">18</td>
+            <td style="padding: 8px 12px; text-align: center;">
+               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:65%;background:#fc8181"></div></div></div>
+               <span style="font-size:9px;">65%</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px;">
+              <div style="font-weight:700;color:var(--text-primary);">عمر الخالدي</div>
+              <div style="font-size:9px;color:var(--text-muted);">الفصل الثالث</div>
+            </td>
+            <td style="padding: 8px 12px; text-align: center; color:var(--brand-danger); font-weight:700;">14</td>
+            <td style="padding: 8px 12px; text-align: center;">
+               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:72%;background:#f6c94e"></div></div></div>
+               <span style="font-size:9px;">72%</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px;">
+              <div style="font-weight:700;color:var(--text-primary);">ليلى عبد الرحمن</div>
+              <div style="font-size:9px;color:var(--text-muted);">الفصل الأول</div>
+            </td>
+            <td style="padding: 8px 12px; text-align: center; color:var(--brand-warning); font-weight:700;">11</td>
+            <td style="padding: 8px 12px; text-align: center;">
+               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:78%;background:#f6c94e"></div></div></div>
+               <span style="font-size:9px;">78%</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px;">
+              <div style="font-weight:700;color:var(--text-primary);">كريم حسن</div>
+              <div style="font-size:9px;color:var(--text-muted);">الفصل الثاني</div>
+            </td>
+            <td style="padding: 8px 12px; text-align: center; font-weight:700;">8</td>
+            <td style="padding: 8px 12px; text-align: center;">
+               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:85%;background:#48bb78"></div></div></div>
+               <span style="font-size:9px;">85%</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="text-align: center; padding: 12px; border-top: 1px solid var(--border-subtle);">
+        <button class="btn btn-ghost btn-sm" style="font-size: 10px; width: 100%;">عرض التقرير المفصل</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-justify-absence">
+  <div class="modal" style="max-width: 450px;">
+    <div class="modal-header">
+      <div class="modal-title">📝 تبرير غياب طالب</div>
+      <button class="modal-close" onclick="closeModal('modal-justify-absence')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">اسم الطالب</label>
+      <input type="text" class="form-input" value="عمر الخالدي (#STU-003)" disabled style="opacity: 0.7;">
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">التاريخ</label>
+        <input type="text" class="form-input" value="09 مارس 2026" disabled style="opacity: 0.7;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">المادة</label>
+        <input type="text" class="form-input" value="رياضيات" disabled style="opacity: 0.7;">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">سبب التبرير *</label>
+      <textarea class="form-textarea" placeholder="أدخل سبب التبرير هنا (مثال: عذر طبي، ظرف عائلي...)" required></textarea>
+      <div class="form-hint">سيتم تحديث حالة الطالب من "غائب" إلى "مبرر".</div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تم حفظ التبرير وتحديث حالة الغياب', 'success');closeModal('modal-justify-absence')">
+        <i class="fas fa-save"></i> حفظ التبرير
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-justify-absence')">إلغاء</button>
+    </div>
+  </div>
+</div>
