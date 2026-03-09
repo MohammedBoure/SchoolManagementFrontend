@@ -1,0 +1,379 @@
+<style>
+  /* تنسيقات شريط التقدم المضغوط في الجدول */
+  .inline-progress-wrap { width: 80px; }
+  .inline-progress-text { font-size: 10px; color: var(--text-muted); text-align: left; margin-bottom: 2px; font-weight: 600; }
+  .inline-progress-track { height: 6px; background: var(--bg-surface-2); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-subtle); }
+  .inline-progress-fill { height: 100%; border-radius: 4px; }
+  
+  /* ألوان أنواع الالتزامات */
+  .badge-rent { background: rgba(43,108,176,0.1); color: var(--brand-info); border: 1px solid rgba(43,108,176,0.3); }
+  .badge-tax { background: rgba(229,62,62,0.1); color: var(--brand-danger); border: 1px solid rgba(229,62,62,0.3); }
+  .badge-supplier { background: rgba(221,107,32,0.1); color: var(--brand-warning); border: 1px solid rgba(221,107,32,0.3); }
+  .badge-service { background: rgba(72,187,120,0.1); color: var(--brand-success); border: 1px solid rgba(72,187,120,0.3); }
+  .badge-other { background: var(--bg-surface-2); color: var(--text-secondary); border: 1px solid var(--border-color); }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">📌 الالتزامات الخارجية</div>
+    <div class="page-subtitle">متابعة الالتزامات المالية تجاه الموردين والجهات الخارجية</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('obligations-table','obligations.csv')">
+      <i class="fas fa-file-excel"></i> تصدير
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-obligation')">
+      <i class="fas fa-plus"></i> التزام جديد
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card blue fade-in fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-file-invoice-dollar"></i></div>
+    </div>
+    <div class="kpi-value">285,000 دج</div>
+    <div class="kpi-label">إجمالي الالتزامات (المسجلة)</div>
+  </div>
+  <div class="kpi-card green fade-in fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-hand-holding-usd"></i></div>
+    </div>
+    <div class="kpi-value">142,000 دج</div>
+    <div class="kpi-label">المدفوع</div>
+  </div>
+  <div class="kpi-card red fade-in fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon red"><i class="fas fa-balance-scale-right"></i></div>
+    </div>
+    <div class="kpi-value">143,000 دج</div>
+    <div class="kpi-label">المتبقي (الديون)</div>
+  </div>
+  <div class="kpi-card orange fade-in fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-stopwatch"></i></div>
+    </div>
+    <div class="kpi-value">3</div>
+    <div class="kpi-label">مواعيد استحقاق قريبة (≤ 7 أيام)</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+    <div class="tabs">
+      <button class="tab-btn active">كل الالتزامات</button>
+      <button class="tab-btn">مستحقة قريباً</button>
+      <button class="tab-btn">متأخرة</button>
+      <button class="tab-btn">مسددة</button>
+    </div>
+    
+    <div class="table-controls" style="width: 100%;">
+      <div class="search-input-wrap" style="flex: 2;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث باسم المورد أو الجهة...">
+      </div>
+      <select class="filter-select">
+        <option>كل الأنواع</option>
+        <option>إيجار</option>
+        <option>ضريبة</option>
+        <option>مورد</option>
+        <option>خدمات</option>
+        <option>أخرى</option>
+      </select>
+      <select class="filter-select">
+        <option>حالة السداد</option>
+        <option>غير مسدد</option>
+        <option>سداد جزئي</option>
+        <option>مسدد بالكامل</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="obligations-table">
+      <thead>
+        <tr>
+          <th>المورد / الجهة</th>
+          <th>النوع</th>
+          <th>المبلغ المستحق</th>
+          <th>المدفوع</th>
+          <th>المتبقي</th>
+          <th>نسبة السداد</th>
+          <th>تاريخ الاستحقاق</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: rgba(229,62,62,0.03);">
+          <td><strong>مكتبة الأمل للقرطاسية</strong></td>
+          <td><span class="badge badge-supplier">مورد</span></td>
+          <td>50,000 دج</td>
+          <td>10,000 دج</td>
+          <td style="color:var(--brand-danger);font-weight:800;">40,000 دج</td>
+          <td>
+            <div class="inline-progress-wrap">
+              <div class="inline-progress-text">20%</div>
+              <div class="inline-progress-track"><div class="inline-progress-fill" style="width: 20%; background: var(--brand-danger);"></div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> 2026/03/01</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn edit" title="تسجيل دفعة" onclick="openPayModal('مكتبة الأمل للقرطاسية', '40000')"><i class="fas fa-hand-holding-usd"></i></button>
+              <button class="action-btn view" title="سجل الدفعات" onclick="openModal('modal-obligation-payments')"><i class="fas fa-list"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="تعديل"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>شركة النظافة والصيانة</strong></td>
+          <td><span class="badge badge-service">خدمات</span></td>
+          <td>25,000 دج</td>
+          <td>0 دج</td>
+          <td style="color:var(--brand-danger);font-weight:800;">25,000 دج</td>
+          <td>
+            <div class="inline-progress-wrap">
+              <div class="inline-progress-text">0%</div>
+              <div class="inline-progress-track"><div class="inline-progress-fill" style="width: 0%; background: var(--text-muted);"></div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-warning"><i class="fas fa-clock"></i> 2026/03/12</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn edit" title="تسجيل دفعة" onclick="openPayModal('شركة النظافة والصيانة', '25000')"><i class="fas fa-hand-holding-usd"></i></button>
+              <button class="action-btn view" title="سجل الدفعات" onclick="openModal('modal-obligation-payments')"><i class="fas fa-list"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="تعديل"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>مالك مبنى المدرسة</strong></td>
+          <td><span class="badge badge-rent">إيجار</span></td>
+          <td>150,000 دج</td>
+          <td>75,000 دج</td>
+          <td style="color:var(--brand-danger);font-weight:800;">75,000 دج</td>
+          <td>
+            <div class="inline-progress-wrap">
+              <div class="inline-progress-text">50%</div>
+              <div class="inline-progress-track"><div class="inline-progress-fill" style="width: 50%; background: var(--brand-info);"></div></div>
+            </div>
+          </td>
+          <td>2026/03/25</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn edit" title="تسجيل دفعة" onclick="openPayModal('مالك مبنى المدرسة', '75000')"><i class="fas fa-hand-holding-usd"></i></button>
+              <button class="action-btn view" title="سجل الدفعات" onclick="openModal('modal-obligation-payments')"><i class="fas fa-list"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="تعديل"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+
+        <tr style="opacity: 0.8; background: var(--bg-surface-2);">
+          <td><strong>مصلحة الضرائب</strong></td>
+          <td><span class="badge badge-tax">ضريبة</span></td>
+          <td>60,000 دج</td>
+          <td>60,000 دج</td>
+          <td style="color:var(--text-muted);">-</td>
+          <td>
+            <div class="inline-progress-wrap">
+              <div class="inline-progress-text" style="color: var(--brand-success);">100%</div>
+              <div class="inline-progress-track"><div class="inline-progress-fill" style="width: 100%; background: var(--brand-success);"></div></div>
+            </div>
+          </td>
+          <td>2026/02/28</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn" style="color:var(--text-muted); opacity:0.5; cursor:not-allowed;" title="مسدد بالكامل"><i class="fas fa-check-circle"></i></button>
+              <button class="action-btn view" title="سجل الدفعات" onclick="openModal('modal-obligation-payments')"><i class="fas fa-list"></i></button>
+              <button class="action-btn" style="color:var(--text-muted)" title="تعديل"><i class="fas fa-pen"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-obligation">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
+      <div class="modal-title">📌 إضافة التزام مالي جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-add-obligation')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">اسم المورد / الجهة *</label>
+        <input type="text" class="form-input" placeholder="مثال: شركة الكهرباء والغاز" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">نوع الالتزام *</label>
+        <select class="form-select" required>
+          <option value="">-- اختر النوع --</option>
+          <option>إيجار</option>
+          <option>ضريبة</option>
+          <option>مورد (بضائع)</option>
+          <option>خدمات (صيانة، نظافة)</option>
+          <option>أخرى</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">المبلغ الإجمالي المستحق (دج) *</label>
+        <input type="number" class="form-input" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">تاريخ الاستحقاق (أقصى أجل) *</label>
+        <input type="date" class="form-input" required>
+      </div>
+    </div>
+
+    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(43,108,176,0.05); border-radius: var(--radius-md); border: 1px dashed rgba(43,108,176,0.3);">
+      <input type="checkbox" id="is_recurring_ob" style="width: 18px; height: 18px; cursor: pointer;">
+      <label for="is_recurring_ob" style="font-size: 13px; font-weight: 600; cursor: pointer; color: var(--brand-info); margin: 0;">
+        هذا الالتزام يتكرر شهرياً (مثال: الإيجار)
+      </label>
+    </div>
+
+    <div class="form-group" style="margin-top: 16px;">
+      <label class="form-label">وصف / ملاحظات</label>
+      <textarea class="form-textarea" placeholder="تفاصيل الفاتورة أو الخدمة المقدمة..." rows="2"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="showToast('تمت إضافة الالتزام بنجاح', 'success');closeModal('modal-add-obligation')">
+        <i class="fas fa-save"></i> إضافة الالتزام
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-obligation')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-pay-obligation">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-header">
+      <div class="modal-title" style="color: var(--brand-success);">💳 تسجيل دفعة مالية</div>
+      <button class="modal-close" onclick="closeModal('modal-pay-obligation')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">الجهة / الالتزام</label>
+      <input type="text" class="form-input" id="pay-supplier-name" disabled style="opacity: 0.8; font-weight: 700;">
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">المبلغ المتبقي الحالي (دج)</label>
+        <input type="text" class="form-input" id="pay-remaining-amount" disabled style="opacity: 0.8; color: var(--brand-danger); font-weight: 700;">
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="color: var(--brand-success);">مبلغ الدفعة (دج) *</label>
+        <input type="number" class="form-input" id="pay-input-amount" placeholder="0" required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">طريقة الدفع *</label>
+        <select class="form-select" required>
+          <option>نقداً (من الصندوق)</option>
+          <option>تحويل بنكي</option>
+          <option>شيك بنكي</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">تاريخ الدفع *</label>
+        <input type="date" class="form-input" id="pay-date" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ملاحظات إضافية (اختياري)</label>
+      <textarea class="form-textarea" placeholder="رقم الشيك، اسم المستلم..." rows="2"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="background: var(--brand-success); border-color: var(--brand-success);" onclick="submitPayment()">
+        <i class="fas fa-check"></i> تأكيد الدفع
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-pay-obligation')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-obligation-payments">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-title">📋 سجل دفعات الالتزام</div>
+      <button class="modal-close" onclick="closeModal('modal-obligation-payments')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <h5 style="margin: 0 0 12px 0; font-size: 13px; color: var(--text-primary);">مكتبة الأمل للقرطاسية (المستحق: 50,000 دج)</h5>
+    
+    <div class="table-wrapper" style="border: 1px solid var(--border-color); max-height: 250px; overflow-y: auto;">
+      <table class="data-table" style="font-size: 12px; text-align: center;">
+        <thead style="background: var(--bg-surface-2); position: sticky; top: 0;">
+          <tr>
+            <th>التاريخ</th>
+            <th>المبلغ المدفوع</th>
+            <th>طريقة الدفع</th>
+            <th>المسجّل</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2026/02/10</td>
+            <td style="font-weight: 700; color: var(--brand-success);">10,000 دج</td>
+            <td><span class="badge badge-gray">نقداً</span></td>
+            <td>أحمد الدراجي</td>
+          </tr>
+          </tbody>
+      </table>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 12px; background: rgba(229,62,62,0.05); border-radius: var(--radius-md);">
+      <span style="font-size: 12px; font-weight: 700; color: var(--brand-danger);">إجمالي المتبقي:</span>
+      <span style="font-size: 16px; font-weight: 800; color: var(--brand-danger);">40,000 دج</span>
+    </div>
+    
+    <div class="modal-footer" style="margin-top: 20px;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-obligation-payments')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // دالة لفتح نافذة "تسجيل دفعة" وتعبئة البيانات تلقائياً
+  function openPayModal(supplierName, remainingAmount) {
+    // تعبئة الحقول
+    document.getElementById('pay-supplier-name').value = supplierName;
+    document.getElementById('pay-remaining-amount').value = parseInt(remainingAmount).toLocaleString('en-US') + ' دج';
+    document.getElementById('pay-input-amount').value = remainingAmount; // افتراضياً الدفع كامل
+    
+    // تعيين تاريخ اليوم
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('pay-date').value = today;
+    
+    // فتح النافذة
+    openModal('modal-pay-obligation');
+  }
+
+  // دالة تأكيد الدفع (محاكاة)
+  function submitPayment() {
+    const inputAmount = document.getElementById('pay-input-amount').value;
+    
+    if(!inputAmount || inputAmount <= 0) {
+      showToast('يرجى إدخال مبلغ صحيح', 'error');
+      return;
+    }
+
+    // محاكاة النجاح
+    showToast(`تم تسجيل دفعة بقيمة ${parseInt(inputAmount).toLocaleString('en-US')} دج بنجاح`, 'success');
+    closeModal('modal-pay-obligation');
+  }
+</script>
