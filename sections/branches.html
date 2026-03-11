@@ -1,21 +1,10 @@
-<style>
-  /* Toggle Switch CSS (في حال لم تكن موجودة في style.css) */
-  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--text-muted); transition: .3s; border-radius: 20px; }
-  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-  input:checked + .slider { background-color: #48bb78; }
-  input:checked + .slider:before { transform: translateX(16px); }
-  [data-theme="dark"] .slider { background-color: #4a5568; }
-</style>
-
 <div class="page-header-row fade-in">
   <div class="page-header">
     <div class="page-title">🏢 إدارة الفروع</div>
-    <div class="page-subtitle">إدارة فروع المدرسة وبياناتها</div>
+    <div class="page-subtitle">إدارة فروع المؤسسة ومواقعها</div>
   </div>
   <div style="display:flex; gap:8px;">
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-branch')">
+    <button class="btn btn-primary btn-sm" onclick="openAddBranchModal()">
       <i class="fas fa-plus"></i> فرع جديد
     </button>
   </div>
@@ -26,29 +15,29 @@
     <div class="kpi-top">
       <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
     </div>
-    <div class="kpi-value">3</div>
+    <div class="kpi-value" id="kpi-total-branches">0</div>
     <div class="kpi-label">إجمالي الفروع</div>
   </div>
   <div class="kpi-card green fade-in fade-in-delay-2">
     <div class="kpi-top">
-      <div class="kpi-icon green"><i class="fas fa-check-circle"></i></div>
+      <div class="kpi-icon green"><i class="fas fa-map-marker-alt"></i></div>
     </div>
-    <div class="kpi-value">2</div>
-    <div class="kpi-label">فروع نشطة</div>
+    <div class="kpi-value" id="kpi-main-branches">0</div>
+    <div class="kpi-label">فروع رئيسية</div>
   </div>
   <div class="kpi-card orange fade-in fade-in-delay-3">
     <div class="kpi-top">
       <div class="kpi-icon orange"><i class="fas fa-user-graduate"></i></div>
     </div>
-    <div class="kpi-value">487</div>
-    <div class="kpi-label">إجمالي الطلاب</div>
+    <div class="kpi-value">-</div>
+    <div class="kpi-label">إجمالي الطلاب (قريباً)</div>
   </div>
   <div class="kpi-card fade-in fade-in-delay-4" style="border-right: 4px solid var(--text-muted)">
     <div class="kpi-top">
       <div class="kpi-icon" style="background:var(--bg-base); color:var(--text-muted)"><i class="fas fa-users"></i></div>
     </div>
-    <div class="kpi-value">34</div>
-    <div class="kpi-label">إجمالي الموظفين</div>
+    <div class="kpi-value">-</div>
+    <div class="kpi-label">إجمالي الموظفين (قريباً)</div>
   </div>
 </div>
 
@@ -57,12 +46,13 @@
     <div class="table-controls" style="width: 100%;">
       <div class="search-input-wrap" style="flex: 2;">
         <i class="fas fa-search"></i>
-        <input type="text" class="search-input" placeholder="بحث باسم الفرع أو الكود...">
+        <input type="text" id="branches-search" class="search-input" placeholder="بحث باسم الفرع أو العنوان..." onkeyup="filterBranches()">
       </div>
-      <select class="filter-select">
-        <option>جميع الحالات</option>
-        <option>نشط</option>
-        <option>موقوف</option>
+      <select id="branches-filter-type" class="filter-select" onchange="filterBranches()">
+        <option value="">جميع الأنواع</option>
+        <option value="رئيسي">رئيسي</option>
+        <option value="فرعي">فرعي</option>
+        <option value="إداري">إداري</option>
       </select>
     </div>
   </div>
@@ -71,210 +61,270 @@
     <table class="data-table" id="branches-table">
       <thead>
         <tr>
-          <th>الفرع</th>
-          <th>العنوان</th>
-          <th>الهاتف</th>
-          <th>المدير</th>
-          <th style="text-align: center;">الطلاب</th>
-          <th style="text-align: center;">الموظفين</th>
-          <th>الحالة</th>
-          <th>الإجراءات</th>
+          <th># الكود</th>
+          <th>اسم الفرع</th>
+          <th>نوع الفرع</th>
+          <th>الموقع / العنوان</th>
+          <th style="text-align: center;">الإجراءات</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-blue">رئ</div>
-              <div><strong>الفرع الرئيسي</strong><div style="font-size:10px;color:var(--text-muted)">#BR-001</div></div>
-            </div>
-          </td>
-          <td>حي الزهور، شارع 15، عمارة ب</td>
-          <td><span dir="ltr">+213 555 123 456</span></td>
-          <td>أحمد الدراجي</td>
-          <td style="text-align: center; font-weight: 700; color: var(--brand-primary);">350</td>
-          <td style="text-align: center; font-weight: 700;">24</td>
-          <td>
-            <label class="switch">
-              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الفرع', 'info')">
-              <span class="slider"></span>
-            </label>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="إحصائيات الفرع"><i class="fas fa-chart-line"></i></button>
-              <button class="action-btn edit" title="تعديل بيانات الفرع" onclick="openModal('modal-edit-branch')"><i class="fas fa-pen"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-green">شم</div>
-              <div><strong>فرع الشمال</strong><div style="font-size:10px;color:var(--text-muted)">#BR-002</div></div>
-            </div>
-          </td>
-          <td>حي النور، المجمع التجاري الأول</td>
-          <td><span dir="ltr">+213 555 987 654</span></td>
-          <td>فاطمة كمال</td>
-          <td style="text-align: center; font-weight: 700; color: var(--brand-primary);">137</td>
-          <td style="text-align: center; font-weight: 700;">10</td>
-          <td>
-            <label class="switch">
-              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الفرع', 'info')">
-              <span class="slider"></span>
-            </label>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="إحصائيات الفرع"><i class="fas fa-chart-line"></i></button>
-              <button class="action-btn edit" title="تعديل بيانات الفرع" onclick="openModal('modal-edit-branch')"><i class="fas fa-pen"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr style="background: rgba(229,62,62,0.03);">
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-orange">جن</div>
-              <div><strong>فرع الجنوب (قيد التجهيز)</strong><div style="font-size:10px;color:var(--text-muted)">#BR-003</div></div>
-            </div>
-          </td>
-          <td>المنطقة الصناعية الجديدة</td>
-          <td><span style="color:var(--text-muted)">-</span></td>
-          <td><span style="color:var(--text-muted)">غير محدد</span></td>
-          <td style="text-align: center; font-weight: 700; color: var(--text-muted);">0</td>
-          <td style="text-align: center; font-weight: 700; color: var(--text-muted);">0</td>
-          <td>
-            <label class="switch">
-              <input type="checkbox" onchange="showToast('تم تفعيل الفرع بنجاح', 'success')">
-              <span class="slider"></span>
-            </label>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="إحصائيات الفرع"><i class="fas fa-chart-line"></i></button>
-              <button class="action-btn edit" title="تعديل بيانات الفرع" onclick="openModal('modal-edit-branch')"><i class="fas fa-pen"></i></button>
-            </div>
-          </td>
-        </tr>
+      <tbody id="branches-tbody">
+        <tr><td colspan="5" style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب الفروع...</td></tr>
       </tbody>
     </table>
   </div>
-  </div>
+</div>
 
+<!-- ================= Modal: إضافة فرع ================= -->
 <div class="modal-overlay" id="modal-add-branch">
-  <div class="modal" style="max-width: 550px;">
+  <div class="modal" style="max-width: 500px;">
     <div class="modal-header">
       <div class="modal-title">🏢 إضافة فرع جديد</div>
       <button class="modal-close" onclick="closeModal('modal-add-branch')"><i class="fas fa-times"></i></button>
     </div>
     
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">اسم الفرع *</label>
-        <input type="text" class="form-input" placeholder="مثال: الفرع الرئيسي" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">كود الفرع *</label>
-        <input type="text" class="form-input" placeholder="مثال: BR-001" required>
-      </div>
+    <div class="form-group">
+      <label class="form-label">اسم الفرع *</label>
+      <input type="text" id="nb-name" class="form-input" placeholder="مثال: فرع الشمال" required>
     </div>
     
     <div class="form-group">
-      <label class="form-label">العنوان *</label>
-      <textarea class="form-textarea" placeholder="العنوان الكامل للفرع..." rows="2" required></textarea>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">رقم الهاتف *</label>
-        <input type="tel" class="form-input" placeholder="+213 00 00 00 00" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">البريد الإلكتروني</label>
-        <input type="email" class="form-input" placeholder="branch@school.com">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">المدير المسؤول *</label>
-      <select class="form-select" required>
-        <option value="">-- اختر مستخدماً --</option>
-        <option>أحمد الدراجي</option>
-        <option>فاطمة كمال</option>
-        <option>مدير آخر...</option>
+      <label class="form-label">نوع الفرع *</label>
+      <select id="nb-type" class="form-select" required>
+        <option value="">-- اختر النوع --</option>
+        <option value="رئيسي">فرع رئيسي</option>
+        <option value="فرعي">فرع تعليمي فرعي</option>
+        <option value="إداري">مبنى إداري فقط</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label class="form-label">ملاحظات</label>
-      <textarea class="form-textarea" placeholder="أي تفاصيل إضافية..."></textarea>
+      <label class="form-label">الموقع / العنوان</label>
+      <textarea id="nb-location" class="form-textarea" placeholder="العنوان الكامل للفرع..." rows="3"></textarea>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم إنشاء الفرع بنجاح', 'success');closeModal('modal-add-branch')">
-        <i class="fas fa-save"></i> إنشاء الفرع
+      <button class="btn btn-primary" onclick="submitNewBranch()">
+        <i class="fas fa-save"></i> حفظ الفرع
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-add-branch')">إلغاء</button>
     </div>
   </div>
 </div>
 
+<!-- ================= Modal: تعديل فرع ================= -->
 <div class="modal-overlay" id="modal-edit-branch">
-  <div class="modal" style="max-width: 550px;">
+  <div class="modal" style="max-width: 500px;">
     <div class="modal-header">
       <div class="modal-title">✏️ تعديل بيانات الفرع</div>
       <button class="modal-close" onclick="closeModal('modal-edit-branch')"><i class="fas fa-times"></i></button>
     </div>
     
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">اسم الفرع *</label>
-        <input type="text" class="form-input" value="فرع الشمال" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">كود الفرع *</label>
-        <input type="text" class="form-input" value="BR-002" disabled style="opacity:0.7;">
-      </div>
+    <input type="hidden" id="eb-id">
+
+    <div class="form-group">
+      <label class="form-label">اسم الفرع *</label>
+      <input type="text" id="eb-name" class="form-input" required>
     </div>
     
     <div class="form-group">
-      <label class="form-label">العنوان *</label>
-      <textarea class="form-textarea" rows="2" required>حي النور، المجمع التجاري الأول</textarea>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">رقم الهاتف *</label>
-        <input type="tel" class="form-input" value="+213 555 987 654" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">البريد الإلكتروني</label>
-        <input type="email" class="form-input" value="north@school.com">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">المدير المسؤول *</label>
-      <select class="form-select" required>
-        <option value="">-- اختر مستخدماً --</option>
-        <option>أحمد الدراجي</option>
-        <option selected>فاطمة كمال</option>
+      <label class="form-label">نوع الفرع *</label>
+      <select id="eb-type" class="form-select" required>
+        <option value="رئيسي">فرع رئيسي</option>
+        <option value="فرعي">فرع تعليمي فرعي</option>
+        <option value="إداري">مبنى إداري فقط</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label class="form-label">ملاحظات</label>
-      <textarea class="form-textarea"></textarea>
+      <label class="form-label">الموقع / العنوان</label>
+      <textarea id="eb-location" class="form-textarea" rows="3"></textarea>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم حفظ التعديلات بنجاح', 'success');closeModal('modal-edit-branch')">
-        <i class="fas fa-save"></i> حفظ التعديلات
+      <button class="btn btn-primary" onclick="submitEditBranch()">
+        <i class="fas fa-save"></i> تحديث البيانات
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-edit-branch')">إلغاء</button>
     </div>
   </div>
 </div>
+
+<script>
+  let branchesData = [];
+
+  async function initBranchesSection() {
+      if (typeof AppConfig === 'undefined') return;
+
+      try {
+          const res = await AppConfig.get('branches');
+          branchesData = Array.isArray(res) ? res.reverse() : [];
+          
+          calculateKPIs();
+          renderBranchesTable(branchesData);
+
+      } catch (error) {
+          console.error("Error loading branches:", error);
+          document.getElementById('branches-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:red;">حدث خطأ أثناء الاتصال بالخادم</td></tr>';
+      }
+  }
+
+  function calculateKPIs() {
+      document.getElementById('kpi-total-branches').innerText = branchesData.length;
+      const mainBranches = branchesData.filter(b => b.branch_type === 'رئيسي').length;
+      document.getElementById('kpi-main-branches').innerText = mainBranches;
+  }
+
+  function renderBranchesTable(data) {
+      const tbody = document.getElementById('branches-tbody');
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد فروع مسجلة.</td></tr>';
+          return;
+      }
+
+      data.forEach(branch => {
+          let typeColor = 'badge-gray';
+          if (branch.branch_type === 'رئيسي') typeColor = 'badge-info';
+          if (branch.branch_type === 'فرعي') typeColor = 'badge-success';
+
+          const initials = getInitials(branch.branch_name);
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+              <td><span style="font-family: monospace; color: var(--text-muted); font-weight: 700;">BR-${String(branch.id).padStart(3, '0')}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="avatar avatar-blue">${initials}</div>
+                  <div><strong>${branch.branch_name}</strong></div>
+                </div>
+              </td>
+              <td><span class="badge ${typeColor}">${branch.branch_type}</span></td>
+              <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${branch.location || ''}">
+                  <i class="fas fa-map-marker-alt" style="color:var(--text-muted); margin-left:4px;"></i> ${branch.location || '-'}
+              </td>
+              <td style="text-align: center;">
+                <div class="action-btns" style="justify-content: center;">
+                  <button class="action-btn edit" title="تعديل" onclick="openEditBranchModal(${branch.id})"><i class="fas fa-pen"></i></button>
+                  <button class="action-btn delete" title="حذف" onclick="deleteBranch(${branch.id}, '${branch.branch_name}')"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+          `;
+          tbody.appendChild(tr);
+      });
+  }
+
+  function filterBranches() {
+      const query = document.getElementById('branches-search').value.toLowerCase();
+      const typeFilter = document.getElementById('branches-filter-type').value;
+
+      const filtered = branchesData.filter(b => {
+          const matchName = b.branch_name.toLowerCase().includes(query) || (b.location && b.location.toLowerCase().includes(query));
+          const matchType = typeFilter === "" || b.branch_type === typeFilter;
+          return matchName && matchType;
+      });
+
+      renderBranchesTable(filtered);
+  }
+
+  // ================= الإضافة (POST) =================
+  function openAddBranchModal() {
+      document.getElementById('nb-name').value = '';
+      document.getElementById('nb-type').value = '';
+      document.getElementById('nb-location').value = '';
+      openModal('modal-add-branch');
+  }
+
+  async function submitNewBranch() {
+      const name = document.getElementById('nb-name').value.trim();
+      const type = document.getElementById('nb-type').value;
+      const location = document.getElementById('nb-location').value.trim();
+
+      if (!name || !type) {
+          alert("الرجاء إدخال اسم ونوع الفرع.");
+          return;
+      }
+
+      const payload = {
+          branch_name: name,
+          branch_type: type,
+          location: location || null
+      };
+
+      const res = await AppConfig.post('branches/', payload);
+
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم إنشاء الفرع بنجاح', 'success');
+          closeModal('modal-add-branch');
+          initBranchesSection(); 
+      } else {
+          alert("❌ حدث خطأ أثناء إضافة الفرع.");
+      }
+  }
+
+  // ================= التعديل (PUT) =================
+  function openEditBranchModal(id) {
+      const branch = branchesData.find(b => b.id === id);
+      if (!branch) return;
+
+      document.getElementById('eb-id').value = branch.id;
+      document.getElementById('eb-name').value = branch.branch_name;
+      document.getElementById('eb-type').value = branch.branch_type;
+      document.getElementById('eb-location').value = branch.location || '';
+
+      openModal('modal-edit-branch');
+  }
+
+  async function submitEditBranch() {
+      const id = document.getElementById('eb-id').value;
+      const name = document.getElementById('eb-name').value.trim();
+      const type = document.getElementById('eb-type').value;
+      const location = document.getElementById('eb-location').value.trim();
+
+      if (!name || !type) {
+          alert("الرجاء إدخال اسم ونوع الفرع.");
+          return;
+      }
+
+      const payload = {
+          branch_name: name,
+          branch_type: type,
+          location: location || null
+      };
+
+      const res = await AppConfig.put('branches', id, payload);
+
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم تحديث بيانات الفرع بنجاح', 'success');
+          closeModal('modal-edit-branch');
+          initBranchesSection(); 
+      } else {
+          alert("❌ حدث خطأ أثناء التحديث.");
+      }
+  }
+
+  // ================= الحذف (DELETE) =================
+  async function deleteBranch(id, name) {
+      if (!confirm(`هل أنت متأكد من حذف فرع "${name}" نهائياً؟\nملاحظة: تأكد من عدم وجود بيانات مرتبطة بهذا الفرع.`)) return;
+
+      const res = await AppConfig.delete('branches', id);
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم الحذف بنجاح', 'success');
+          initBranchesSection();
+      } else {
+          alert("تعذر الحذف. الفرع مرتبط بسجلات أخرى في النظام.");
+      }
+  }
+
+  // دالة مساعدة للحصول على الأحرف الأولى للاسم (للأيقونة)
+  function getInitials(name) {
+      if (!name) return 'ف';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name.substring(0, 2).toUpperCase();
+  }
+
+  // تشغيل التهيئة فوراً
+  setTimeout(initBranchesSection, 100);
+</script>

@@ -7,7 +7,7 @@
     <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('enrollments-table','enrollments.csv')">
       <i class="fas fa-file-excel"></i> تصدير
     </button>
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-enrollment')">
+    <button class="btn btn-primary btn-sm" onclick="openNewEnrollmentModal()">
       <i class="fas fa-plus"></i> طلب تسجيل جديد
     </button>
   </div>
@@ -18,49 +18,47 @@
     <div class="kpi-top">
       <div class="kpi-icon orange"><i class="fas fa-hourglass-half"></i></div>
     </div>
-    <div class="kpi-value">7</div>
+    <div class="kpi-value" id="kpi-pending">0</div>
     <div class="kpi-label">طلبات معلقة</div>
   </div>
   <div class="kpi-card green fade-in fade-in-delay-2">
     <div class="kpi-top">
       <div class="kpi-icon green"><i class="fas fa-check-double"></i></div>
     </div>
-    <div class="kpi-value">23</div>
-    <div class="kpi-label">مقبولة هذا الشهر</div>
+    <div class="kpi-value" id="kpi-approved">0</div>
+    <div class="kpi-label">مقبولة</div>
   </div>
   <div class="kpi-card red fade-in fade-in-delay-3">
     <div class="kpi-top">
       <div class="kpi-icon red"><i class="fas fa-times-circle"></i></div>
     </div>
-    <div class="kpi-value">3</div>
-    <div class="kpi-label">مرفوضة هذا الشهر</div>
+    <div class="kpi-value" id="kpi-rejected">0</div>
+    <div class="kpi-label">مرفوضة</div>
   </div>
   <div class="kpi-card blue fade-in fade-in-delay-4">
     <div class="kpi-top">
-      <div class="kpi-icon blue"><i class="fas fa-exclamation-circle"></i></div>
+      <div class="kpi-icon blue"><i class="fas fa-list-ul"></i></div>
     </div>
-    <div class="kpi-value">2</div>
-    <div class="kpi-label">فصول ممتلئة</div>
+    <div class="kpi-value" id="kpi-total">0</div>
+    <div class="kpi-label">إجمالي الطلبات</div>
   </div>
 </div>
 
 <div class="card data-table-card fade-in">
   <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
-    <div class="tabs">
-      <button class="tab-btn active">معلقة</button>
-      <button class="tab-btn">مقبولة</button>
-      <button class="tab-btn">مرفوضة</button>
-      <button class="tab-btn">كل الطلبات</button>
+    <div class="tabs" id="enrollment-tabs">
+      <button class="tab-btn active" onclick="setTabFilter('Pending', this)">معلقة</button>
+      <button class="tab-btn" onclick="setTabFilter('Approved', this)">مقبولة</button>
+      <button class="tab-btn" onclick="setTabFilter('Rejected', this)">مرفوضة</button>
+      <button class="tab-btn" onclick="setTabFilter('All', this)">كل الطلبات</button>
     </div>
     <div class="table-controls" style="width: 100%;">
       <div class="search-input-wrap" style="flex: 1;">
         <i class="fas fa-search"></i>
-        <input type="text" class="search-input" placeholder="بحث باسم الطالب أو ولي الأمر...">
+        <input type="text" id="enrollments-search" class="search-input" placeholder="بحث باسم الطالب أو ولي الأمر..." onkeyup="filterEnrollmentsTable()">
       </div>
-      <select class="filter-select">
-        <option>جميع الفصول المطلوبة</option>
-        <option>الفصل الأول</option>
-        <option>الفصل الثاني</option>
+      <select id="enrollments-filter-program" class="filter-select" onchange="filterEnrollmentsTable()">
+        <option value="">جميع الفصول / البرامج</option>
       </select>
     </div>
   </div>
@@ -70,80 +68,21 @@
       <thead>
         <tr>
           <th>الطالب</th>
-          <th>الفصل المطلوب</th>
-          <th>المقاعد المتاحة</th>
+          <th>الفصل / البرنامج</th>
           <th>ولي الأمر</th>
           <th>تاريخ الطلب</th>
           <th>الحالة</th>
           <th>الإجراءات</th>
         </tr>
       </thead>
-      <tbody>
-        <tr style="background: rgba(240,165,0,0.03);">
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-blue">يز</div>
-              <div><strong>ياسر زايد</strong><div style="font-size:10px;color:var(--text-muted)">ذكر - مواليد 2018</div></div>
-            </div>
-          </td>
-          <td>الفصل الثاني</td>
-          <td><span class="badge badge-success">5 مقاعد</span></td>
-          <td>محمود زايد</td>
-          <td>08 مارس 2026</td>
-          <td><span class="badge badge-warning">معلق</span></td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="قبول الطلب" onclick="showToast('تم قبول الطالب بنجاح', 'success')"><i class="fas fa-check"></i></button>
-              <button class="action-btn delete" title="رفض الطلب" onclick="openModal('modal-reject-enrollment')"><i class="fas fa-times"></i></button>
-              <button class="action-btn" style="color:var(--text-muted)" title="عرض التفاصيل"><i class="fas fa-eye"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr style="background: rgba(240,165,0,0.03);">
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-orange">لم</div>
-              <div><strong>ليان محمود</strong><div style="font-size:10px;color:var(--text-muted)">أنثى - مواليد 2017</div></div>
-            </div>
-          </td>
-          <td>الفصل الثالث</td>
-          <td><span class="badge badge-danger">ممتلئ (0)</span></td>
-          <td>محمود علي</td>
-          <td>07 مارس 2026</td>
-          <td><span class="badge badge-warning">معلق</span></td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="إضافة لقائمة الانتظار" onclick="showToast('تمت الإضافة لقائمة الانتظار', 'info')"><i class="fas fa-list-ol"></i></button>
-              <button class="action-btn delete" title="رفض الطلب" onclick="openModal('modal-reject-enrollment')"><i class="fas fa-times"></i></button>
-              <button class="action-btn" style="color:var(--text-muted)" title="عرض التفاصيل"><i class="fas fa-eye"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-green">أم</div>
-              <div><strong>أحمد مصطفى</strong><div style="font-size:10px;color:var(--text-muted)">ذكر - مواليد 2019</div></div>
-            </div>
-          </td>
-          <td>الفصل الأول</td>
-          <td><span class="badge badge-gray">-</span></td>
-          <td>مصطفى كمال</td>
-          <td>05 مارس 2026</td>
-          <td><span class="badge badge-success">مقبول</span></td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn" style="color:var(--text-muted)" title="عرض التفاصيل"><i class="fas fa-eye"></i></button>
-            </div>
-          </td>
-        </tr>
+      <tbody id="enrollments-tbody">
+        <tr><td colspan="6" style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب البيانات من الخادم...</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
+<!-- Modal: New Enrollment -->
 <div class="modal-overlay" id="modal-new-enrollment">
   <div class="modal">
     <div class="modal-header">
@@ -152,28 +91,28 @@
     </div>
     
     <div class="form-group">
-      <label class="form-label">اسم الطالب *</label>
-      <input type="text" class="form-input" placeholder="الاسم الكامل للطالب" required>
+      <label class="form-label">الطالب *</label>
+      <select id="ne-student-id" class="form-select" required>
+        <option value="">-- اختر الطالب --</option>
+      </select>
+      <div class="form-hint">إذا لم تجد الطالب، يجب إضافته في قسم "الطلاب" أولاً</div>
     </div>
     
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">الفصل المطلوب *</label>
-        <select class="form-select" required>
-          <option value="">-- اختر الفصل --</option>
-          <option>الفصل الأول (متاح 12 مقعد)</option>
-          <option>الفصل الثاني (متاح 5 مقاعد)</option>
-          <option disabled>الفصل الثالث (ممتلئ)</option>
+        <label class="form-label">البرنامج المطلوب *</label>
+        <select id="ne-program-id" class="form-select" required>
+          <option value="">-- اختر البرنامج --</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">تاريخ التسجيل المقترح</label>
-        <input type="date" class="form-input">
+        <label class="form-label">تاريخ التسجيل</label>
+        <input type="date" id="ne-date" class="form-input" required>
       </div>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم تقديم الطلب بنجاح', 'success');closeModal('modal-new-enrollment')">
+      <button class="btn btn-primary" onclick="submitNewEnrollment()">
         <i class="fas fa-paper-plane"></i> تقديم الطلب
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-new-enrollment')">إلغاء</button>
@@ -181,6 +120,7 @@
   </div>
 </div>
 
+<!-- Modal: Reject Enrollment -->
 <div class="modal-overlay" id="modal-reject-enrollment">
   <div class="modal" style="max-width: 400px;">
     <div class="modal-header">
@@ -188,16 +128,308 @@
       <button class="modal-close" onclick="closeModal('modal-reject-enrollment')"><i class="fas fa-times"></i></button>
     </div>
     
+    <input type="hidden" id="rej-id">
+    
     <div class="form-group">
       <label class="form-label">سبب الرفض *</label>
-      <textarea class="form-textarea" placeholder="يرجى كتابة سبب الرفض (سيظهر لولي الأمر)..." required></textarea>
+      <textarea id="rej-notes" class="form-textarea" placeholder="يرجى كتابة سبب الرفض (سيتم حفظه في الملاحظات)..." required></textarea>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-danger" onclick="showToast('تم رفض الطلب', 'error');closeModal('modal-reject-enrollment')">
+      <button class="btn btn-danger" onclick="confirmRejectEnrollment()">
         تأكيد الرفض
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-reject-enrollment')">تراجع</button>
     </div>
   </div>
 </div>
+
+<script>
+  let enrollData = {
+      enrollments: [],
+      students: {}, 
+      users: {},
+      parents: {},
+      programs: {}, 
+      currentTab: 'Pending'
+  };
+
+  async function initEnrollmentsSection() {
+      if (typeof AppConfig === 'undefined') return;
+
+      try {
+          // جلب جميع البيانات المرتبطة في نفس الوقت لتقليل وقت التحميل
+          const [enrollmentsRes, studentsRes, usersRes, parentsRes, programsRes] = await Promise.all([
+              AppConfig.get('student_enrollments'),
+              AppConfig.get('students').catch(() => []),
+              AppConfig.get('users').catch(() => []),
+              AppConfig.get('parents').catch(() => []),
+              AppConfig.get('programs').catch(() => [])
+          ]);
+
+          enrollData.enrollments = Array.isArray(enrollmentsRes) ? enrollmentsRes : [];
+          
+          // تحويل المصفوفات إلى كائنات (Dictionaries) لسهولة البحث بواسطة ID
+          if(Array.isArray(usersRes)) enrollData.users = usersRes.reduce((acc, u) => ({...acc, [u.id]: u}), {});
+          if(Array.isArray(studentsRes)) enrollData.students = studentsRes.reduce((acc, s) => ({...acc, [s.id]: s}), {});
+          if(Array.isArray(parentsRes)) enrollData.parents = parentsRes.reduce((acc, p) => ({...acc, [p.id]: p}), {});
+          if(Array.isArray(programsRes)) enrollData.programs = programsRes.reduce((acc, p) => ({...acc, [p.id]: p}), {});
+
+          populateDropdowns();
+          calculateKPIs();
+          filterEnrollmentsTable();
+
+      } catch (error) {
+          console.error("Error loading enrollments data:", error);
+          document.getElementById('enrollments-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;">حدث خطأ أثناء جلب البيانات</td></tr>';
+      }
+  }
+
+  // دوال مساعدة لاستخراج الأسماء من الجداول المرتبطة
+  function getStudentName(studentId) {
+      const student = enrollData.students[studentId];
+      if (!student || !student.user_id) return `طالب #${studentId}`;
+      const user = enrollData.users[student.user_id];
+      return user ? user.full_name : `طالب #${studentId}`;
+  }
+
+  function getParentName(studentId) {
+      const student = enrollData.students[studentId];
+      if (!student || !student.parent_id) return '-';
+      const parent = enrollData.parents[student.parent_id];
+      if (!parent || !parent.user_id) return `ولي أمر #${student.parent_id}`;
+      const user = enrollData.users[parent.user_id];
+      return user ? user.full_name : `ولي أمر #${student.parent_id}`;
+  }
+
+  function getProgramName(programId) {
+      if (!programId) return '-';
+      const program = enrollData.programs[programId];
+      return program ? (program.program_name || `برنامج #${programId}`) : `برنامج #${programId}`;
+  }
+
+  function calculateKPIs() {
+      let pending = 0, approved = 0, rejected = 0;
+
+      enrollData.enrollments.forEach(e => {
+          const status = (e.status || 'Pending').toLowerCase();
+          if (status === 'pending') pending++;
+          else if (status === 'approved') approved++;
+          else if (status === 'rejected') rejected++;
+      });
+
+      document.getElementById('kpi-pending').innerText = pending;
+      document.getElementById('kpi-approved').innerText = approved;
+      document.getElementById('kpi-rejected').innerText = rejected;
+      document.getElementById('kpi-total').innerText = enrollData.enrollments.length;
+  }
+
+  function setTabFilter(status, btnElement) {
+      document.querySelectorAll('#enrollment-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+      enrollData.currentTab = status;
+      filterEnrollmentsTable();
+  }
+
+  function filterEnrollmentsTable() {
+      const searchVal = document.getElementById('enrollments-search').value.toLowerCase();
+      const programVal = document.getElementById('enrollments-filter-program').value;
+
+      const filtered = enrollData.enrollments.filter(e => {
+          const status = e.status || 'Pending';
+          
+          let matchTab = (enrollData.currentTab === 'All') || (status.toLowerCase() === enrollData.currentTab.toLowerCase());
+          const matchProgram = programVal === "" || String(e.program_id) === programVal;
+
+          const studentName = getStudentName(e.student_id).toLowerCase();
+          const parentName = getParentName(e.student_id).toLowerCase();
+          const matchSearch = studentName.includes(searchVal) || parentName.includes(searchVal);
+
+          return matchTab && matchProgram && matchSearch;
+      });
+
+      renderEnrollmentsTable(filtered);
+  }
+
+  function getStatusBadge(status) {
+      const s = (status || 'Pending').toLowerCase();
+      if (s === 'approved') return '<span class="badge badge-success"><i class="fas fa-check"></i> مقبول</span>';
+      if (s === 'rejected') return '<span class="badge badge-danger"><i class="fas fa-times"></i> مرفوض</span>';
+      return '<span class="badge badge-warning"><i class="fas fa-hourglass-half"></i> معلق</span>';
+  }
+
+  function renderEnrollmentsTable(dataArray) {
+      const tbody = document.getElementById('enrollments-tbody');
+      tbody.innerHTML = '';
+
+      if (dataArray.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد طلبات تسجيل مطابقة</td></tr>';
+          return;
+      }
+
+      dataArray.sort((a, b) => b.id - a.id);
+
+      dataArray.forEach(enroll => {
+          const studentName = getStudentName(enroll.student_id);
+          const parentName = getParentName(enroll.student_id);
+          const programName = getProgramName(enroll.program_id);
+          const date = enroll.enrollment_date ? enroll.enrollment_date.split('T')[0] : '-';
+          const statusLower = (enroll.status || 'pending').toLowerCase();
+
+          const trStyle = statusLower === 'pending' ? 'background: rgba(240,165,0,0.03);' : '';
+          const tr = document.createElement('tr');
+          tr.style = trStyle;
+          
+          let actionBtns = '';
+          if (statusLower === 'pending') {
+              actionBtns += `<button class="action-btn view" title="قبول الطلب" onclick="updateStatus(${enroll.id}, 'Approved')"><i class="fas fa-check"></i></button>`;
+              actionBtns += `<button class="action-btn delete" title="رفض الطلب" onclick="openRejectModal(${enroll.id})"><i class="fas fa-times"></i></button>`;
+          }
+          actionBtns += `<button class="action-btn delete" style="color:var(--brand-danger);" title="حذف السجل" onclick="deleteEnrollment(${enroll.id})"><i class="fas fa-trash"></i></button>`;
+
+          tr.innerHTML = `
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="avatar avatar-blue">${getInitials(studentName)}</div>
+                  <div>
+                    <strong>${studentName}</strong>
+                    ${enroll.notes ? `<div style="font-size:10px;color:var(--brand-danger)">ملاحظة: ${enroll.notes}</div>` : ''}
+                  </div>
+                </div>
+              </td>
+              <td>${programName}</td>
+              <td>${parentName}</td>
+              <td>${date}</td>
+              <td>${getStatusBadge(enroll.status)}</td>
+              <td>
+                <div class="action-btns">${actionBtns}</div>
+              </td>
+          `;
+          tbody.appendChild(tr);
+      });
+  }
+
+  function populateDropdowns() {
+      const filterSelect = document.getElementById('enrollments-filter-program');
+      const addProgramSelect = document.getElementById('ne-program-id');
+      const addStudentSelect = document.getElementById('ne-student-id');
+      
+      Object.values(enrollData.programs).forEach(p => {
+          const opt = `<option value="${p.id}">${p.program_name || 'برنامج ' + p.id}</option>`;
+          filterSelect.innerHTML += opt;
+          addProgramSelect.innerHTML += opt;
+      });
+
+      Object.values(enrollData.students).forEach(s => {
+          const studentName = getStudentName(s.id);
+          const opt = `<option value="${s.id}">${studentName}</option>`;
+          addStudentSelect.innerHTML += opt;
+      });
+  }
+
+  function openNewEnrollmentModal() {
+      document.getElementById('ne-student-id').value = '';
+      document.getElementById('ne-program-id').value = '';
+      document.getElementById('ne-date').value = new Date().toISOString().split('T')[0];
+      openModal('modal-new-enrollment');
+  }
+
+  async function submitNewEnrollment() {
+      const studentId = document.getElementById('ne-student-id').value;
+      const programId = document.getElementById('ne-program-id').value;
+      const date = document.getElementById('ne-date').value;
+
+      if (!studentId || !programId) {
+          alert("الرجاء اختيار الطالب والبرنامج");
+          return;
+      }
+
+      const payload = {
+          student_id: parseInt(studentId),
+          program_id: parseInt(programId),
+          enrollment_date: date || null,
+          status: "Pending",
+          notes: null,
+          academic_year_id: null,
+          group_name: null
+      };
+
+      const res = await AppConfig.post('student_enrollments/', payload);
+
+      if (res && res.success) {
+          if(typeof showToast === 'function') showToast('تم تقديم طلب التسجيل بنجاح', 'success');
+          closeModal('modal-new-enrollment');
+          initEnrollmentsSection(); 
+      } else {
+          alert("❌ حدث خطأ أثناء تقديم الطلب.");
+      }
+  }
+
+  async function updateStatus(id, newStatus, additionalNotes = null) {
+      const enroll = enrollData.enrollments.find(e => e.id === id);
+      if (!enroll) return;
+
+      if (newStatus === 'Approved') {
+          if(!confirm("هل أنت متأكد من قبول تسجيل هذا الطالب؟")) return;
+      }
+
+      const payload = {
+          student_id: enroll.student_id,
+          program_id: enroll.program_id,
+          academic_year_id: enroll.academic_year_id,
+          group_name: enroll.group_name,
+          enrollment_date: enroll.enrollment_date,
+          status: newStatus,
+          notes: additionalNotes !== null ? additionalNotes : enroll.notes
+      };
+
+      const res = await AppConfig.put('student_enrollments', id, payload);
+
+      if (res && res.success) {
+          if(typeof showToast === 'function') showToast(`تم ${newStatus === 'Approved' ? 'قبول' : 'رفض'} الطلب بنجاح`, 'success');
+          initEnrollmentsSection();
+      } else {
+          alert("حدث خطأ أثناء تحديث الحالة.");
+      }
+  }
+
+  function openRejectModal(id) {
+      document.getElementById('rej-id').value = id;
+      document.getElementById('rej-notes').value = '';
+      openModal('modal-reject-enrollment');
+  }
+
+  function confirmRejectEnrollment() {
+      const id = parseInt(document.getElementById('rej-id').value);
+      const notes = document.getElementById('rej-notes').value.trim();
+
+      if (!notes) {
+          alert("الرجاء كتابة سبب الرفض.");
+          return;
+      }
+
+      updateStatus(id, 'Rejected', notes);
+      closeModal('modal-reject-enrollment');
+  }
+
+  async function deleteEnrollment(id) {
+      if(!confirm("هل أنت متأكد من حذف هذا التسجيل نهائياً؟")) return;
+
+      const res = await AppConfig.delete('student_enrollments', id);
+      if(res && res.success) {
+          if(typeof showToast === 'function') showToast('تم الحذف بنجاح', 'success');
+          initEnrollmentsSection();
+      } else {
+          alert("تعذر الحذف.");
+      }
+  }
+
+  function getInitials(name) {
+      if (!name) return '؟؟';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name.substring(0, 2).toUpperCase();
+  }
+
+  setTimeout(initEnrollmentsSection, 100);
+</script>

@@ -1,14 +1,11 @@
 <div class="page-header-row fade-in">
   <div class="page-header">
     <div class="page-title">✅ مراقبة الحضور والغياب</div>
-    <div class="page-subtitle">مراجعة غيابات الطلاب وتبرير الغياب</div>
+    <div class="page-subtitle">مراجعة غيابات الطلاب اليومية وتبرير الغياب</div>
   </div>
   <div style="display:flex; gap:8px;">
     <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('attendance-table','attendance.csv')">
       <i class="fas fa-file-excel"></i> تصدير
-    </button>
-    <button class="btn btn-ghost btn-sm">
-      <i class="fas fa-chart-line"></i> تقرير الحضور
     </button>
   </div>
 </div>
@@ -18,31 +15,33 @@
     <div class="kpi-top">
       <div class="kpi-icon green"><i class="fas fa-user-check"></i></div>
     </div>
-    <div class="kpi-value">91%</div>
-    <div class="kpi-label">نسبة الحضور اليوم</div>
-    <div class="progress-bar-wrap"><div class="progress-bar-track">
-      <div class="progress-bar-fill" style="width:91%;background:linear-gradient(90deg,#276749,#48bb78)"></div>
-    </div></div>
+    <div class="kpi-value" id="kpi-rate">0%</div>
+    <div class="kpi-label">نسبة الحضور (للتاريخ المحدد)</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-track">
+        <div id="kpi-rate-bar" class="progress-bar-fill" style="width:0%;background:linear-gradient(90deg,#276749,#48bb78)"></div>
+      </div>
+    </div>
   </div>
   <div class="kpi-card red fade-in fade-in-delay-2">
     <div class="kpi-top">
       <div class="kpi-icon red"><i class="fas fa-user-times"></i></div>
     </div>
-    <div class="kpi-value">44</div>
-    <div class="kpi-label">إجمالي الغيابات اليوم</div>
+    <div class="kpi-value" id="kpi-absent">0</div>
+    <div class="kpi-label">إجمالي الغيابات</div>
   </div>
   <div class="kpi-card blue fade-in fade-in-delay-3">
     <div class="kpi-top">
       <div class="kpi-icon blue"><i class="fas fa-notes-medical"></i></div>
     </div>
-    <div class="kpi-value">12</div>
+    <div class="kpi-value" id="kpi-justified">0</div>
     <div class="kpi-label">غيابات مبررة</div>
   </div>
   <div class="kpi-card orange fade-in fade-in-delay-4">
     <div class="kpi-top">
       <div class="kpi-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
     </div>
-    <div class="kpi-value">32</div>
+    <div class="kpi-value" id="kpi-unjustified">0</div>
     <div class="kpi-label">غيابات غير مبررة</div>
   </div>
 </div>
@@ -54,21 +53,19 @@
       <div class="table-controls" style="width: 100%;">
         <div class="search-input-wrap" style="flex: 2;">
           <i class="fas fa-search"></i>
-          <input type="text" class="search-input" placeholder="بحث باسم الطالب أو الرقم...">
+          <input type="text" id="att-search" class="search-input" placeholder="بحث باسم الطالب..." onkeyup="filterAttendance()">
         </div>
-        <select class="filter-select">
-          <option>جميع الفصول</option>
-          <option>الفصل الأول</option>
-          <option>الفصل الثاني</option>
-          <option>الفصل الثالث</option>
+        <select id="att-filter-class" class="filter-select" onchange="filterAttendance()">
+          <option value="">جميع الفصول</option>
         </select>
-        <select class="filter-select">
-          <option>جميع الحالات</option>
-          <option>حاضر</option>
-          <option>غائب</option>
-          <option>غائب (مبرر)</option>
+        <select id="att-filter-status" class="filter-select" onchange="filterAttendance()">
+          <option value="">جميع الحالات</option>
+          <option value="Active">حاضر</option>
+          <option value="Inactive_Unjustified">غائب (غير مبرر)</option>
+          <option value="Inactive_Justified">غائب (مبرر)</option>
         </select>
-        <input type="date" class="filter-select" style="color:var(--text-primary)" value="2026-03-09" title="التاريخ">
+        <!-- افتراضياً سنضع تاريخ اليوم عن طريق الجافاسكربت -->
+        <input type="date" id="att-filter-date" class="filter-select" style="color:var(--text-primary)" title="التاريخ" onchange="filterAttendance()">
       </div>
     </div>
 
@@ -78,92 +75,23 @@
           <tr>
             <th>الطالب</th>
             <th>الفصل</th>
-            <th>المادة</th>
-            <th>المعلم</th>
             <th>التاريخ</th>
             <th>الحالة</th>
             <th>سبب التبرير</th>
             <th>الإجراء</th>
           </tr>
         </thead>
-        <tbody>
-          <tr style="background: rgba(229,62,62,0.03);">
-            <td>
-              <div style="display:flex;align-items:center;gap:10px">
-                <div class="avatar avatar-red">عخ</div>
-                <div><strong>عمر الخالدي</strong><div style="font-size:10px;color:var(--text-muted)">#STU-003</div></div>
-              </div>
-            </td>
-            <td>الفصل الثالث</td>
-            <td>رياضيات</td>
-            <td>محمد علي</td>
-            <td>09 مارس 2026</td>
-            <td><span class="badge badge-danger">غائب</span></td>
-            <td style="color:var(--text-muted)">-</td>
-            <td>
-              <div class="action-btns">
-                <button class="btn btn-ghost btn-sm" style="color:var(--brand-info); font-size:10px; padding: 4px 8px;" onclick="openModal('modal-justify-absence')">
-                  <i class="fas fa-edit"></i> تبرير
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <tr style="background: rgba(66,153,225,0.03);">
-            <td>
-              <div style="display:flex;align-items:center;gap:10px">
-                <div class="avatar avatar-blue">سع</div>
-                <div><strong>سارة العمري</strong><div style="font-size:10px;color:var(--text-muted)">#STU-002</div></div>
-              </div>
-            </td>
-            <td>الفصل الأول</td>
-            <td>لغة عربية</td>
-            <td>أحمد كمال</td>
-            <td>09 مارس 2026</td>
-            <td><span class="badge badge-info">مبرر</span></td>
-            <td style="font-size:11px;">عذر طبي (مرفق تقرير)</td>
-            <td>
-              <span style="color:var(--text-muted); font-size:10px;">-</span>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <div style="display:flex;align-items:center;gap:10px">
-                <div class="avatar avatar-green">أم</div>
-                <div><strong>أحمد محمود</strong><div style="font-size:10px;color:var(--text-muted)">#STU-001</div></div>
-              </div>
-            </td>
-            <td>الفصل الثاني</td>
-            <td>علوم طبيعية</td>
-            <td>فاطمة الزهراء</td>
-            <td>09 مارس 2026</td>
-            <td><span class="badge badge-success">حاضر</span></td>
-            <td style="color:var(--text-muted)">-</td>
-            <td>
-              <span style="color:var(--text-muted); font-size:10px;">-</span>
-            </td>
-          </tr>
+        <tbody id="attendance-tbody">
+          <tr><td colspan="6" style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب السجلات...</td></tr>
         </tbody>
       </table>
-    </div>
-    
-    <div class="pagination">
-      <span>عرض 1-3 من أصل 487 سجل</span>
-      <div class="pagination-btns">
-        <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
-        <button class="page-btn active">1</button>
-        <button class="page-btn">2</button>
-        <button class="page-btn">3</button>
-        <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
-      </div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="fas fa-chart-bar" style="color:var(--brand-danger);margin-left:8px"></i>أكثر الطلاب غياباً</div>
-      <div class="card-subtitle">خلال الفصل الدراسي الحالي</div>
+      <div class="card-subtitle">سجل الغيابات المتكررة</div>
     </div>
     <div class="card-body" style="padding: 0;">
       <table class="data-table" style="font-size: 11px;">
@@ -171,64 +99,18 @@
           <tr>
             <th style="padding: 8px 12px;">الطالب</th>
             <th style="padding: 8px 12px; text-align: center;">الغيابات</th>
-            <th style="padding: 8px 12px; text-align: center;">النسبة</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td style="padding: 8px 12px;">
-              <div style="font-weight:700;color:var(--text-primary);">زياد طارق</div>
-              <div style="font-size:9px;color:var(--text-muted);">الفصل الثالث</div>
-            </td>
-            <td style="padding: 8px 12px; text-align: center; color:var(--brand-danger); font-weight:700;">18</td>
-            <td style="padding: 8px 12px; text-align: center;">
-               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:65%;background:#fc8181"></div></div></div>
-               <span style="font-size:9px;">65%</span>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 12px;">
-              <div style="font-weight:700;color:var(--text-primary);">عمر الخالدي</div>
-              <div style="font-size:9px;color:var(--text-muted);">الفصل الثالث</div>
-            </td>
-            <td style="padding: 8px 12px; text-align: center; color:var(--brand-danger); font-weight:700;">14</td>
-            <td style="padding: 8px 12px; text-align: center;">
-               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:72%;background:#f6c94e"></div></div></div>
-               <span style="font-size:9px;">72%</span>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 12px;">
-              <div style="font-weight:700;color:var(--text-primary);">ليلى عبد الرحمن</div>
-              <div style="font-size:9px;color:var(--text-muted);">الفصل الأول</div>
-            </td>
-            <td style="padding: 8px 12px; text-align: center; color:var(--brand-warning); font-weight:700;">11</td>
-            <td style="padding: 8px 12px; text-align: center;">
-               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:78%;background:#f6c94e"></div></div></div>
-               <span style="font-size:9px;">78%</span>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 12px;">
-              <div style="font-weight:700;color:var(--text-primary);">كريم حسن</div>
-              <div style="font-size:9px;color:var(--text-muted);">الفصل الثاني</div>
-            </td>
-            <td style="padding: 8px 12px; text-align: center; font-weight:700;">8</td>
-            <td style="padding: 8px 12px; text-align: center;">
-               <div class="progress-bar-wrap" style="width: 100%; margin-top: 0;"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:85%;background:#48bb78"></div></div></div>
-               <span style="font-size:9px;">85%</span>
-            </td>
-          </tr>
+        <tbody id="top-absentees-tbody">
+          <tr><td colspan="2" style="text-align:center;">جاري الحساب...</td></tr>
         </tbody>
       </table>
-      <div style="text-align: center; padding: 12px; border-top: 1px solid var(--border-subtle);">
-        <button class="btn btn-ghost btn-sm" style="font-size: 10px; width: 100%;">عرض التقرير المفصل</button>
-      </div>
     </div>
   </div>
 
 </div>
 
+<!-- نافذة التبرير -->
 <div class="modal-overlay" id="modal-justify-absence">
   <div class="modal" style="max-width: 450px;">
     <div class="modal-header">
@@ -236,33 +118,300 @@
       <button class="modal-close" onclick="closeModal('modal-justify-absence')"><i class="fas fa-times"></i></button>
     </div>
     
+    <input type="hidden" id="just-id">
+    
     <div class="form-group">
       <label class="form-label">اسم الطالب</label>
-      <input type="text" class="form-input" value="عمر الخالدي (#STU-003)" disabled style="opacity: 0.7;">
+      <input type="text" id="just-student-name" class="form-input" disabled style="opacity: 0.7;">
     </div>
     
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">التاريخ</label>
-        <input type="text" class="form-input" value="09 مارس 2026" disabled style="opacity: 0.7;">
-      </div>
-      <div class="form-group">
-        <label class="form-label">المادة</label>
-        <input type="text" class="form-input" value="رياضيات" disabled style="opacity: 0.7;">
-      </div>
+    <div class="form-group">
+      <label class="form-label">تاريخ الغياب</label>
+      <input type="text" id="just-date" class="form-input" disabled style="opacity: 0.7;">
     </div>
 
     <div class="form-group">
       <label class="form-label">سبب التبرير *</label>
-      <textarea class="form-textarea" placeholder="أدخل سبب التبرير هنا (مثال: عذر طبي، ظرف عائلي...)" required></textarea>
-      <div class="form-hint">سيتم تحديث حالة الطالب من "غائب" إلى "مبرر".</div>
+      <textarea id="just-reason" class="form-textarea" placeholder="أدخل سبب التبرير هنا (مثال: عذر طبي، ظرف عائلي...)" required></textarea>
+      <div class="form-hint">سيتم تحديث حالة الطالب من "غائب" إلى "غائب (مبرر)".</div>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم حفظ التبرير وتحديث حالة الغياب', 'success');closeModal('modal-justify-absence')">
+      <button class="btn btn-primary" onclick="submitJustification()">
         <i class="fas fa-save"></i> حفظ التبرير
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-justify-absence')">إلغاء</button>
     </div>
   </div>
 </div>
+
+<script>
+  let attData = {
+      attendance: [],
+      students: {},
+      users: {},
+      classes: {},
+      filteredRecords: [] // لتخزين السجلات بعد الفلترة وتحديث الـ KPIs
+  };
+
+  async function initAttendanceSection() {
+      if (typeof AppConfig === 'undefined') return;
+
+      // ضبط فلتر التاريخ على تاريخ اليوم كافتراضي
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('att-filter-date').value = today;
+
+      try {
+          const [attRes, stuRes, usrRes, clsRes] = await Promise.all([
+              AppConfig.get('attendance'),
+              AppConfig.get('students').catch(() => []),
+              AppConfig.get('users').catch(() => []),
+              AppConfig.get('classes').catch(() => [])
+          ]);
+
+          attData.attendance = Array.isArray(attRes) ? attRes : [];
+          
+          if(Array.isArray(stuRes)) attData.students = stuRes.reduce((acc, s) => ({...acc, [s.id]: s}), {});
+          if(Array.isArray(usrRes)) attData.users = usrRes.reduce((acc, u) => ({...acc, [u.id]: u}), {});
+          if(Array.isArray(clsRes)) attData.classes = clsRes.reduce((acc, c) => ({...acc, [c.id]: c}), {});
+
+          populateClassFilter();
+          filterAttendance(); // هذه الدالة ستستدعي renderTable و calculateKPIs و topAbsentees
+          renderTopAbsentees(); 
+
+      } catch (error) {
+          console.error("Error loading attendance data:", error);
+          document.getElementById('attendance-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;">حدث خطأ أثناء جلب البيانات</td></tr>';
+      }
+  }
+
+  function getStudentInfo(studentId) {
+      if (!studentId) return { name: '-', className: '-', classId: null };
+      const student = attData.students[studentId];
+      if (!student) return { name: `طالب #${studentId}`, className: '-', classId: null };
+      
+      const user = attData.users[student.user_id];
+      const cls = attData.classes[student.class_id];
+      
+      return {
+          name: user ? user.full_name : `طالب #${studentId}`,
+          className: cls ? cls.class_name : '-',
+          classId: student.class_id
+      };
+  }
+
+  function populateClassFilter() {
+      const classFilter = document.getElementById('att-filter-class');
+      Object.values(attData.classes).forEach(c => {
+          classFilter.innerHTML += `<option value="${c.id}">${c.class_name}</option>`;
+      });
+  }
+
+  function filterAttendance() {
+      const searchVal = document.getElementById('att-search').value.toLowerCase();
+      const classVal = document.getElementById('att-filter-class').value;
+      const statusVal = document.getElementById('att-filter-status').value;
+      const dateVal = document.getElementById('att-filter-date').value;
+
+      attData.filteredRecords = attData.attendance.filter(record => {
+          const sInfo = getStudentInfo(record.student_id);
+          const rDate = record.date ? record.date.split('T')[0] : '';
+          
+          const matchSearch = sInfo.name.toLowerCase().includes(searchVal);
+          const matchClass = classVal === "" || String(sInfo.classId) === classVal;
+          const matchDate = dateVal === "" || rDate === dateVal;
+          
+          let matchStatus = true;
+          if (statusVal === 'Active') {
+              matchStatus = record.status === 'Active';
+          } else if (statusVal === 'Inactive_Unjustified') {
+              matchStatus = record.status === 'Inactive' && !record.is_justified;
+          } else if (statusVal === 'Inactive_Justified') {
+              matchStatus = record.status === 'Inactive' && record.is_justified;
+          }
+
+          return matchSearch && matchClass && matchDate && matchStatus;
+      });
+
+      renderAttendanceTable();
+      calculateKPIs();
+  }
+
+  function calculateKPIs() {
+      // الـ KPIs تُحسب بناءً على السجلات المفلترة (مثلاً ليوم معين)
+      let total = attData.filteredRecords.length;
+      let present = 0, absent = 0, justified = 0, unjustified = 0;
+
+      attData.filteredRecords.forEach(r => {
+          if (r.status === 'Active') {
+              present++;
+          } else {
+              absent++;
+              if (r.is_justified) justified++;
+              else unjustified++;
+          }
+      });
+
+      const rate = total > 0 ? Math.round((present / total) * 100) : 0;
+
+      document.getElementById('kpi-rate').innerText = rate + '%';
+      document.getElementById('kpi-rate-bar').style.width = rate + '%';
+      
+      // تغيير لون الشريط حسب النسبة
+      const bar = document.getElementById('kpi-rate-bar');
+      if(rate >= 85) bar.style.background = 'linear-gradient(90deg,#276749,#48bb78)'; // أخضر
+      else if(rate >= 50) bar.style.background = 'linear-gradient(90deg,#b7791f,#ecc94b)'; // أصفر
+      else bar.style.background = 'linear-gradient(90deg,#9b2c2c,#f56565)'; // أحمر
+
+      document.getElementById('kpi-absent').innerText = absent;
+      document.getElementById('kpi-justified').innerText = justified;
+      document.getElementById('kpi-unjustified').innerText = unjustified;
+  }
+
+  function renderAttendanceTable() {
+      const tbody = document.getElementById('attendance-tbody');
+      tbody.innerHTML = '';
+
+      if (attData.filteredRecords.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد سجلات مطابقة للبحث أو التاريخ المحدد</td></tr>';
+          return;
+      }
+
+      attData.filteredRecords.sort((a, b) => b.id - a.id);
+
+      attData.filteredRecords.forEach(record => {
+          const sInfo = getStudentInfo(record.student_id);
+          const dateStr = record.date ? record.date.split('T')[0] : '-';
+          
+          let statusBadge = '';
+          let rowStyle = '';
+          let actionBtn = '-';
+          let reasonText = record.justification_reason || '-';
+
+          if (record.status === 'Active') {
+              statusBadge = '<span class="badge badge-success">حاضر</span>';
+              reasonText = '<span style="color:var(--text-muted)">-</span>';
+          } else {
+              // غائب
+              if (record.is_justified) {
+                  statusBadge = '<span class="badge badge-info">غائب (مبرر)</span>';
+                  rowStyle = 'background: rgba(66,153,225,0.03);';
+                  reasonText = `<span style="font-size:11px;">${reasonText}</span>`;
+              } else {
+                  statusBadge = '<span class="badge badge-danger">غائب</span>';
+                  rowStyle = 'background: rgba(229,62,62,0.03);';
+                  reasonText = '<span style="color:var(--text-muted)">-</span>';
+                  actionBtn = `<button class="btn btn-ghost btn-sm" style="color:var(--brand-info); font-size:11px; padding: 4px 8px;" onclick="openJustifyModal(${record.id}, '${sInfo.name}', '${dateStr}')"><i class="fas fa-edit"></i> تبرير</button>`;
+              }
+          }
+
+          const tr = document.createElement('tr');
+          tr.style = rowStyle;
+          tr.innerHTML = `
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="avatar ${record.status==='Active'?'avatar-green':'avatar-red'}">${getInitials(sInfo.name)}</div>
+                <div><strong>${sInfo.name}</strong></div>
+              </div>
+            </td>
+            <td>${sInfo.className}</td>
+            <td>${dateStr}</td>
+            <td>${statusBadge}</td>
+            <td>${reasonText}</td>
+            <td>${actionBtn}</td>
+          `;
+          tbody.appendChild(tr);
+      });
+  }
+
+  function renderTopAbsentees() {
+      // إحصاء الغيابات لكل طالب (لكل الأوقات، ليس مفلتراً بيوم)
+      let absentCounts = {};
+      
+      attData.attendance.forEach(r => {
+          if (r.status === 'Inactive') { // Inactive تعني غائب
+              absentCounts[r.student_id] = (absentCounts[r.student_id] || 0) + 1;
+          }
+      });
+
+      // تحويلها لمصفوفة وترتيبها
+      let sortedAbsentees = Object.keys(absentCounts).map(id => ({
+          student_id: id,
+          count: absentCounts[id]
+      })).sort((a, b) => b.count - a.count).slice(0, 5); // أخذ أعلى 5
+
+      const tbody = document.getElementById('top-absentees-tbody');
+      tbody.innerHTML = '';
+
+      if(sortedAbsentees.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;">لا توجد غيابات مسجلة</td></tr>';
+          return;
+      }
+
+      sortedAbsentees.forEach(item => {
+          const sInfo = getStudentInfo(item.student_id);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="padding: 8px 12px;">
+              <div style="font-weight:700;color:var(--text-primary);">${sInfo.name}</div>
+              <div style="font-size:9px;color:var(--text-muted);">${sInfo.className}</div>
+            </td>
+            <td style="padding: 8px 12px; text-align: center; color:var(--brand-danger); font-weight:700; font-size: 14px;">${item.count}</td>
+          `;
+          tbody.appendChild(tr);
+      });
+  }
+
+  // ================= التبرير =================
+
+  function openJustifyModal(id, studentName, date) {
+      document.getElementById('just-id').value = id;
+      document.getElementById('just-student-name').value = studentName;
+      document.getElementById('just-date').value = date;
+      document.getElementById('just-reason').value = '';
+      openModal('modal-justify-absence');
+  }
+
+  async function submitJustification() {
+      const id = parseInt(document.getElementById('just-id').value);
+      const reason = document.getElementById('just-reason').value.trim();
+
+      if (!reason) {
+          alert("الرجاء إدخال سبب التبرير");
+          return;
+      }
+
+      // البحث عن السجل الأصلي للحفاظ على باقي البيانات
+      const record = attData.attendance.find(a => a.id === id);
+      if (!record) return;
+
+      // تحديث قيم التبرير فقط بناءً على الـ Schema AxumUpdateAttendance
+      const payload = {
+          academic_year_id: record.academic_year_id,
+          date: record.date,
+          status: record.status, 
+          student_id: record.student_id,
+          is_justified: true,
+          justification_reason: reason
+      };
+
+      const res = await AppConfig.put('attendance', id, payload);
+
+      if (res && res.success) {
+          if(typeof showToast === 'function') showToast('تم حفظ التبرير بنجاح', 'success');
+          closeModal('modal-justify-absence');
+          initAttendanceSection(); // تحديث الصفحة كاملة
+      } else {
+          alert("حدث خطأ أثناء حفظ التبرير.");
+      }
+  }
+
+  function getInitials(name) {
+      if (!name || name === '-') return '؟؟';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name.substring(0, 2).toUpperCase();
+  }
+
+  setTimeout(initAttendanceSection, 100);
+</script>

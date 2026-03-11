@@ -1,158 +1,74 @@
+--- START OF FILE programs.html ---
+
 <style>
-  /* تنسيقات خاصة بتخطيط البرامج والمواد (عمودين) */
-  .programs-layout {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-  }
+  .programs-layout { display: flex; gap: 24px; align-items: flex-start; }
   
-  /* العمود الأيسر (قائمة البرامج) */
-  .programs-list-col {
-    width: 35%;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
+  /* العمود الأيسر (البرامج) */
+  .programs-list-col { width: 40%; display: flex; flex-direction: column; gap: 12px; max-height: calc(100vh - 160px); overflow-y: auto; padding-right: 4px; }
   
-  .program-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 16px;
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-  }
-  .program-card:hover {
-    border-color: var(--brand-primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-  }
-  .program-card.active {
-    background: rgba(26,107,74,0.04);
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 1px var(--brand-primary);
-  }
-  .program-card.active::before {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--brand-primary);
-  }
+  .program-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px; transition: var(--transition); position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 8px;}
+  .program-card:hover { border-color: var(--brand-primary); box-shadow: var(--shadow-sm); }
   
-  .prog-title { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
-  .prog-type { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
-  .prog-details { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-  .prog-price { font-weight: 700; color: var(--brand-success); }
-  .prog-subjects-count { background: var(--bg-surface-2); padding: 4px 8px; border-radius: 20px; color: var(--text-secondary); font-weight: 600; font-size: 11px;}
+  .prog-title { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+  .prog-type { font-size: 11px; margin-bottom: 4px; }
+  .prog-details { display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: var(--bg-surface-2); padding: 8px; border-radius: var(--radius-sm); }
+  .prog-price { font-weight: 700; color: var(--text-primary); }
+  
+  .prog-actions { position: absolute; top: 12px; left: 12px; opacity: 0; transition: 0.2s; display: flex; gap: 4px; }
+  .program-card:hover .prog-actions { opacity: 1; }
 
-  /* العمود الأيمن (المواد الدراسية) */
-  .subjects-table-col {
-    width: 65%;
-  }
+  /* العمود الأيمن (المواد) */
+  .subjects-table-col { width: 60%; }
   
-  /* حالة عدم اختيار برنامج (Empty State) */
-  .empty-state {
-    display: none; /* مخفي افتراضياً في هذا التصميم المبدئي */
-    background: var(--bg-surface);
-    border: 1px dashed var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 60px 20px;
-    text-align: center;
-    color: var(--text-muted);
-  }
-  .empty-state i { font-size: 48px; color: var(--border-color); margin-bottom: 16px; }
+  .code-mono { font-family: 'Courier New', Courier, monospace; background: var(--bg-surface-2); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--brand-primary); border: 1px solid var(--border-subtle); }
 
-  /* الكود (Monospace) */
-  .code-mono {
-    font-family: 'Courier New', Courier, monospace;
-    background: var(--bg-surface-2);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-subtle);
-  }
-
-  /* التصميم المتجاوب للشاشات الصغيرة */
   @media (max-width: 992px) {
     .programs-layout { flex-direction: column; }
-    .programs-list-col, .subjects-table-col { width: 100%; }
+    .programs-list-col, .subjects-table-col { width: 100%; max-height: none; }
   }
 </style>
 
 <div class="page-header-row fade-in">
   <div class="page-header">
     <div class="page-title">📚 البرامج والمواد الدراسية</div>
-    <div class="page-subtitle">إدارة البرامج التعليمية والمواد المرتبطة بها</div>
-  </div>
-  <div style="display:flex; gap:8px;">
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-program')">
-      <i class="fas fa-plus"></i> برنامج جديد
-    </button>
+    <div class="page-subtitle">إدارة البرامج التعليمية والكتالوج العام للمواد الدراسية</div>
   </div>
 </div>
 
 <div class="programs-layout fade-in">
   
+  <!-- العمود الأيسر: إدارة البرامج -->
   <div class="programs-list-col">
-    <div class="search-input-wrap" style="background: var(--bg-surface); margin-bottom: 8px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <h3 style="margin:0; font-size: 16px; color: var(--text-primary);"><i class="fas fa-layer-group" style="color:var(--brand-primary); margin-left:8px;"></i>البرامج الدراسية</h3>
+      <button class="btn btn-primary btn-sm" onclick="openAddProgramModal()">
+        <i class="fas fa-plus"></i> برنامج جديد
+      </button>
+    </div>
+
+    <div class="search-input-wrap" style="background: var(--bg-surface); margin-bottom: 4px; position: sticky; top: 0; z-index: 10;">
       <i class="fas fa-search"></i>
-      <input type="text" class="search-input" placeholder="بحث في البرامج...">
+      <input type="text" id="prog-search" class="search-input" placeholder="بحث في البرامج..." onkeyup="filterProgramsList()">
     </div>
 
-    <div class="program-card active" onclick="selectProgram(this, 'برنامج التعليم الابتدائي')">
-      <div class="prog-title">برنامج التعليم الابتدائي</div>
-      <div class="prog-type"><span class="badge badge-info" style="font-size: 9px; padding: 2px 6px;">ابتدائي</span></div>
-      <div class="prog-details">
-        <div class="prog-price">45,000 دج / سنة</div>
-        <div class="prog-subjects-count"><i class="fas fa-book" style="margin-left: 4px;"></i> 8 مواد</div>
-      </div>
-    </div>
-
-    <div class="program-card" onclick="selectProgram(this, 'برنامج التعليم المتوسط')">
-      <div class="prog-title">برنامج التعليم المتوسط</div>
-      <div class="prog-type"><span class="badge badge-warning" style="font-size: 9px; padding: 2px 6px;">متوسط</span></div>
-      <div class="prog-details">
-        <div class="prog-price">55,000 دج / سنة</div>
-        <div class="prog-subjects-count"><i class="fas fa-book" style="margin-left: 4px;"></i> 12 مادة</div>
-      </div>
-    </div>
-
-    <div class="program-card" onclick="selectProgram(this, 'برنامج التحضيري المتقدم')">
-      <div class="prog-title">برنامج التحضيري المتقدم</div>
-      <div class="prog-type"><span class="badge badge-gray" style="font-size: 9px; padding: 2px 6px;">تحضيري</span></div>
-      <div class="prog-details">
-        <div class="prog-price">35,000 دج / سنة</div>
-        <div class="prog-subjects-count"><i class="fas fa-book" style="margin-left: 4px;"></i> 4 مواد</div>
-      </div>
+    <div id="programs-container" style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
     </div>
   </div>
 
+  <!-- العمود الأيمن: كتالوج المواد -->
   <div class="subjects-table-col">
-    
-    <div class="empty-state" id="subjects-empty-state">
-      <i class="fas fa-layer-group"></i>
-      <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">لم يتم اختيار برنامج</h3>
-      <p style="margin: 0; font-size: 13px;">يرجى اختيار برنامج دراسي من القائمة الجانبية لعرض المواد المرتبطة به.</p>
-    </div>
-
-    <div class="card data-table-card" id="subjects-content" style="margin: 0;">
+    <div class="card data-table-card" style="margin: 0; height: 100%;">
       <div class="card-header" style="justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <i class="fas fa-book-open" style="color: var(--brand-primary); font-size: 20px;"></i>
+          <i class="fas fa-book-open" style="color: var(--brand-accent); font-size: 20px;"></i>
           <div>
-            <div class="card-title" id="selected-program-title">برنامج التعليم الابتدائي</div>
-            <div class="card-subtitle">قائمة المواد المرتبطة بالبرنامج</div>
+            <div class="card-title">الكتالوج العام للمواد الدراسية</div>
+            <div class="card-subtitle">قاعدة بيانات المواد المتاحة في النظام</div>
           </div>
         </div>
-        <button class="btn btn-ghost btn-sm" style="color: var(--brand-primary); border-color: rgba(26,107,74,0.3);" onclick="openModal('modal-add-subject')">
-          <i class="fas fa-plus"></i> إضافة مادة
+        <button class="btn btn-ghost btn-sm" style="color: var(--brand-accent); border-color: rgba(221,107,32,0.3);" onclick="openAddSubjectModal()">
+          <i class="fas fa-plus"></i> إضافة مادة للمنهاج
         </button>
       </div>
 
@@ -160,76 +76,24 @@
         <table class="data-table" id="subjects-table">
           <thead>
             <tr>
-              <th><i class="fas fa-grip-vertical" style="color:var(--text-muted); opacity: 0.5;"></i></th> <th>اسم المادة</th>
-              <th>الكود</th>
-              <th style="text-align: center;">الحصص/أسبوع</th>
-              <th>النوع</th>
-              <th>الإجراءات</th>
+              <th>كود المادة</th>
+              <th>اسم المادة</th>
+              <th>الوصف / الملاحظات</th>
+              <th style="text-align: center;">الإجراءات</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td style="cursor: grab; color: var(--text-muted);"><i class="fas fa-grip-vertical"></i></td>
-              <td><strong>اللغة العربية</strong></td>
-              <td><span class="code-mono">ARB-01</span></td>
-              <td style="text-align: center; font-weight: 700;">5</td>
-              <td><span class="badge badge-success">إلزامي</span></td>
-              <td>
-                <div class="action-btns">
-                  <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-                  <button class="action-btn delete" title="حذف"><i class="fas fa-trash"></i></button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td style="cursor: grab; color: var(--text-muted);"><i class="fas fa-grip-vertical"></i></td>
-              <td><strong>الرياضيات الأساسية</strong></td>
-              <td><span class="code-mono">MATH-01</span></td>
-              <td style="text-align: center; font-weight: 700;">4</td>
-              <td><span class="badge badge-success">إلزامي</span></td>
-              <td>
-                <div class="action-btns">
-                  <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-                  <button class="action-btn delete" title="حذف"><i class="fas fa-trash"></i></button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td style="cursor: grab; color: var(--text-muted);"><i class="fas fa-grip-vertical"></i></td>
-              <td><strong>التربية الإسلامية</strong></td>
-              <td><span class="code-mono">ISL-01</span></td>
-              <td style="text-align: center; font-weight: 700;">2</td>
-              <td><span class="badge badge-success">إلزامي</span></td>
-              <td>
-                <div class="action-btns">
-                  <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-                  <button class="action-btn delete" title="حذف"><i class="fas fa-trash"></i></button>
-                </div>
-              </td>
-            </tr>
-            <tr style="background: rgba(113,128,150,0.03);">
-              <td style="cursor: grab; color: var(--text-muted);"><i class="fas fa-grip-vertical"></i></td>
-              <td><strong>النشاط الفني التشكيلي</strong></td>
-              <td><span class="code-mono">ART-01</span></td>
-              <td style="text-align: center; font-weight: 700;">1</td>
-              <td><span class="badge badge-gray">اختياري</span></td>
-              <td>
-                <div class="action-btns">
-                  <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-                  <button class="action-btn delete" title="حذف" onclick="showToast('لا يمكن حذف مادة مرتبطة بجداول حالية', 'error')"><i class="fas fa-trash"></i></button>
-                </div>
-              </td>
-            </tr>
+          <tbody id="subjects-tbody">
+            <tr><td colspan="4" style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب المواد...</td></tr>
           </tbody>
         </table>
-      </div>
-      <div style="padding: 12px; font-size: 11px; color: var(--text-muted); text-align: center; background: var(--bg-surface-2); border-top: 1px solid var(--border-subtle);">
-        <i class="fas fa-info-circle"></i> يمكنك سحب وإفلات المواد (<i class="fas fa-grip-vertical"></i>) لإعادة ترتيبها في الجداول وكشوف النقاط.
       </div>
     </div>
   </div>
 </div>
 
+<!-- ================= النوافذ المنبثقة (Modals) ================= -->
+
+<!-- 1. نافذة إضافة برنامج -->
 <div class="modal-overlay" id="modal-add-program">
   <div class="modal" style="max-width: 550px;">
     <div class="modal-header">
@@ -239,132 +103,461 @@
     
     <div class="form-group">
       <label class="form-label">اسم البرنامج *</label>
-      <input type="text" class="form-input" placeholder="مثال: برنامج التعليم الابتدائي" required>
+      <input type="text" id="np-name" class="form-input" placeholder="مثال: برنامج التعليم الابتدائي" required>
     </div>
     
     <div class="form-group">
       <label class="form-label">نوع البرنامج / المرحلة *</label>
-      <select class="form-select" required>
-        <option value="">-- اختر المرحلة --</option>
-        <option value="pre">تحضيري / روضة</option>
-        <option value="primary">ابتدائي</option>
-        <option value="middle">متوسط</option>
-        <option value="high">ثانوي</option>
+      <select id="np-type" class="form-select" required>
+        <option value="">-- اختر النوع --</option>
+        <option value="Educational">برنامج تعليمي أساسي</option>
+        <option value="Sport">نشاط رياضي</option>
+        <option value="Event">فعالية / دورة قصيرة</option>
+        <option value="Championship">بطولة / مسابقة</option>
       </select>
     </div>
     
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">السعر نقداً (دج) *</label>
-        <input type="number" class="form-input" id="prog-cash-price" placeholder="0.00" oninput="validatePrices()" required>
+        <input type="number" id="np-cash" class="form-input" placeholder="0.00" oninput="validatePrices('np-cash', 'np-inst', 'price-warning', 'btn-save-prog')" required>
       </div>
       <div class="form-group">
-        <label class="form-label">السعر بالتقسيط (دج) *</label>
-        <input type="number" class="form-input" id="prog-inst-price" placeholder="0.00" oninput="validatePrices()" required>
+        <label class="form-label">السعر بالتقسيط (دج)</label>
+        <input type="number" id="np-inst" class="form-input" placeholder="0.00" oninput="validatePrices('np-cash', 'np-inst', 'price-warning', 'btn-save-prog')">
       </div>
     </div>
     <div id="price-warning" style="display: none; color: var(--brand-danger); font-size: 11px; margin-top: -10px; margin-bottom: 16px;">
       <i class="fas fa-exclamation-triangle"></i> السعر بالتقسيط يجب أن يكون مساوياً أو أكبر من السعر النقدي.
     </div>
-
-    <div class="form-group">
-      <label class="form-label">وصف البرنامج</label>
-      <textarea class="form-textarea" placeholder="وصف مبسط لأهداف ومحتوى البرنامج..." rows="3"></textarea>
-    </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" id="btn-save-prog" onclick="showToast('تم إنشاء البرنامج بنجاح', 'success');closeModal('modal-add-program')">
-        <i class="fas fa-save"></i> إنشاء البرنامج
+      <button class="btn btn-primary" id="btn-save-prog" onclick="submitNewProgram()">
+        <i class="fas fa-save"></i> حفظ البرنامج
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-add-program')">إلغاء</button>
     </div>
   </div>
 </div>
 
+<!-- 2. نافذة تعديل برنامج -->
+<div class="modal-overlay" id="modal-edit-program">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
+      <div class="modal-title">✏️ تعديل برنامج دراسي</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-program')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <input type="hidden" id="ep-id">
+
+    <div class="form-group">
+      <label class="form-label">اسم البرنامج *</label>
+      <input type="text" id="ep-name" class="form-input" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">نوع البرنامج / المرحلة *</label>
+      <select id="ep-type" class="form-select" required>
+        <option value="Educational">برنامج تعليمي أساسي</option>
+        <option value="Sport">نشاط رياضي</option>
+        <option value="Event">فعالية / دورة قصيرة</option>
+        <option value="Championship">بطولة / مسابقة</option>
+      </select>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">السعر نقداً (دج) *</label>
+        <input type="number" id="ep-cash" class="form-input" oninput="validatePrices('ep-cash', 'ep-inst', 'ep-price-warning', 'btn-update-prog')" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">السعر بالتقسيط (دج)</label>
+        <input type="number" id="ep-inst" class="form-input" oninput="validatePrices('ep-cash', 'ep-inst', 'ep-price-warning', 'btn-update-prog')">
+      </div>
+    </div>
+    <div id="ep-price-warning" style="display: none; color: var(--brand-danger); font-size: 11px; margin-top: -10px; margin-bottom: 16px;">
+      <i class="fas fa-exclamation-triangle"></i> السعر بالتقسيط يجب أن يكون مساوياً أو أكبر من السعر النقدي.
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btn-update-prog" onclick="submitEditProgram()">
+        <i class="fas fa-save"></i> تحديث البرنامج
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-program')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. نافذة إضافة مادة -->
 <div class="modal-overlay" id="modal-add-subject">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">➕ إضافة مادة دراسية</div>
+      <div class="modal-title">➕ إضافة مادة للكتالوج</div>
       <button class="modal-close" onclick="closeModal('modal-add-subject')"><i class="fas fa-times"></i></button>
     </div>
     
     <div class="form-group">
       <label class="form-label">اسم المادة *</label>
-      <input type="text" class="form-input" placeholder="مثال: الرياضيات المتقدمة" required>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">كود المادة *</label>
-        <input type="text" class="form-input" placeholder="مثال: MATH-02" style="font-family: monospace; font-weight: bold;" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">عدد الحصص / الأسبوع *</label>
-        <input type="number" class="form-input" placeholder="مثال: 4" min="1" max="15" required>
-      </div>
+      <input type="text" id="ns-name" class="form-input" placeholder="مثال: الرياضيات المتقدمة" required>
     </div>
 
-    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-surface-2); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-      <input type="checkbox" id="is_optional_subject" style="width: 18px; height: 18px; cursor: pointer;">
-      <label for="is_optional_subject" style="font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-primary); margin: 0;">
-        هذه المادة اختيارية (ليست إلزامية للنجاح)
-      </label>
-    </div>
-
-    <div class="form-group" style="margin-top: 16px;">
-      <label class="form-label">ملاحظات للمنهاج</label>
-      <textarea class="form-textarea" placeholder="مثال: تتطلب معمل للجانب العملي..." rows="2"></textarea>
+    <div class="form-group">
+      <label class="form-label">الوصف / الملاحظات</label>
+      <textarea id="ns-desc" class="form-textarea" placeholder="مثال: مادة أساسية للقسم العلمي..." rows="3"></textarea>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم إضافة المادة للبرنامج', 'success');closeModal('modal-add-subject')">
-        <i class="fas fa-plus-circle"></i> إضافة المادة
+      <button class="btn btn-accent" onclick="submitNewSubject()">
+        <i class="fas fa-save"></i> إضافة المادة
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-add-subject')">إلغاء</button>
     </div>
   </div>
 </div>
 
+<!-- 4. نافذة تعديل مادة -->
+<div class="modal-overlay" id="modal-edit-subject">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ تعديل بيانات المادة</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-subject')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <input type="hidden" id="es-id">
+
+    <div class="form-group">
+      <label class="form-label">اسم المادة *</label>
+      <input type="text" id="es-name" class="form-input" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">الوصف / الملاحظات</label>
+      <textarea id="es-desc" class="form-textarea" rows="3"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-accent" onclick="submitEditSubject()">
+        <i class="fas fa-save"></i> تحديث المادة
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-subject')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // 1. دالة لتحديد البرنامج النشط وتحديث عنوان الجدول
-  function selectProgram(element, programName) {
-    // إزالة التفعيل عن كل البطاقات
-    const cards = document.querySelectorAll('.program-card');
-    cards.forEach(c => c.classList.remove('active'));
-    
-    // تفعيل البطاقة المختارة
-    element.classList.add('active');
-    
-    // إخفاء الـ Empty State وإظهار الجدول
-    document.getElementById('subjects-empty-state').style.display = 'none';
-    document.getElementById('subjects-content').style.display = 'flex';
-    document.getElementById('subjects-content').style.flexDirection = 'column';
-    
-    // تحديث عنوان الجدول
-    document.getElementById('selected-program-title').innerText = programName;
+  let psData = {
+      programs: [],
+      subjects: []
+  };
+
+  const progTypes = {
+      'Educational': { text: 'تعليمي', color: 'badge-info' },
+      'Sport': { text: 'رياضي', color: 'badge-success' },
+      'Event': { text: 'فعالية', color: 'badge-warning' },
+      'Championship': { text: 'بطولة', color: 'badge-danger' }
+  };
+
+  async function initProgramsAndSubjects() {
+      if (typeof AppConfig === 'undefined') return;
+
+      try {
+          const [progRes, subRes] = await Promise.all([
+              AppConfig.get('programs'),
+              AppConfig.get('subjects')
+          ]);
+
+          psData.programs = Array.isArray(progRes) ? progRes.reverse() : []; 
+          psData.subjects = Array.isArray(subRes) ? subRes.reverse() : []; 
+          
+          renderProgramsList();
+          renderSubjectsTable();
+
+      } catch (error) {
+          console.error("Error loading data:", error);
+          document.getElementById('programs-container').innerHTML = '<div style="color:red; text-align:center;">حدث خطأ في الاتصال بالخادم</div>';
+          document.getElementById('subjects-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">حدث خطأ في الاتصال بالخادم</td></tr>';
+      }
   }
 
-  // 2. دالة للتحقق من شرط الأسعار (سعر التقسيط يجب أن يكون >= السعر النقدي)
-  function validatePrices() {
-    const cashInput = document.getElementById('prog-cash-price');
-    const instInput = document.getElementById('prog-inst-price');
-    const warningText = document.getElementById('price-warning');
-    const saveBtn = document.getElementById('btn-save-prog');
+  // ================= 1. إدارة البرامج =================
 
-    const cashVal = parseFloat(cashInput.value) || 0;
-    const instVal = parseFloat(instInput.value) || 0;
+  function renderProgramsList(searchQuery = '') {
+      const container = document.getElementById('programs-container');
+      container.innerHTML = '';
 
-    // إذا تم إدخال القيمتين وكان التقسيط أقل من النقدي
-    if (cashInput.value !== '' && instInput.value !== '' && instVal < cashVal) {
-      warningText.style.display = 'block';
-      instInput.style.borderColor = 'var(--brand-danger)';
-      saveBtn.disabled = true;
-      saveBtn.style.opacity = '0.5';
-    } else {
-      warningText.style.display = 'none';
-      instInput.style.borderColor = 'var(--border-color)';
-      saveBtn.disabled = false;
-      saveBtn.style.opacity = '1';
-    }
+      const filtered = psData.programs.filter(p => 
+          p.program_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+          container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">لا توجد برامج مطابقة</div>';
+          return;
+      }
+
+      filtered.forEach(prog => {
+          const typeInfo = progTypes[prog.program_type] || { text: prog.program_type, color: 'badge-gray' };
+          const cashPrice = prog.price_cash !== null ? parseFloat(prog.price_cash).toLocaleString() : '0';
+          const instPrice = prog.price_installments !== null ? parseFloat(prog.price_installments).toLocaleString() : cashPrice;
+
+          const card = document.createElement('div');
+          card.className = 'program-card';
+          
+          card.innerHTML = `
+              <div class="prog-actions">
+                 <button class="btn btn-sm btn-ghost" style="color:var(--brand-info); padding:2px 6px;" onclick="openEditProgramModal(${prog.id})" title="تعديل"><i class="fas fa-pen"></i></button>
+                 <button class="btn btn-sm btn-ghost" style="color:var(--brand-danger); padding:2px 6px;" onclick="deleteProgram(${prog.id}, '${prog.program_name}')" title="حذف"><i class="fas fa-trash"></i></button>
+              </div>
+              <div class="prog-type"><span class="badge ${typeInfo.color}" style="font-size: 9px; padding: 2px 6px;">${typeInfo.text}</span></div>
+              <div class="prog-title">${prog.program_name}</div>
+              <div class="prog-details">
+                <div>النقدي: <span class="prog-price">${cashPrice} دج</span></div>
+                <div style="color:var(--text-muted)">التقسيط: ${instPrice} دج</div>
+              </div>
+          `;
+          container.appendChild(card);
+      });
   }
+
+  function filterProgramsList() {
+      const query = document.getElementById('prog-search').value;
+      renderProgramsList(query);
+  }
+
+  function validatePrices(cashInputId, instInputId, warningId, btnId) {
+      const cashInput = document.getElementById(cashInputId);
+      const instInput = document.getElementById(instInputId);
+      const warningText = document.getElementById(warningId);
+      const saveBtn = document.getElementById(btnId);
+
+      const cashVal = parseFloat(cashInput.value) || 0;
+      const instVal = parseFloat(instInput.value) || 0;
+
+      if (cashInput.value !== '' && instInput.value !== '' && instVal < cashVal) {
+          warningText.style.display = 'block';
+          instInput.style.borderColor = 'var(--brand-danger)';
+          saveBtn.disabled = true;
+          saveBtn.style.opacity = '0.5';
+      } else {
+          warningText.style.display = 'none';
+          instInput.style.borderColor = 'var(--border-color)';
+          saveBtn.disabled = false;
+          saveBtn.style.opacity = '1';
+      }
+  }
+
+  function openAddProgramModal() {
+      document.getElementById('np-name').value = '';
+      document.getElementById('np-type').value = '';
+      document.getElementById('np-cash').value = '';
+      document.getElementById('np-inst').value = '';
+      document.getElementById('price-warning').style.display = 'none';
+      document.getElementById('btn-save-prog').disabled = false;
+      document.getElementById('btn-save-prog').style.opacity = '1';
+      openModal('modal-add-program');
+  }
+
+  async function submitNewProgram() {
+      const name = document.getElementById('np-name').value.trim();
+      const type = document.getElementById('np-type').value;
+      const cash = document.getElementById('np-cash').value;
+      const inst = document.getElementById('np-inst').value;
+
+      if (!name || !type || cash === '') {
+          alert("الرجاء إدخال اسم البرنامج، النوع، والسعر النقدي.");
+          return;
+      }
+
+      const payload = {
+          program_name: name,
+          program_type: type,
+          price_cash: parseFloat(cash),
+          price_installments: inst ? parseFloat(inst) : parseFloat(cash),
+          branch_id: null 
+      };
+
+      const res = await AppConfig.post('programs/', payload);
+
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم إضافة البرنامج بنجاح', 'success');
+          closeModal('modal-add-program');
+          initProgramsAndSubjects(); 
+      } else {
+          alert("❌ حدث خطأ أثناء الحفظ.");
+      }
+  }
+
+  function openEditProgramModal(id) {
+      const prog = psData.programs.find(p => p.id === id);
+      if(!prog) return;
+
+      document.getElementById('ep-id').value = prog.id;
+      document.getElementById('ep-name').value = prog.program_name;
+      document.getElementById('ep-type').value = prog.program_type;
+      document.getElementById('ep-cash').value = prog.price_cash !== null ? prog.price_cash : '';
+      document.getElementById('ep-inst').value = prog.price_installments !== null ? prog.price_installments : '';
+      
+      document.getElementById('ep-price-warning').style.display = 'none';
+      document.getElementById('btn-update-prog').disabled = false;
+      document.getElementById('btn-update-prog').style.opacity = '1';
+
+      openModal('modal-edit-program');
+  }
+
+  async function submitEditProgram() {
+      const id = document.getElementById('ep-id').value;
+      const name = document.getElementById('ep-name').value.trim();
+      const type = document.getElementById('ep-type').value;
+      const cash = document.getElementById('ep-cash').value;
+      const inst = document.getElementById('ep-inst').value;
+
+      if (!name || !type || cash === '') {
+          alert("الرجاء إدخال اسم البرنامج، النوع، والسعر النقدي.");
+          return;
+      }
+
+      // مطابقة AxumUpdatePrograms Schema
+      const payload = {
+          program_name: name,
+          program_type: type,
+          price_cash: parseFloat(cash),
+          price_installments: inst ? parseFloat(inst) : parseFloat(cash),
+          branch_id: null
+      };
+
+      const res = await AppConfig.put('programs', id, payload);
+
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم تحديث البرنامج بنجاح', 'success');
+          closeModal('modal-edit-program');
+          initProgramsAndSubjects(); 
+      } else {
+          alert("❌ حدث خطأ أثناء التحديث.");
+      }
+  }
+
+  async function deleteProgram(id, name) {
+      if (!confirm(`هل أنت متأكد من حذف برنامج "${name}"؟`)) return;
+
+      const res = await AppConfig.delete('programs', id);
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم حذف البرنامج', 'success');
+          initProgramsAndSubjects();
+      } else {
+          alert("تعذر الحذف. قد يكون البرنامج مرتبطاً بطلاب مسجلين.");
+      }
+  }
+
+  // ================= 2. إدارة المواد =================
+
+  function renderSubjectsTable() {
+      const tbody = document.getElementById('subjects-tbody');
+      tbody.innerHTML = '';
+
+      if (psData.subjects.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: var(--text-muted);">لا توجد مواد مسجلة في الكتالوج.</td></tr>';
+          return;
+      }
+
+      psData.subjects.forEach(sub => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+              <td><span class="code-mono">SUB-${String(sub.id).padStart(3, '0')}</span></td>
+              <td><strong>${sub.subject_name}</strong></td>
+              <td style="font-size:12px; color:var(--text-muted); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${sub.description || ''}">
+                  ${sub.description || '-'}
+              </td>
+              <td>
+                <div class="action-btns" style="justify-content:center;">
+                  <button class="action-btn edit" title="تعديل المادة" onclick="openEditSubjectModal(${sub.id})"><i class="fas fa-pen"></i></button>
+                  <button class="action-btn delete" title="حذف المادة" onclick="deleteSubject(${sub.id}, '${sub.subject_name}')"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+          `;
+          tbody.appendChild(tr);
+      });
+  }
+
+  function openAddSubjectModal() {
+      document.getElementById('ns-name').value = '';
+      document.getElementById('ns-desc').value = '';
+      openModal('modal-add-subject');
+  }
+
+  async function submitNewSubject() {
+      const name = document.getElementById('ns-name').value.trim();
+      const desc = document.getElementById('ns-desc').value.trim();
+
+      if (!name) {
+          alert("الرجاء إدخال اسم المادة.");
+          return;
+      }
+
+      const payload = {
+          subject_name: name,
+          description: desc || null
+      };
+
+      const res = await AppConfig.post('subjects/', payload);
+
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم إضافة المادة للكتالوج', 'success');
+          closeModal('modal-add-subject');
+          initProgramsAndSubjects(); 
+      } else {
+          alert("❌ حدث خطأ أثناء الحفظ.");
+      }
+  }
+
+  function openEditSubjectModal(id) {
+      const sub = psData.subjects.find(s => s.id === id);
+      if(!sub) return;
+
+      document.getElementById('es-id').value = sub.id;
+      document.getElementById('es-name').value = sub.subject_name;
+      document.getElementById('es-desc').value = sub.description || '';
+
+      openModal('modal-edit-subject');
+  }
+
+  async function submitEditSubject() {
+      const id = document.getElementById('es-id').value;
+      const name = document.getElementById('es-name').value.trim();
+      const desc = document.getElementById('es-desc').value.trim();
+
+      if (!name) {
+          alert("الرجاء إدخال اسم المادة.");
+          return;
+      }
+
+      // مطابقة UpdateSubjects Schema
+      const payload = {
+          subject_name: name,
+          description: desc || null
+      };
+
+      const res = await AppConfig.put('subjects', id, payload);
+
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم تحديث المادة بنجاح', 'success');
+          closeModal('modal-edit-subject');
+          initProgramsAndSubjects(); 
+      } else {
+          alert("❌ حدث خطأ أثناء التحديث.");
+      }
+  }
+
+  async function deleteSubject(id, name) {
+      if (!confirm(`هل أنت متأكد من حذف مادة "${name}" نهائياً من الكتالوج؟`)) return;
+
+      const res = await AppConfig.delete('subjects', id);
+      if (res) {
+          if(typeof showToast === 'function') showToast('تم حذف المادة بنجاح', 'success');
+          initProgramsAndSubjects();
+      } else {
+          alert("تعذر الحذف. المادة مرتبطة بتعيينات معلمين أو جداول دراسية.");
+      }
+  }
+
+  // تشغيل الواجهة
+  setTimeout(initProgramsAndSubjects, 100);
 </script>

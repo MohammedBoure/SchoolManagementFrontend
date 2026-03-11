@@ -4,17 +4,18 @@
   .schedule-table { width: 100%; min-width: 800px; border-collapse: collapse; text-align: right; }
   .schedule-table th, .schedule-table td { border: 1px solid var(--border-subtle); padding: 8px; vertical-align: top; width: 16%; }
   .schedule-table th { background: var(--bg-surface-2); font-weight: 700; color: var(--text-secondary); font-size: 13px; text-align: center; padding: 12px; }
-  .schedule-time { background: var(--bg-surface-2) !important; font-weight: 700; color: var(--text-muted); font-size: 11px; width: 80px !important; text-align: center !important; vertical-align: middle !important; }
+  .schedule-time { background: var(--bg-surface-2) !important; font-weight: 700; color: var(--text-muted); font-size: 13px; width: 80px !important; text-align: center !important; vertical-align: middle !important; }
   
-  .session-card { background: rgba(66,153,225,0.08); border: 1px solid rgba(66,153,225,0.3); border-radius: var(--radius-sm); padding: 10px; margin-bottom: 6px; position: relative; cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; gap: 4px; }
+  .session-card { background: rgba(66,153,225,0.08); border: 1px solid rgba(66,153,225,0.3); border-radius: var(--radius-sm); padding: 10px; margin-bottom: 6px; position: relative; transition: var(--transition); display: flex; flex-direction: column; gap: 4px; }
   .session-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); background: rgba(66,153,225,0.12); }
-  .session-subject { font-size: 12px; font-weight: 700; color: var(--brand-info); }
-  .session-teacher { font-size: 10px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+  .session-subject { font-size: 13px; font-weight: 700; color: var(--brand-info); }
+  .session-teacher { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+  .session-room { font-size: 10px; color: var(--text-muted); background: var(--bg-surface-2); padding: 2px 6px; border-radius: 4px; width: fit-content; }
   
-  .session-card.conflict { background: rgba(229,62,62,0.08); border-color: rgba(229,62,62,0.4); }
-  .session-card.conflict .session-subject { color: var(--brand-danger); }
-  .conflict-icon { position: absolute; top: 8px; left: 8px; color: var(--brand-danger); font-size: 12px; }
-  
+  .delete-session-btn { position: absolute; top: 4px; left: 4px; background: transparent; border: none; color: var(--brand-danger); cursor: pointer; opacity: 0; transition: 0.2s; padding: 4px; }
+  .session-card:hover .delete-session-btn { opacity: 1; }
+  .delete-session-btn:hover { background: rgba(229,62,62,0.1); border-radius: 4px; }
+
   .empty-slot { height: 60px; display: flex; align-items: center; justify-content: center; color: transparent; cursor: pointer; transition: var(--transition); border-radius: var(--radius-sm); border: 1px dashed transparent; }
   .empty-slot:hover { border-color: var(--brand-primary); color: var(--brand-primary); background: rgba(26,107,74,0.05); }
 </style>
@@ -22,13 +23,13 @@
 <div class="page-header-row fade-in">
   <div class="page-header">
     <div class="page-title">🗓️ الجداول الدراسية</div>
-    <div class="page-subtitle">بناء ومتابعة الجداول الأسبوعية للحصص</div>
+    <div class="page-subtitle">بناء ومتابعة الجداول الأسبوعية للفصول الدراسية</div>
   </div>
   <div style="display:flex; gap:8px;">
-    <button class="btn btn-ghost btn-sm">
+    <button class="btn btn-ghost btn-sm" onclick="window.print()">
       <i class="fas fa-print"></i> طباعة الجدول
     </button>
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-session')">
+    <button class="btn btn-primary btn-sm" onclick="openAddSessionModal()">
       <i class="fas fa-plus"></i> حصة جديدة
     </button>
   </div>
@@ -38,16 +39,9 @@
   <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
     <div style="display: flex; align-items: center; gap: 12px;">
       <strong style="color: var(--text-primary); font-size: 14px;"><i class="fas fa-chalkboard" style="color:var(--brand-primary); margin-left:6px;"></i> عرض جدول الفصل:</strong>
-      <select class="form-select" style="width: 200px; padding: 8px 12px; font-weight: 700;">
-        <option>الفصل الأول</option>
-        <option selected>الفصل الثاني</option>
-        <option>الفصل الثالث</option>
+      <select id="sched-filter-class" class="form-select" style="width: 250px; padding: 8px 12px; font-weight: 700;" onchange="renderScheduleGrid()">
+        <option value="">-- اختر الفصل لعرض جدوله --</option>
       </select>
-    </div>
-    
-    <div style="display: flex; gap: 12px; font-size: 11px;">
-      <div style="display: flex; align-items: center; gap: 6px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(66,153,225,0.1);border:1px solid rgba(66,153,225,0.3)"></span> حصة عادية</div>
-      <div style="display: flex; align-items: center; gap: 6px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(229,62,62,0.1);border:1px solid rgba(229,62,62,0.4)"></span> تعارض أوقات</div>
     </div>
   </div>
 </div>
@@ -64,103 +58,8 @@
         <th>الخميس</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td class="schedule-time">08:00 ص<br><span style="font-size:9px;font-weight:400">90 دقيقة</span></td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">رياضيات</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. أحمد سعيد</div>
-          </div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">لغة عربية</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. فاطمة علي</div>
-          </div>
-        </td>
-        <td>
-          <div class="empty-slot" onclick="openModal('modal-add-session')"><i class="fas fa-plus"></i> إضافة حصة</div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">علوم طبيعية</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. كمال محمود</div>
-          </div>
-        </td>
-        <td>
-          <div class="session-card conflict" title="تعارض: المعلم لديه حصة أخرى في هذا الوقت">
-            <i class="fas fa-exclamation-triangle conflict-icon"></i>
-            <div class="session-subject">لغة إنجليزية</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. سارة جون</div>
-          </div>
-        </td>
-      </tr>
-
-      <tr>
-        <td class="schedule-time">10:00 ص<br><span style="font-size:9px;font-weight:400">90 دقيقة</span></td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">تربية إسلامية</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. محمود خليل</div>
-          </div>
-        </td>
-        <td>
-          <div class="empty-slot" onclick="openModal('modal-add-session')"><i class="fas fa-plus"></i> إضافة حصة</div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">رياضيات</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. أحمد سعيد</div>
-          </div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">تاريخ وجغرافيا</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. علي حسن</div>
-          </div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">تربية بدنية</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. طارق زياد</div>
-          </div>
-        </td>
-      </tr>
-
-      <tr>
-        <td colspan="6" style="background: var(--bg-base); text-align: center; color: var(--text-muted); font-size: 11px; padding: 4px; letter-spacing: 2px;">
-          اســــتــــراحــــــة
-        </td>
-      </tr>
-
-      <tr>
-        <td class="schedule-time">13:00 م<br><span style="font-size:9px;font-weight:400">60 دقيقة</span></td>
-        <td>
-          <div class="empty-slot" onclick="openModal('modal-add-session')"><i class="fas fa-plus"></i> إضافة حصة</div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">معلوماتية (حاسوب)</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. يوسف جمال</div>
-          </div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">لغة فرنسية</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. ماري كلير</div>
-          </div>
-        </td>
-        <td>
-          <div class="empty-slot" onclick="openModal('modal-add-session')"><i class="fas fa-plus"></i> إضافة حصة</div>
-        </td>
-        <td>
-          <div class="session-card">
-            <div class="session-subject">فنون تشكيلية</div>
-            <div class="session-teacher"><i class="fas fa-user-tie"></i> أ. ليلى عمر</div>
-          </div>
-        </td>
-      </tr>
+    <tbody id="schedule-tbody">
+      <tr><td colspan="6" style="text-align:center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> جاري تحميل الجداول...</td></tr>
     </tbody>
   </table>
 </div>
@@ -172,73 +71,290 @@
       <button class="modal-close" onclick="closeModal('modal-add-session')"><i class="fas fa-times"></i></button>
     </div>
     
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">الفصل *</label>
-        <select class="form-select" required>
-          <option value="">-- اختر الفصل --</option>
-          <option selected>الفصل الثاني</option>
-          <option>الفصل الأول</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">المادة *</label>
-        <select class="form-select" required>
-          <option value="">-- اختر المادة --</option>
-          <option>رياضيات</option>
-          <option>لغة عربية</option>
-          <option>علوم طبيعية</option>
-          <option>لغة إنجليزية</option>
-        </select>
-      </div>
-    </div>
-    
     <div class="form-group">
-      <label class="form-label">المعلم *</label>
-      <select class="form-select" required>
-        <option value="">-- اختر المعلم --</option>
-        <option>أ. أحمد سعيد</option>
-        <option>أ. فاطمة علي</option>
-        <option>أ. سارة جون</option>
+      <label class="form-label">التعيين (المعلم + المادة + الفصل) *</label>
+      <select id="ns-assignment-id" class="form-select" required>
+        <option value="">-- اختر التعيين --</option>
       </select>
+      <div class="form-hint">يجب إسناد المادة لمعلم في فصل معين من قسم "تعيينات المعلمين" لتظهر هنا.</div>
     </div>
     
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">اليوم *</label>
-        <select class="form-select" required>
-          <option>الأحد</option>
-          <option>الإثنين</option>
-          <option selected>الثلاثاء</option>
-          <option>الأربعاء</option>
-          <option>الخميس</option>
+        <select id="ns-day" class="form-select" required>
+          <!-- تتطابق هذه القيم بدقة مع الـ Enum في ملف OpenAPI -->
+          <option value="Sunday">الأحد</option>
+          <option value="Monday">الإثنين</option>
+          <option value="Tuesday">الثلاثاء</option>
+          <option value="Wednesday">الأربعاء</option>
+          <option value="Thursday">الخميس</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">الساعة *</label>
-        <select class="form-select" required>
-          <option>08:00 ص</option>
-          <option>10:00 ص</option>
-          <option>13:00 م</option>
-          <option>14:30 م</option>
-        </select>
+        <label class="form-label">القاعة / الغرفة</label>
+        <input type="text" id="ns-room" class="form-input" placeholder="مثال: قاعة 101">
       </div>
     </div>
     
-    <div class="form-group">
-      <label class="form-label">المدة *</label>
-      <select class="form-select" required>
-        <option>60 دقيقة</option>
-        <option selected>90 دقيقة</option>
-        <option>120 دقيقة</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">وقت البدء *</label>
+        <input type="time" id="ns-start" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">وقت الانتهاء *</label>
+        <input type="time" id="ns-end" class="form-input" required>
+      </div>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تمت إضافة الحصة إلى الجدول', 'success');closeModal('modal-add-session')">
-        <i class="fas fa-save"></i> إضافة الحصة
+      <button class="btn btn-primary" onclick="submitNewSession()">
+        <i class="fas fa-save"></i> حفظ الحصة
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-add-session')">إلغاء</button>
     </div>
   </div>
 </div>
+
+<script>
+  let schedData = {
+      schedules: [],
+      assignments: {},
+      classes: {},
+      subjects: {},
+      teachers: {},
+      users: {}
+  };
+
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+  const dayNamesAr = { 'Sunday': 'الأحد', 'Monday': 'الإثنين', 'Tuesday': 'الثلاثاء', 'Wednesday': 'الأربعاء', 'Thursday': 'الخميس' };
+
+  async function initSchedulesSection() {
+      if (typeof AppConfig === 'undefined') return;
+
+      try {
+          // جلب البيانات بشكل فردي لمعرفة أي جدول يفشل في الاستجابة
+          // 💡 ملاحظة: إذا كان اسم جدول التعيينات مختلفاً، قم بتغيير 'teacher_assignments' إلى 'assignments'
+          const schedRes = await AppConfig.get('schedules');
+          const assignRes = await AppConfig.get('teacher_assignments'); // ⚠️ تأكد من اسم هذا الرابط في السيرفر
+          const clsRes = await AppConfig.get('classes');
+          const subRes = await AppConfig.get('subjects'); // تم الاعتماد على ملف subjects.json الخاص بك
+          const teacherRes = await AppConfig.get('teachers');
+          const userRes = await AppConfig.get('users');
+
+          // طباعة البيانات في الكونسول للتأكد من وصولها
+          console.log("📚 Subjects fetched:", subRes);
+          console.log("🔗 Assignments fetched:", assignRes);
+
+          // تعبئة البيانات في الكائن (Object) للوصول السريع
+          schedData.schedules = Array.isArray(schedRes) ? schedRes : [];
+          if(Array.isArray(assignRes)) schedData.assignments = assignRes.reduce((acc, a) => ({...acc, [a.id]: a}), {});
+          if(Array.isArray(clsRes)) schedData.classes = clsRes.reduce((acc, c) => ({...acc, [c.id]: c}), {});
+          if(Array.isArray(subRes)) schedData.subjects = subRes.reduce((acc, s) => ({...acc, [s.id]: s}), {});
+          if(Array.isArray(teacherRes)) schedData.teachers = teacherRes.reduce((acc, t) => ({...acc, [t.id]: t}), {});
+          if(Array.isArray(userRes)) schedData.users = userRes.reduce((acc, u) => ({...acc, [u.id]: u}), {});
+
+          populateFiltersAndForms();
+          
+          const filterClassSelect = document.getElementById('sched-filter-class');
+          if (filterClassSelect.options.length > 1) {
+              filterClassSelect.selectedIndex = 1; 
+          }
+          
+          renderScheduleGrid();
+
+      } catch (error) {
+          console.error("Error loading schedules data:", error);
+          document.getElementById('schedule-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;">حدث خطأ أثناء جلب البيانات من الخادم</td></tr>';
+      }
+  }
+
+  function getAssignmentInfo(assignmentId) {
+      if (!assignmentId) return { className: '-', classId: null, subjectName: '-', teacherName: '-' };
+      
+      const assignment = schedData.assignments[assignmentId];
+      if (!assignment) return { className: '-', classId: null, subjectName: `تعيين غير معروف #${assignmentId}`, teacherName: '-' };
+
+      // استخراج البيانات بناءً على العلاقات
+      const cls = schedData.classes[assignment.class_id];
+      const sub = schedData.subjects[assignment.subject_id]; // هنا يتم ربط المادة
+      const teacher = schedData.teachers[assignment.teacher_id];
+      const user = teacher ? schedData.users[teacher.user_id] : null;
+
+      return {
+          classId: assignment.class_id,
+          className: cls ? cls.class_name : (assignment.class_id ? `فصل #${assignment.class_id}` : '-'),
+          // 🔴 قراءة اسم المادة من كائن الـ subjects بناءً على ملف subjects.json
+          subjectName: sub ? sub.subject_name : (assignment.subject_id ? `مادة #${assignment.subject_id}` : '-'),
+          teacherName: user ? user.full_name : (assignment.teacher_id ? `معلم #${assignment.teacher_id}` : '-')
+      };
+  }
+
+  function populateFiltersAndForms() {
+      const classFilter = document.getElementById('sched-filter-class');
+      const addAssignSelect = document.getElementById('ns-assignment-id');
+      
+      // 1. تعبئة قائمة الفصول في الأعلى
+      classFilter.innerHTML = '<option value="">-- اختر الفصل لعرض جدوله --</option>';
+      Object.values(schedData.classes).forEach(c => {
+          classFilter.innerHTML += `<option value="${c.id}">${c.class_name}</option>`;
+      });
+
+      // 2. تعبئة قائمة التعيينات (المادة + المعلم + الفصل) في نافذة الإضافة
+      addAssignSelect.innerHTML = '';
+      const assignmentsArray = Object.values(schedData.assignments);
+      
+      if (assignmentsArray.length === 0) {
+          // 🔴 إذا كانت فارغة، سنوضح للمستخدم أن المشكلة في عدم وجود تعيينات
+          addAssignSelect.innerHTML = '<option value="">-- لا توجد تعيينات مسجلة في النظام! --</option>';
+      } else {
+          addAssignSelect.innerHTML = '<option value="">-- اختر التعيين (المادة - المعلم) --</option>';
+          assignmentsArray.forEach(a => {
+              const info = getAssignmentInfo(a.id);
+              // الشكل النهائي: الرياضيات - أحمد (الصف الأول)
+              addAssignSelect.innerHTML += `<option value="${a.id}">${info.subjectName} - ${info.teacherName} (${info.className})</option>`;
+          });
+      }
+  }
+
+  function renderScheduleGrid() {
+      const classId = document.getElementById('sched-filter-class').value;
+      const tbody = document.getElementById('schedule-tbody');
+      tbody.innerHTML = '';
+
+      if (!classId) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">الرجاء اختيار فصل من القائمة العلوية لعرض الجدول الخاص به.</td></tr>';
+          return;
+      }
+
+      const classSchedules = schedData.schedules.filter(s => {
+          const info = getAssignmentInfo(s.assignment_id);
+          return String(info.classId) === classId;
+      });
+
+      if (classSchedules.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">لا توجد حصص مبرمجة لهذا الفصل حتى الآن. استخدم زر إضافة لإنشاء الجدول.</td></tr>';
+          return;
+      }
+
+      let uniqueTimes = [];
+      classSchedules.forEach(s => {
+          if (s.start_time && !uniqueTimes.includes(s.start_time)) {
+              uniqueTimes.push(s.start_time);
+          }
+      });
+      uniqueTimes.sort();
+
+      uniqueTimes.forEach(time => {
+          const sampleSession = classSchedules.find(s => s.start_time === time);
+          const endTimeDisplay = sampleSession && sampleSession.end_time ? formatTime(sampleSession.end_time) : '';
+          
+          const tr = document.createElement('tr');
+          let html = `<td class="schedule-time">${formatTime(time)}<br><span style="font-size:9px;font-weight:400;color:var(--text-muted)">إلى ${endTimeDisplay}</span></td>`;
+          
+          daysOfWeek.forEach(day => {
+              const session = classSchedules.find(s => s.start_time === time && s.day_of_week === day);
+              
+              if (session) {
+                  const info = getAssignmentInfo(session.assignment_id);
+                  const room = session.room_number ? `<div class="session-room"><i class="fas fa-door-open"></i> ${session.room_number}</div>` : '';
+                  
+                  html += `
+                    <td>
+                      <div class="session-card">
+                        <button class="delete-session-btn" title="حذف الحصة" onclick="deleteSession(${session.id})"><i class="fas fa-trash"></i></button>
+                        <div class="session-subject">${info.subjectName}</div>
+                        <div class="session-teacher"><i class="fas fa-user-tie"></i> ${info.teacherName}</div>
+                        ${room}
+                      </div>
+                    </td>`;
+              } else {
+                  html += `
+                    <td>
+                      <div class="empty-slot" onclick="openAddSessionModal('${day}', '${time.substring(0,5)}')"><i class="fas fa-plus"></i> إضافة</div>
+                    </td>`;
+              }
+          });
+          
+          tr.innerHTML = html;
+          tbody.appendChild(tr);
+      });
+  }
+
+  function formatTime(timeStr) {
+      if (!timeStr) return '';
+      const parts = timeStr.split(':');
+      if (parts.length >= 2) return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+      return timeStr;
+  }
+
+  function openAddSessionModal(prefillDay = '', prefillTime = '') {
+      document.getElementById('ns-assignment-id').value = '';
+      document.getElementById('ns-room').value = '';
+      
+      if(prefillDay) document.getElementById('ns-day').value = prefillDay;
+      else document.getElementById('ns-day').selectedIndex = 0;
+      
+      if(prefillTime) {
+          document.getElementById('ns-start').value = prefillTime;
+          let [h, m] = prefillTime.split(':').map(Number);
+          h = (h + 1) % 24;
+          document.getElementById('ns-end').value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      } else {
+          document.getElementById('ns-start').value = '';
+          document.getElementById('ns-end').value = '';
+      }
+      
+      openModal('modal-add-session');
+  }
+
+  async function submitNewSession() {
+      const assignId = document.getElementById('ns-assignment-id').value;
+      const day = document.getElementById('ns-day').value;
+      const room = document.getElementById('ns-room').value.trim();
+      const start = document.getElementById('ns-start').value;
+      const end = document.getElementById('ns-end').value;
+
+      if (!assignId || !day || !start || !end) {
+          alert("الرجاء تعبئة جميع الحقول الإجبارية (*)");
+          return;
+      }
+
+      const formattedStart = start.split(':').length === 2 ? `${start}:00` : start;
+      const formattedEnd = end.split(':').length === 2 ? `${end}:00` : end;
+
+      const payload = {
+          assignment_id: parseInt(assignId) || null,
+          day_of_week: day,
+          start_time: formattedStart,
+          end_time: formattedEnd,
+          room_number: room || null 
+      };
+
+      const res = await AppConfig.post('schedules/', payload);
+
+      if (res) {
+          if(typeof showToast === 'function') showToast('تمت إضافة الحصة للجدول بنجاح', 'success');
+          closeModal('modal-add-session');
+          initSchedulesSection(); 
+      } else {
+          alert("❌ حدث خطأ أثناء إضافة الحصة. قد يكون هناك تعارض أو أن البيانات غير مكتملة.");
+      }
+  }
+
+  async function deleteSession(id) {
+      if(!confirm("هل أنت متأكد من حذف هذه الحصة من الجدول؟")) return;
+
+      const res = await AppConfig.delete('schedules', id);
+      
+      if(res) {
+          if(typeof showToast === 'function') showToast('تم حذف الحصة بنجاح', 'success');
+          initSchedulesSection();
+      } else {
+          alert("تعذر حذف الحصة. قد تكون مرتبطة بسجلات أخرى.");
+      }
+  }
+
+  setTimeout(initSchedulesSection, 100);
+</script>

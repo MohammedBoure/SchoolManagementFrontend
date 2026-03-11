@@ -10,18 +10,10 @@
 </head>
 <body>
 
-<!-- ================================================================
-  كل ما يوجد هنا هو محتوى الصفحات فقط.
-  Sidebar + Header يُحقنان تلقائياً من layout.js
-  لإضافة صفحة جديدة: أضف <div class="page" id="page-XXXX"> هنا
-================================================================ -->
 <div class="page" id="page-profile">       <div id="stub-profile"></div></div>
 <div class="page" id="page-settings">      <div id="stub-settings"></div></div>
 <div class="page" id="page-security">      <div id="stub-security"></div></div>
 
-<!-- ════════════════════════════════════════════════════════════
-     PAGE: dashboard
-     ════════════════════════════════════════════════════════════ -->
 <div class="page active" id="page-dashboard">
 
   <div class="page-header-row fade-in">
@@ -42,14 +34,13 @@
     </div>
   </div>
 
-  <!-- KPI Cards -->
   <div class="kpi-grid">
     <div class="kpi-card green fade-in fade-in-delay-1">
       <div class="kpi-top">
         <div class="kpi-icon green"><i class="fas fa-user-graduate"></i></div>
         <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</div>
       </div>
-      <div class="kpi-value">487</div>
+      <div class="kpi-value">...</div>
       <div class="kpi-label">إجمالي الطلاب النشطين</div>
       <div class="progress-bar-wrap"><div class="progress-bar-track">
         <div class="progress-bar-fill" style="width:78%;background:linear-gradient(90deg,#276749,#48bb78)"></div>
@@ -71,7 +62,7 @@
         <div class="kpi-icon orange"><i class="fas fa-clock"></i></div>
         <div class="kpi-trend down"><i class="fas fa-arrow-up"></i> 3</div>
       </div>
-      <div class="kpi-value">7</div>
+      <div class="kpi-value">...</div>
       <div class="kpi-label">طلبات التسجيل المعلقة</div>
       <div class="progress-bar-wrap"><div class="progress-bar-track">
         <div class="progress-bar-fill" style="width:35%;background:linear-gradient(90deg,#c05621,var(--brand-accent))"></div>
@@ -90,7 +81,6 @@
     </div>
   </div>
 
-  <!-- Charts -->
   <div class="charts-grid">
     <div class="card fade-in">
       <div class="card-header">
@@ -138,7 +128,6 @@
     </div>
   </div>
 
-  <!-- Bottom Grid -->
   <div class="bottom-grid">
     <div class="card">
       <div class="card-header">
@@ -147,26 +136,9 @@
       </div>
       <div class="card-body" style="padding:0">
         <table class="data-table">
-          <thead><tr><th>الطالب</th><th>الفصل</th><th>الحالة</th><th></th></tr></thead>
-          <tbody>
-            <tr>
-              <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">أح</div><strong>أحمد محمد</strong></div></td>
-              <td>الفصل الثالث</td>
-              <td><span class="badge badge-warning">معلق</span></td>
-              <td><div class="action-btns"><button class="action-btn view" title="موافقة" onclick="showToast('تمت الموافقة','success')"><i class="fas fa-check"></i></button><button class="action-btn delete" title="رفض" onclick="showToast('تم الرفض','error')"><i class="fas fa-times"></i></button></div></td>
-            </tr>
-            <tr>
-              <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">سر</div><strong>سارة الرشيد</strong></div></td>
-              <td>الفصل الأول</td>
-              <td><span class="badge badge-warning">معلق</span></td>
-              <td><div class="action-btns"><button class="action-btn view" onclick="showToast('تمت الموافقة','success')"><i class="fas fa-check"></i></button><button class="action-btn delete"><i class="fas fa-times"></i></button></div></td>
-            </tr>
-            <tr>
-              <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">عم</div><strong>عمر المالكي</strong></div></td>
-              <td>الفصل الثاني</td>
-              <td><span class="badge badge-success">مقبول</span></td>
-              <td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button></div></td>
-            </tr>
+          <thead><tr><th>الطالب</th><th>المجموعة/الفصل</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="dashboard-enrollments-tbody">
+            <tr><td colspan="4" style="text-align:center;padding:20px;">جاري جلب الطلبات...</td></tr>
           </tbody>
         </table>
       </div>
@@ -185,12 +157,8 @@
       </div>
     </div>
   </div>
-</div><!-- /page-dashboard -->
+</div>
 
-
-<!-- ════════════════════════════════════════════════════════════
-     PAGE: students
-     ════════════════════════════════════════════════════════════ -->
 <div class="page" id="page-students">
   <div class="page-header-row fade-in">
     <div class="page-header">
@@ -215,31 +183,20 @@
       <table class="data-table" id="students-table">
         <thead><tr><th><input type="checkbox"></th><th>الطالب</th><th>الفصل</th><th>ولي الأمر</th><th>فصيلة الدم</th><th>السياسة المالية</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
         <tbody>
-          <tr><td><input type="checkbox"></td><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-green">أم</div><div><strong>أحمد محمود</strong><div style="font-size:10px;color:var(--text-muted)">#STU-001</div></div></div></td><td>الفصل الثاني مستوى أول</td><td>محمود علي</td><td><span class="badge badge-info">A+</span></td><td>خصم 10%</td><td><span class="badge badge-success"><i class="fas fa-circle" style="font-size:6px"></i> نشط</span></td><td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button><button class="action-btn edit"><i class="fas fa-pen"></i></button><button class="action-btn delete" onclick="showToast('تم تغيير حالة الطالب','warning')"><i class="fas fa-ban"></i></button></div></td></tr>
-          <tr><td><input type="checkbox"></td><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-purple">سع</div><div><strong>سارة العمري</strong><div style="font-size:10px;color:var(--text-muted)">#STU-002</div></div></div></td><td>الفصل الأول مستوى ثاني</td><td>خالد العمري</td><td><span class="badge badge-info">B+</span></td><td>لا يوجد</td><td><span class="badge badge-success"><i class="fas fa-circle" style="font-size:6px"></i> نشط</span></td><td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button><button class="action-btn edit"><i class="fas fa-pen"></i></button><button class="action-btn delete"><i class="fas fa-ban"></i></button></div></td></tr>
-          <tr><td><input type="checkbox"></td><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-orange">عخ</div><div><strong>عمر الخالدي</strong><div style="font-size:10px;color:var(--text-muted)">#STU-003</div></div></div></td><td>الفصل الثالث مستوى ثالث</td><td>علي الخالدي</td><td><span class="badge badge-warning">O-</span></td><td>خصم أسري</td><td><span class="badge badge-warning"><i class="fas fa-circle" style="font-size:6px"></i> موقوف</span></td><td><div class="action-btns"><button class="action-btn view"><i class="fas fa-eye"></i></button><button class="action-btn edit"><i class="fas fa-pen"></i></button></div></td></tr>
-        </tbody>
+          </tbody>
       </table>
     </div>
     <div class="pagination">
-      <span>عرض 1-10 من أصل 487 طالب</span>
+      <span>يتم عرض البيانات بشكل مباشر من الخادم</span>
       <div class="pagination-btns">
         <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
-        <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button>
-        <button class="page-btn">...</button><button class="page-btn">49</button>
+        <button class="page-btn active">1</button>
         <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
       </div>
     </div>
   </div>
-</div><!-- /page-students -->
+</div>
 
-
-<!-- ════════════════════════════════════════════════════════════
-     PAGE STUBS — باقي الصفحات (prompt جاهز للتنفيذ)
-     لكل صفحة: اسم الملف الذي يجب إنشاؤه + الـ PROMPT
-     ════════════════════════════════════════════════════════════ -->
-
-<!-- STUB MACRO: يُستخدم للصفحات غير المنفذة بعد -->
 <div class="page" id="page-fees">          <div id="stub-fees"></div></div>
 <div class="page" id="page-payrolls">      <div id="stub-payrolls"></div></div>
 <div class="page" id="page-expenses">      <div id="stub-expenses"></div></div>
@@ -266,11 +223,6 @@
 <div class="page" id="page-notifications"> <div id="stub-notifications"></div></div>
 
 
-<!-- ================================================================
-     GLOBAL MODALS (مشتركة بين أكثر من صفحة)
-================================================================ -->
-
-<!-- Modal: New Student -->
 <div class="modal-overlay" id="modal-new-student">
   <div class="modal">
     <div class="modal-header">
@@ -298,7 +250,6 @@
   </div>
 </div>
 
-<!-- Modal: Payment -->
 <div class="modal-overlay" id="modal-payment">
   <div class="modal">
     <div class="modal-header">
@@ -320,7 +271,6 @@
   </div>
 </div>
 
-<!-- Modal: Expense -->
 <div class="modal-overlay" id="modal-expense">
   <div class="modal">
     <div class="modal-header">
@@ -341,14 +291,12 @@
   </div>
 </div>
 
-
-<!-- ================================================================
-     SCRIPTS
-================================================================ -->
+<script src="sections/js/base.js"></script>
 <script src="layout.js"></script>
+
 <script>
 // ════════════════════════════════════════════════════════════
-// تشغيل الـ Layout
+// تهيئة النظام
 // ════════════════════════════════════════════════════════════
 Layout.init({
   pageId: 'dashboard',
@@ -356,71 +304,187 @@ Layout.init({
 });
 
 // ════════════════════════════════════════════════════════════
-// DASHBOARD: Bar Chart للحضور
+// التخزين المؤقت للبيانات المترابطة للـ APIs
 // ════════════════════════════════════════════════════════════
-function onPageInit(pageId) {
-  if (pageId === 'dashboard') _buildDashboard();
+let usersMap = {};
+let classesMap = {};
+
+async function preloadRelationalData() {
+    if (typeof AppConfig === 'undefined') return;
+    if (Object.keys(usersMap).length === 0) {
+        const users = await AppConfig.get('users') || [];
+        usersMap = users.reduce((acc, user) => ({ ...acc, [user.id]: user }), {});
+    }
+    if (Object.keys(classesMap).length === 0) {
+        const classes = await AppConfig.get('classes') || [];
+        classesMap = classes.reduce((acc, cls) => ({ ...acc, [cls.id]: cls }), {});
+    }
+}
+function getInitials(name) {
+    if (!name) return '؟؟';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
 }
 
-const loadedPages = new Set();
-function onPageChange(pageId) {
-  // تحديث الداشبورد إذا كنا فيها
-  if (pageId === 'dashboard') {
-    if(typeof _buildDashboard === 'function') _buildDashboard();
-    return;
+function getStatusBadge(status) {
+    if (status === 'Active') return '<span class="badge badge-success"><i class="fas fa-circle" style="font-size:6px"></i> نشط</span>';
+    if (status === 'Inactive') return '<span class="badge badge-warning"><i class="fas fa-circle" style="font-size:6px"></i> موقوف</span>';
+    return `<span class="badge badge-info">${status || 'غير محدد'}</span>`;
+}
+
+// ════════════════════════════════════════════════════════════
+// بناء لوحة القيادة الحية ببيانات الـ API
+// ════════════════════════════════════════════════════════════
+async function buildLiveDashboard() {
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ar-DZ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const el = document.getElementById('dashboard-date');
+  if (el) el.textContent = `مرحباً، أحمد — ${dateStr}`;
+
+  if(typeof Layout.buildBarChart === 'function') {
+    Layout.buildBarChart('attendance-chart', [
+      { day:'أحد',     bars:[{cls:'present',val:92,label:'حاضر'},{cls:'absent',val:8,label:'غائب'}]},
+      { day:'اثنين',   bars:[{cls:'present',val:88,label:'حاضر'},{cls:'absent',val:12,label:'غائب'}]},
+      { day:'ثلاثاء',  bars:[{cls:'present',val:95,label:'حاضر'},{cls:'absent',val:5,label:'غائب'}]},
+      { day:'أربعاء',  bars:[{cls:'present',val:85,label:'حاضر'},{cls:'absent',val:15,label:'غائب'}]},
+      { day:'خميس',    bars:[{cls:'present',val:90,label:'حاضر'},{cls:'absent',val:10,label:'غائب'}]},
+      { day:'جمعة',    bars:[{cls:'present',val:78,label:'حاضر'},{cls:'absent',val:22,label:'غائب'}]},
+      { day:'سبت',     bars:[{cls:'present',val:93,label:'حاضر'},{cls:'absent',val:7,label:'غائب'}]},
+    ]);
   }
 
-  // إذا تم تحميل الصفحة بنجاح مسبقاً، لا تفعل شيئاً
+  if (typeof AppConfig === 'undefined') return;
+
+  await preloadRelationalData();
+  const students = await AppConfig.get('students') || [];
+  const enrollments = await AppConfig.get('student_enrollments') || [];
+
+  const activeStudents = students.filter(s => s.status === 'Active').length;
+  const activeKpiEl = document.querySelector('.kpi-card.green .kpi-value');
+  if(activeKpiEl) activeKpiEl.textContent = activeStudents;
+
+  const pendingEnrollments = enrollments.filter(e => e.status && e.status.toLowerCase().includes('pending')).length || enrollments.length;
+  const pendingKpiEl = document.querySelector('.kpi-card.orange .kpi-value');
+  if(pendingKpiEl) pendingKpiEl.textContent = pendingEnrollments;
+
+  const enrollmentsTbody = document.getElementById('dashboard-enrollments-tbody');
+  if (enrollmentsTbody) {
+      if (enrollments.length > 0) {
+          enrollmentsTbody.innerHTML = ''; 
+          const recentEnrollments = enrollments.slice(-4).reverse(); 
+          
+          recentEnrollments.forEach(enr => {
+              const studentObj = students.find(s => s.id === enr.student_id);
+              const userObj = studentObj ? usersMap[studentObj.user_id] : null;
+              const studentName = userObj ? userObj.full_name : 'طالب غير معروف';
+              const initials = getInitials(studentName);
+              
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                  <td>
+                      <div style="display:flex;align-items:center;gap:8px">
+                          <div class="avatar avatar-blue">${initials}</div>
+                          <strong>${studentName}</strong>
+                      </div>
+                  </td>
+                  <td>${enr.group_name || '-'}</td>
+                  <td><span class="badge badge-warning">${enr.status || 'معلق'}</span></td>
+                  <td>
+                      <div class="action-btns"><button class="action-btn view" title="مراجعة"><i class="fas fa-check"></i></button></div>
+                  </td>
+              `;
+              enrollmentsTbody.appendChild(tr);
+          });
+      } else {
+          enrollmentsTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد طلبات تسجيل حالياً</td></tr>';
+      }
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// إدارة الصفحات والروابط (Routing & Navigation) 🌟 
+// ════════════════════════════════════════════════════════════
+const loadedPages = new Set();
+
+function onPageChange(pageId) {
+  // 1. تحديث رابط المتصفح ليحتوي على الـ Hash (مثل: #students)
+  if (window.location.hash !== '#' + pageId) {
+      window.history.pushState(null, null, '#' + pageId);
+  }
+
+  // 2. تحديث لوحة القيادة إذا كانت هي الصفحة النشطة
+  if (pageId === 'dashboard') { buildLiveDashboard(); return; }
+
+  // 3. منع إعادة التحميل إذا تم تحميلها مسبقاً
   if (loadedPages.has(pageId)) return;
 
   const pageContainer = document.getElementById(`page-${pageId}`);
   if (!pageContainer) return;
 
-  // إظهار مؤشر التحميل
   pageContainer.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><br>جاري التحميل...</div>';
 
-  // محاولة جلب الملف الخارجي
   fetch(`sections/${pageId}.html`)
     .then(response => {
       if (!response.ok) throw new Error(`الملف غير موجود (${response.status})`);
       return response.text();
     })
     .then(html => {
-      // في حال نجاح جلب الملف
       pageContainer.innerHTML = html;
-      loadedPages.add(pageId); // تسجيل أن الصفحة محملة
+      loadedPages.add(pageId);
+      
+      // تشغيل السكربتات المرفقة مع الصفحة
+      const scripts = pageContainer.querySelectorAll('script');
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+        newScript.textContent = oldScript.textContent;
+        oldScript.parentNode.replaceChild(newScript, oldScript); 
+      });
+
     })
     .catch(error => {
-      // في حال فشل جلب الملف (الملف غير موجود 404)
       console.warn(`[النظام] ${error.message} للصفحة: ${pageId}`);
-      _injectStubPage(pageId); // عرض قالب "قريباً" والـ Prompt
+      if(typeof _injectStubPage === 'function') _injectStubPage(pageId); 
     });
 }
 
-function _buildDashboard() {
-  const today = new Date();
-  const dateStr = today.toLocaleDateString('ar-DZ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  const el = document.getElementById('dashboard-date');
-  if (el) el.textContent = `مرحباً، أحمد — ${dateStr}`;
+// 🌟 الاستماع لحدث زر "الرجوع" و "التقدم" في المتصفح
+window.addEventListener('hashchange', () => {
+    let hash = window.location.hash.replace('#', '');
+    if (!hash) hash = 'dashboard';
+    
+    // استدعاء دالة التنقل الموجودة في Layout.js لتغيير القائمة الجانبية وإظهار الصفحة
+    if (typeof Layout !== 'undefined' && typeof Layout.navigateTo === 'function') {
+        Layout.navigateTo(hash);
+    } else if (typeof navigateTo === 'function') {
+        navigateTo(hash);
+    }
+});
 
-  Layout.buildBarChart('attendance-chart', [
-    { day:'أحد',     bars:[{cls:'present',val:92,label:'حاضر'},{cls:'absent',val:8,label:'غائب'}]},
-    { day:'اثنين',   bars:[{cls:'present',val:88,label:'حاضر'},{cls:'absent',val:12,label:'غائب'}]},
-    { day:'ثلاثاء',  bars:[{cls:'present',val:95,label:'حاضر'},{cls:'absent',val:5,label:'غائب'}]},
-    { day:'أربعاء',  bars:[{cls:'present',val:85,label:'حاضر'},{cls:'absent',val:15,label:'غائب'}]},
-    { day:'خميس',    bars:[{cls:'present',val:90,label:'حاضر'},{cls:'absent',val:10,label:'غائب'}]},
-    { day:'جمعة',    bars:[{cls:'present',val:78,label:'حاضر'},{cls:'absent',val:22,label:'غائب'}]},
-    { day:'سبت',     bars:[{cls:'present',val:93,label:'حاضر'},{cls:'absent',val:7,label:'غائب'}]},
-  ]);
-}
+// 🌟 عند تحميل النظام لأول مرة (التعامل مع الروابط المباشرة)
+window.addEventListener('DOMContentLoaded', () => {
+    let hash = window.location.hash.replace('#', '');
+    
+    if (hash && hash !== 'dashboard') {
+        // إذا كان الرابط يحتوي على قسم معين، انتقل إليه مع تأخير بسيط لضمان تحميل الـ Layout
+        setTimeout(() => {
+            if (typeof Layout !== 'undefined' && typeof Layout.navigateTo === 'function') {
+                Layout.navigateTo(hash);
+            } else if (typeof navigateTo === 'function') {
+                navigateTo(hash);
+            }
+        }, 100);
+    } else {
+        // إذا لم يكن هناك هاش، قم بتحميل الداشبورد كافتراضي
+        buildLiveDashboard();
+    }
+});
 
 // ════════════════════════════════════════════════════════════
-// STUB PAGES INJECTOR
-// يحقن محتوى "قريباً" عند أول زيارة للصفحة غير المنفذة
+// حاقن الصفحات المؤقتة (Stubs)
 // ════════════════════════════════════════════════════════════
-const _visitedStubs = new Set();
 function _injectStubPage(pageId) {
-  // نستهدف الحاوية الرئيسية للصفحة مباشرة
   const el = document.getElementById('page-' + pageId);
   if (!el) return;
 
@@ -457,7 +521,6 @@ function _injectStubPage(pageId) {
 
   const info = pageInfo[pageId] || { icon:'📄', title:'صفحة جديدة', file:`sections/${pageId}.html` };
 
-  // حقن الـ HTML المخصص للـ Prompt مباشرة داخل الـ Page
   el.innerHTML = `
     <div class="page-header fade-in" style="margin-bottom:24px">
       <div class="page-title">${info.icon} ${info.title}</div>
@@ -478,8 +541,6 @@ function _injectStubPage(pageId) {
   `;
 }
 
-// تشغيل فوري للـ dashboard
-_buildDashboard();
 </script>
 
 </body>

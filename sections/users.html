@@ -1,3 +1,5 @@
+--- START OF FILE users.html ---
+
 <style>
   /* Toggle Switch CSS */
   .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
@@ -12,13 +14,13 @@
 <div class="page-header-row fade-in">
   <div class="page-header">
     <div class="page-title">👥 إدارة المستخدمين</div>
-    <div class="page-subtitle">إدارة حسابات المستخدمين وصلاحياتهم</div>
+    <div class="page-subtitle">إدارة حسابات النظام وصلاحيات الدخول (Admins, Teachers, Parents...)</div>
   </div>
   <div style="display:flex; gap:8px;">
     <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('users-table','users.csv')">
       <i class="fas fa-file-excel"></i> تصدير
     </button>
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-user')">
+    <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">
       <i class="fas fa-user-plus"></i> مستخدم جديد
     </button>
   </div>
@@ -27,30 +29,30 @@
 <div class="kpi-grid">
   <div class="kpi-card blue fade-in fade-in-delay-1">
     <div class="kpi-top">
-      <div class="kpi-icon blue"><i class="fas fa-user-tie"></i></div>
+      <div class="kpi-icon blue"><i class="fas fa-shield-alt"></i></div>
     </div>
-    <div class="kpi-value">3</div>
-    <div class="kpi-label">مديرون</div>
+    <div class="kpi-value" id="kpi-admins">0</div>
+    <div class="kpi-label">مديرو النظام (Admins)</div>
   </div>
   <div class="kpi-card green fade-in fade-in-delay-2">
     <div class="kpi-top">
       <div class="kpi-icon green"><i class="fas fa-chalkboard-teacher"></i></div>
     </div>
-    <div class="kpi-value">18</div>
-    <div class="kpi-label">معلمون</div>
+    <div class="kpi-value" id="kpi-teachers">0</div>
+    <div class="kpi-label">المعلمون</div>
   </div>
   <div class="kpi-card orange fade-in fade-in-delay-3">
     <div class="kpi-top">
-      <div class="kpi-icon orange"><i class="fas fa-users"></i></div>
+      <div class="kpi-icon orange"><i class="fas fa-user-friends"></i></div>
     </div>
-    <div class="kpi-value">145</div>
-    <div class="kpi-label">أولياء أمور</div>
+    <div class="kpi-value" id="kpi-parents">0</div>
+    <div class="kpi-label">أولياء الأمور</div>
   </div>
   <div class="kpi-card red fade-in fade-in-delay-4">
     <div class="kpi-top">
       <div class="kpi-icon red"><i class="fas fa-user-lock"></i></div>
     </div>
-    <div class="kpi-value">2</div>
+    <div class="kpi-value" id="kpi-suspended">0</div>
     <div class="kpi-label">حسابات موقوفة</div>
   </div>
 </div>
@@ -60,23 +62,24 @@
     <div class="table-controls" style="width: 100%;">
       <div class="search-input-wrap" style="flex: 2;">
         <i class="fas fa-search"></i>
-        <input type="text" class="search-input" placeholder="بحث بالاسم أو البريد الإلكتروني...">
+        <input type="text" id="users-search" class="search-input" placeholder="بحث بالاسم، المستخدم، أو البريد..." onkeyup="filterUsersTable()">
       </div>
-      <select class="filter-select">
-        <option>جميع الأدوار</option>
-        <option>مدير</option>
-        <option>معلم</option>
-        <option>ولي أمر</option>
+      <select id="users-filter-role" class="filter-select" onchange="filterUsersTable()">
+        <option value="">جميع الأدوار</option>
+        <option value="Admin">مدير نظام (Admin)</option>
+        <option value="Teacher">معلم (Teacher)</option>
+        <option value="Parent">ولي أمر (Parent)</option>
+        <option value="Student">طالب (Student)</option>
+        <option value="Accountant">محاسب (Accountant)</option>
+        <option value="Staff">موظف (Staff)</option>
       </select>
-      <select class="filter-select">
-        <option>جميع الحالات</option>
-        <option>نشط</option>
-        <option>موقوف</option>
+      <select id="users-filter-status" class="filter-select" onchange="filterUsersTable()">
+        <option value="">جميع الحالات</option>
+        <option value="active">نشط</option>
+        <option value="inactive">موقوف</option>
       </select>
-      <select class="filter-select">
-        <option>جميع الفروع</option>
-        <option>الفرع الرئيسي</option>
-        <option>فرع الشمال</option>
+      <select id="users-filter-branch" class="filter-select" onchange="filterUsersTable()">
+        <option value="">جميع الفروع</option>
       </select>
     </div>
   </div>
@@ -86,107 +89,21 @@
       <thead>
         <tr>
           <th>المستخدم</th>
-          <th>الدور</th>
+          <th>الدور (Role)</th>
           <th>الفرع</th>
-          <th>آخر دخول</th>
-          <th>تاريخ التسجيل</th>
+          <th>تاريخ الإنشاء</th>
           <th>الحالة (نشط)</th>
           <th>الإجراءات</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-blue">أد</div>
-              <div><strong>أحمد الدراجي</strong><div style="font-size:10px;color:var(--text-muted)">ahmed.d@school.com</div></div>
-            </div>
-          </td>
-          <td><span class="badge badge-info"><i class="fas fa-shield-alt"></i> مدير النظام</span></td>
-          <td>الفرع الرئيسي</td>
-          <td>منذ ساعتين</td>
-          <td>01 سبتمبر 2023</td>
-          <td>
-            <label class="switch">
-              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الحساب', 'info')">
-              <span class="slider"></span>
-            </label>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="عرض الملف"><i class="fas fa-eye"></i></button>
-              <button class="action-btn edit" title="تعديل الصلاحيات"><i class="fas fa-user-cog"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-green">فك</div>
-              <div><strong>فاطمة كمال</strong><div style="font-size:10px;color:var(--text-muted)">fatima.k@school.com</div></div>
-            </div>
-          </td>
-          <td><span class="badge badge-success"><i class="fas fa-chalkboard-teacher"></i> معلم</span></td>
-          <td>فرع الشمال</td>
-          <td>أمس</td>
-          <td>15 أغسطس 2024</td>
-          <td>
-            <label class="switch">
-              <input type="checkbox" checked onchange="showToast('تم تحديث حالة الحساب', 'info')">
-              <span class="slider"></span>
-            </label>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="عرض الملف"><i class="fas fa-eye"></i></button>
-              <button class="action-btn edit" title="تعديل الصلاحيات"><i class="fas fa-user-cog"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr style="background: rgba(229,62,62,0.03);">
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-orange">سم</div>
-              <div><strong>سعيد محمود</strong><div style="font-size:10px;color:var(--text-muted)">saeed.m@gmail.com</div></div>
-            </div>
-          </td>
-          <td><span class="badge badge-warning"><i class="fas fa-user-friends"></i> ولي أمر</span></td>
-          <td>الفرع الرئيسي</td>
-          <td>منذ شهرين</td>
-          <td>10 أكتوبر 2025</td>
-          <td>
-            <label class="switch">
-              <input type="checkbox" onchange="showToast('تم تفعيل الحساب', 'success')">
-              <span class="slider"></span>
-            </label>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="عرض الملف"><i class="fas fa-eye"></i></button>
-              <button class="action-btn edit" title="تعديل الصلاحيات"><i class="fas fa-user-cog"></i></button>
-            </div>
-          </td>
-        </tr>
+      <tbody id="users-tbody">
+        <tr><td colspan="6" style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب المستخدمين...</td></tr>
       </tbody>
     </table>
   </div>
-  
-  <div class="pagination">
-    <span>عرض 1-3 من أصل 166 مستخدم</span>
-    <div class="pagination-btns">
-      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">...</button>
-      <button class="page-btn">17</button>
-      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
-    </div>
-  </div>
 </div>
 
+<!-- Modal: إضافة مستخدم -->
 <div class="modal-overlay" id="modal-add-user">
   <div class="modal">
     <div class="modal-header">
@@ -197,57 +114,475 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">الاسم الكامل *</label>
-        <input type="text" class="form-input" placeholder="الاسم الرباعي" required>
+        <input type="text" id="nu-name" class="form-input" placeholder="الاسم الثلاثي أو الرباعي" required>
       </div>
       <div class="form-group">
-        <label class="form-label">البريد الإلكتروني *</label>
-        <input type="email" class="form-input" placeholder="email@example.com" required>
+        <label class="form-label">اسم المستخدم (للدخول) *</label>
+        <input type="text" id="nu-username" class="form-input" placeholder="user123" required>
       </div>
     </div>
     
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">رقم الهاتف</label>
-        <input type="tel" class="form-input" placeholder="+213 00 00 00 00">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input type="email" id="nu-email" class="form-input" placeholder="email@example.com">
       </div>
       <div class="form-group">
-        <label class="form-label">الفرع *</label>
-        <select class="form-select" required>
-          <option value="main">الفرع الرئيسي</option>
-          <option value="north">فرع الشمال</option>
-        </select>
+        <label class="form-label">رقم الهاتف</label>
+        <input type="tel" id="nu-phone" class="form-input" placeholder="+213 00 00 00 00">
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">الدور / الصلاحية *</label>
-      <select class="form-select" required>
-        <option value="">-- اختر الدور --</option>
-        <option value="admin">مدير نظام</option>
-        <option value="teacher">معلم</option>
-        <option value="parent">ولي أمر</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الدور / الصلاحية *</label>
+        <select id="nu-role" class="form-select" required>
+          <option value="">-- اختر الدور --</option>
+          <option value="Admin">مدير نظام (Admin)</option>
+          <option value="Teacher">معلم (Teacher)</option>
+          <option value="Parent">ولي أمر (Parent)</option>
+          <option value="Student">طالب (Student)</option>
+          <option value="Accountant">محاسب (Accountant)</option>
+          <option value="Staff">موظف (Staff)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الفرع</label>
+        <select id="nu-branch" class="form-select">
+          <option value="">-- بدون فرع محدد --</option>
+        </select>
+      </div>
     </div>
     
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">كلمة المرور *</label>
-        <input type="password" class="form-input" placeholder="••••••••" required>
+        <input type="password" id="nu-password" class="form-input" placeholder="••••••••" required>
       </div>
       <div class="form-group">
         <label class="form-label">تأكيد كلمة المرور *</label>
-        <input type="password" class="form-input" placeholder="••••••••" required>
+        <input type="password" id="nu-password-confirm" class="form-input" placeholder="••••••••" required>
       </div>
-    </div>
-    <div class="form-hint" style="margin-top:-10px; margin-bottom: 16px;">
-      يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم إنشاء حساب المستخدم بنجاح', 'success');closeModal('modal-add-user')">
+      <button class="btn btn-primary" onclick="submitNewUser()">
         <i class="fas fa-user-check"></i> إنشاء الحساب
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-add-user')">إلغاء</button>
     </div>
   </div>
 </div>
+
+<!-- Modal: تعديل مستخدم -->
+<div class="modal-overlay" id="modal-edit-user">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ تعديل بيانات المستخدم</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-user')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <!-- حقول مخفية ضرورية للتحديث -->
+    <input type="hidden" id="eu-id">
+    <input type="hidden" id="eu-created-at">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الاسم الكامل *</label>
+        <input type="text" id="eu-name" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">اسم المستخدم *</label>
+        <input type="text" id="eu-username" class="form-input" required>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input type="email" id="eu-email" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">رقم الهاتف</label>
+        <input type="tel" id="eu-phone" class="form-input">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الدور / الصلاحية *</label>
+        <select id="eu-role" class="form-select" required>
+          <option value="Admin">مدير نظام (Admin)</option>
+          <option value="Teacher">معلم (Teacher)</option>
+          <option value="Parent">ولي أمر (Parent)</option>
+          <option value="Student">طالب (Student)</option>
+          <option value="Accountant">محاسب (Accountant)</option>
+          <option value="Staff">موظف (Staff)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الفرع</label>
+        <select id="eu-branch" class="form-select">
+          <option value="">-- بدون فرع محدد --</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">تغيير كلمة المرور (اختياري)</label>
+      <input type="password" id="eu-password" class="form-input" placeholder="اتركه فارغاً إذا لم ترد تغيير كلمة المرور">
+      <div class="form-hint" style="margin-top: 4px;">إذا أدخلت كلمة مرور هنا، سيتم استبدال الكلمة القديمة.</div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="submitEditUser()">
+        <i class="fas fa-save"></i> حفظ التعديلات
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-user')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let usersPageData = {
+      users: [],
+      branches: {}
+  };
+
+  async function initUsersSection() {
+      if (typeof AppConfig === 'undefined') {
+          document.getElementById('users-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;">خطأ: ملف الاتصال بالخادم مفقود</td></tr>';
+          return;
+      }
+
+      try {
+          // جلب المستخدمين
+          const usersRes = await AppConfig.get('users');
+          usersPageData.users = Array.isArray(usersRes) ? usersRes : [];
+
+          // محاولة جلب الفروع
+          try {
+              const branchesRes = await AppConfig.get('branches');
+              usersPageData.branches = Array.isArray(branchesRes) 
+                  ? branchesRes.reduce((acc, b) => ({...acc, [b.id]: b}), {}) 
+                  : {};
+          } catch(e) { console.warn("Could not load branches", e); }
+
+          calculateUsersKPIs();
+          populateBranchesDropdown();
+          renderUsersTable(usersPageData.users);
+
+      } catch (error) {
+          console.error("Error loading users data:", error);
+          document.getElementById('users-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;">حدث خطأ أثناء الاتصال بالخادم</td></tr>';
+      }
+  }
+
+  function calculateUsersKPIs() {
+      let admins = 0, teachers = 0, parents = 0, suspended = 0;
+
+      usersPageData.users.forEach(u => {
+          if (u.role === 'Admin') admins++;
+          if (u.role === 'Teacher') teachers++;
+          if (u.role === 'Parent') parents++;
+          if (u.is_active === false) suspended++;
+      });
+
+      document.getElementById('kpi-admins').innerText = admins;
+      document.getElementById('kpi-teachers').innerText = teachers;
+      document.getElementById('kpi-parents').innerText = parents;
+      document.getElementById('kpi-suspended').innerText = suspended;
+  }
+
+  function getRoleBadge(role) {
+      switch(role) {
+          case 'Admin': return '<span class="badge badge-info"><i class="fas fa-shield-alt"></i> مدير نظام</span>';
+          case 'Teacher': return '<span class="badge badge-success"><i class="fas fa-chalkboard-teacher"></i> معلم</span>';
+          case 'Parent': return '<span class="badge badge-warning"><i class="fas fa-user-friends"></i> ولي أمر</span>';
+          case 'Student': return '<span style="color:#3182ce; background:#ebf8ff; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700;"><i class="fas fa-user-graduate"></i> طالب</span>';
+          case 'Accountant': return '<span class="badge badge-gray"><i class="fas fa-calculator"></i> محاسب</span>';
+          case 'Staff': return '<span class="badge badge-gray"><i class="fas fa-briefcase"></i> موظف</span>';
+          default: return `<span class="badge badge-gray">${role || 'غير محدد'}</span>`;
+      }
+  }
+
+  function renderUsersTable(usersArray) {
+      const tbody = document.getElementById('users-tbody');
+      tbody.innerHTML = '';
+
+      if (usersArray.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا يوجد مستخدمون مطابقون للبحث</td></tr>';
+          return;
+      }
+
+      usersArray.forEach(user => {
+          const isActive = user.is_active !== false; 
+          const branch = user.branch_id && usersPageData.branches[user.branch_id] 
+                        ? usersPageData.branches[user.branch_id].branch_name 
+                        : '-';
+          const createdAt = user.created_at ? user.created_at.split('T')[0] : '-';
+          
+          const tr = document.createElement('tr');
+          if (!isActive) tr.style.background = 'rgba(229,62,62,0.03)';
+          
+          // تم إضافة زر التعديل هنا وربطه بدالة التعديل
+          tr.innerHTML = `
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="avatar ${isActive ? 'avatar-blue' : 'avatar-gray'}">${getInitials(user.full_name)}</div>
+                  <div>
+                    <strong>${user.full_name || 'بدون اسم'}</strong>
+                    <div style="font-size:10px;color:var(--text-muted);font-family:monospace;">${user.username}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${getRoleBadge(user.role)}</td>
+              <td>${branch}</td>
+              <td>${createdAt}</td>
+              <td>
+                <label class="switch">
+                  <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleUserStatus(${user.id}, ${isActive}, '${user.full_name}', this)">
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="action-btn edit" title="تعديل" onclick="openEditUserModal(${user.id})"><i class="fas fa-pen"></i></button>
+                  <button class="action-btn delete" title="حذف" onclick="deleteUser(${user.id}, '${user.full_name}')"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+          `;
+          tbody.appendChild(tr);
+      });
+  }
+
+  function filterUsersTable() {
+      const searchVal = document.getElementById('users-search').value.toLowerCase();
+      const roleVal = document.getElementById('users-filter-role').value;
+      const statusVal = document.getElementById('users-filter-status').value;
+      const branchVal = document.getElementById('users-filter-branch').value;
+
+      const filtered = usersPageData.users.filter(user => {
+          const isActive = user.is_active !== false;
+          
+          const matchName = (user.full_name || '').toLowerCase().includes(searchVal) || 
+                            (user.email || '').toLowerCase().includes(searchVal) ||
+                            (user.username || '').toLowerCase().includes(searchVal);
+                            
+          const matchRole = roleVal === "" || user.role === roleVal;
+          const matchBranch = branchVal === "" || String(user.branch_id) === branchVal;
+          
+          let matchStatus = true;
+          if (statusVal === 'active') matchStatus = isActive === true;
+          if (statusVal === 'inactive') matchStatus = isActive === false;
+
+          return matchName && matchRole && matchStatus && matchBranch;
+      });
+
+      renderUsersTable(filtered);
+  }
+
+  function populateBranchesDropdown() {
+      const filterSelect = document.getElementById('users-filter-branch');
+      const addSelect = document.getElementById('nu-branch');
+      const editSelect = document.getElementById('eu-branch'); // القائمة الخاصة بنموذج التعديل
+      
+      const defaultFilterOpt = '<option value="">جميع الفروع</option>';
+      const defaultFormOpt = '<option value="">-- بدون فرع محدد --</option>';
+      
+      filterSelect.innerHTML = defaultFilterOpt;
+      addSelect.innerHTML = defaultFormOpt;
+      editSelect.innerHTML = defaultFormOpt;
+
+      Object.values(usersPageData.branches).forEach(b => {
+          const opt = `<option value="${b.id}">${b.branch_name}</option>`;
+          filterSelect.innerHTML += opt;
+          addSelect.innerHTML += opt;
+          editSelect.innerHTML += opt;
+      });
+  }
+
+  // ============== الإضافة ==============
+
+  function openAddUserModal() {
+      document.getElementById('nu-name').value = '';
+      document.getElementById('nu-username').value = '';
+      document.getElementById('nu-email').value = '';
+      document.getElementById('nu-phone').value = '';
+      document.getElementById('nu-role').value = '';
+      document.getElementById('nu-branch').value = '';
+      document.getElementById('nu-password').value = '';
+      document.getElementById('nu-password-confirm').value = '';
+      openModal('modal-add-user');
+  }
+
+  async function submitNewUser() {
+      const name = document.getElementById('nu-name').value.trim();
+      const username = document.getElementById('nu-username').value.trim();
+      const email = document.getElementById('nu-email').value.trim();
+      const phone = document.getElementById('nu-phone').value.trim();
+      const role = document.getElementById('nu-role').value;
+      const branchId = document.getElementById('nu-branch').value;
+      const password = document.getElementById('nu-password').value;
+      const passwordConfirm = document.getElementById('nu-password-confirm').value;
+
+      if (!name || !username || !role || !password) {
+          alert("الرجاء تعبئة جميع الحقول الإجبارية (*)");
+          return;
+      }
+
+      if (password !== passwordConfirm) {
+          alert("كلمتا المرور غير متطابقتين!");
+          return;
+      }
+
+      const payload = {
+          username: username,
+          password: password,
+          full_name: name,
+          role: role,
+          email: email || null,
+          phone: phone || null,
+          branch_id: branchId ? parseInt(branchId) : null,
+          is_active: true
+      };
+
+      const res = await AppConfig.post('users/', payload);
+
+      if (res && res.success) {
+          if(typeof showToast === 'function') showToast('تم إنشاء حساب المستخدم بنجاح', 'success');
+          closeModal('modal-add-user');
+          initUsersSection(); 
+      } else {
+          alert("❌ حدث خطأ أثناء إنشاء الحساب، قد يكون اسم المستخدم مسجل مسبقاً.");
+      }
+  }
+
+  // ============== التعديل ==============
+
+  function openEditUserModal(id) {
+      // البحث عن المستخدم في البيانات المحملة
+      const user = usersPageData.users.find(u => u.id === id);
+      if (!user) return;
+
+      // تعبئة البيانات في النموذج
+      document.getElementById('eu-id').value = user.id;
+      document.getElementById('eu-created-at').value = user.created_at || new Date().toISOString();
+      document.getElementById('eu-name').value = user.full_name || '';
+      document.getElementById('eu-username').value = user.username || '';
+      document.getElementById('eu-email').value = user.email || '';
+      document.getElementById('eu-phone').value = user.phone || '';
+      document.getElementById('eu-role').value = user.role || '';
+      document.getElementById('eu-branch').value = user.branch_id || '';
+      
+      // تفريغ حقل كلمة المرور دائماً لدواعي الأمان
+      document.getElementById('eu-password').value = ''; 
+
+      openModal('modal-edit-user');
+  }
+
+  async function submitEditUser() {
+      const id = document.getElementById('eu-id').value;
+      const createdAt = document.getElementById('eu-created-at').value; // مطلوب في Update Schema
+      
+      const name = document.getElementById('eu-name').value.trim();
+      const username = document.getElementById('eu-username').value.trim();
+      const email = document.getElementById('eu-email').value.trim();
+      const phone = document.getElementById('eu-phone').value.trim();
+      const role = document.getElementById('eu-role').value;
+      const branchId = document.getElementById('eu-branch').value;
+      const password = document.getElementById('eu-password').value; // قد يكون فارغاً
+
+      if (!name || !username || !role) {
+          alert("الرجاء تعبئة جميع الحقول الإجبارية (*)");
+          return;
+      }
+
+      // بناء Payload التحديث
+      const payload = {
+          created_at: createdAt,
+          username: username,
+          full_name: name,
+          role: role,
+          email: email || null,
+          phone: phone || null,
+          branch_id: branchId ? parseInt(branchId) : null
+      };
+
+      // إضافة كلمة المرور للـ Payload فقط إذا قام المستخدم بكتابة واحدة جديدة
+      if (password !== "") {
+          payload.password = password;
+      }
+
+      const res = await AppConfig.put('users', id, payload);
+
+      if (res && res.success) {
+          if(typeof showToast === 'function') showToast('تم تحديث بيانات المستخدم بنجاح', 'success');
+          closeModal('modal-edit-user');
+          initUsersSection(); // إعادة تحميل البيانات لعرض التعديلات
+      } else {
+          alert("❌ حدث خطأ أثناء تحديث بيانات الحساب. قد يكون اسم المستخدم أو البريد الإلكتروني مستخدماً بالفعل.");
+      }
+  }
+
+  // ============== تغيير الحالة (نشط/موقوف) ==============
+
+  async function toggleUserStatus(userId, currentIsActive, userName, checkboxElement) {
+      const user = usersPageData.users.find(u => u.id === userId);
+      if (!user) return;
+
+      const actionText = currentIsActive ? 'إيقاف' : 'تفعيل';
+      if (currentIsActive) {
+          if (!confirm(`هل أنت متأكد من رغبتك في إيقاف حساب "${userName}"؟ لن يتمكن من تسجيل الدخول للنظام.`)) {
+              checkboxElement.checked = true; 
+              return;
+          }
+      }
+
+      // إرسال الحقول الحالية مع تغيير is_active فقط
+      const payload = {
+          created_at: user.created_at || new Date().toISOString(),
+          is_active: !currentIsActive,
+          username: user.username,
+          full_name: user.full_name,
+          role: user.role,
+          email: user.email,
+          phone: user.phone,
+          branch_id: user.branch_id
+      };
+
+      const res = await AppConfig.put('users', userId, payload);
+
+      if (res && res.success) { 
+          if(typeof showToast === 'function') showToast(`تم ${actionText} حساب ${userName}`, 'success');
+          initUsersSection(); 
+      } else {
+          alert(`حدث خطأ أثناء محاولة ${actionText} الحساب.`);
+          checkboxElement.checked = currentIsActive; 
+      }
+  }
+
+  // ============== الحذف ==============
+
+  async function deleteUser(userId, userName) {
+      if(!confirm(`هل أنت متأكد من حذف المستخدم "${userName}" نهائياً من النظام؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+
+      const res = await AppConfig.delete('users', userId);
+      if(res && res.success) {
+          if(typeof showToast === 'function') showToast('تم الحذف بنجاح', 'success');
+          initUsersSection();
+      } else {
+          alert('تعذر حذف المستخدم. قد يكون مرتبطاً ببيانات أخرى.');
+      }
+  }
+
+  function getInitials(name) {
+      if (!name) return '؟؟';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name.substring(0, 2).toUpperCase();
+  }
+
+  // تشغيل التهيئة فوراً عند فتح الصفحة
+  setTimeout(initUsersSection, 100);
+</script>

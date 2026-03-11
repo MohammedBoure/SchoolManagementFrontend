@@ -45,7 +45,7 @@
     <button class="btn btn-ghost btn-sm" onclick="Layout.exportTable('students-table','students.csv')">
       <i class="fas fa-file-excel"></i> تصدير Excel
     </button>
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-student')">
+    <button class="btn btn-primary btn-sm" onclick="openNewStudentModal()">
       <i class="fas fa-user-plus"></i> طالب جديد
     </button>
   </div>
@@ -56,29 +56,29 @@
     <div class="kpi-top">
       <div class="kpi-icon green"><i class="fas fa-user-graduate"></i></div>
     </div>
-    <div class="kpi-value">487</div>
+    <div class="kpi-value" id="kpi-active-students">0</div>
     <div class="kpi-label">إجمالي الطلاب النشطين</div>
   </div>
   <div class="kpi-card orange fade-in fade-in-delay-2">
     <div class="kpi-top">
       <div class="kpi-icon orange"><i class="fas fa-user-slash"></i></div>
     </div>
-    <div class="kpi-value">12</div>
-    <div class="kpi-label">طلاب موقوفون</div>
+    <div class="kpi-value" id="kpi-suspended-students">0</div>
+    <div class="kpi-label">طلاب موقوفون/منسحبون</div>
   </div>
   <div class="kpi-card blue fade-in fade-in-delay-3">
     <div class="kpi-top">
       <div class="kpi-icon blue"><i class="fas fa-user-plus"></i></div>
     </div>
-    <div class="kpi-value">23</div>
-    <div class="kpi-label">تسجيلات جديدة هذا الشهر</div>
+    <div class="kpi-value" id="kpi-new-students">0</div>
+    <div class="kpi-label">تسجيلات هذا الشهر</div>
   </div>
   <div class="kpi-card red fade-in fade-in-delay-4">
     <div class="kpi-top">
       <div class="kpi-icon red"><i class="fas fa-file-invoice-dollar"></i></div>
     </div>
-    <div class="kpi-value">28</div>
-    <div class="kpi-label">لديهم ديون متأخرة</div>
+    <div class="kpi-value">-</div>
+    <div class="kpi-label">بيانات الديون (قريباً)</div>
   </div>
 </div>
 
@@ -89,11 +89,8 @@
       <i class="fas fa-check-square"></i> تم تحديد <span id="selected-count">0</span> طالب
     </div>
     <div style="display: flex; gap: 8px;">
-      <button class="btn btn-sm" style="background: white; color: var(--brand-primary); border: none;" onclick="openModal('modal-change-status')">
+      <button class="btn btn-sm" style="background: white; color: var(--brand-primary); border: none;" onclick="openChangeStatusModalBulk()">
         <i class="fas fa-sync-alt"></i> تغيير الحالة جماعياً
-      </button>
-      <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none;">
-        <i class="fas fa-envelope"></i> إرسال رسالة
       </button>
     </div>
   </div>
@@ -102,29 +99,15 @@
     <div class="table-controls" style="width: 100%;">
       <div class="search-input-wrap" style="flex: 2;">
         <i class="fas fa-search"></i>
-        <input type="text" class="search-input" placeholder="بحث باسم الطالب أو الرقم (STU)...">
+        <input type="text" id="students-search" class="search-input" placeholder="بحث بالاسم أو الرقم..." onkeyup="filterStudentsTable()">
       </div>
-      <select class="filter-select">
-        <option>جميع الفصول</option>
-        <option>الفصل الأول</option>
-        <option>الفصل الثاني</option>
-        <option>الفصل الثالث</option>
+      <select id="students-filter-class" class="filter-select" onchange="filterStudentsTable()">
+        <option value="">جميع الفصول</option>
       </select>
-      <select class="filter-select">
-        <option>جميع الحالات</option>
-        <option>نشط</option>
-        <option>موقوف</option>
-        <option>منسحب</option>
-      </select>
-      <select class="filter-select col-hide-mobile">
-        <option>السياسات المالية</option>
-        <option>نقدي كامل</option>
-        <option>تقسيط</option>
-        <option>إعفاء</option>
-      </select>
-      <select class="filter-select col-hide-mobile">
-        <option>جميع الفروع</option>
-        <option>الرئيسي</option>
+      <select id="students-filter-status" class="filter-select" onchange="filterStudentsTable()">
+        <option value="">جميع الحالات</option>
+        <option value="Active">نشط</option>
+        <option value="Inactive">موقوف/منسحب</option>
       </select>
     </div>
   </div>
@@ -139,102 +122,14 @@
           <th>ولي الأمر</th>
           <th>فصيلة الدم</th>
           <th class="col-hide-mobile">السياسة المالية</th>
-          <th class="col-hide-mobile">الرسوم المتأخرة</th>
           <th>الحالة</th>
           <th>الإجراءات</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td><input type="checkbox" class="student-checkbox" onchange="updateBulkActions()"></td>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-blue">أخ</div>
-              <div><strong>أحمد خالد سعيد</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">STU-2025-01042</div></div>
-            </div>
-          </td>
-          <td>الفصل الأول (أ)</td>
-          <td>
-            <div style="font-size:12px; font-weight:600;">خالد سعيد</div>
-            <div style="font-size:10px; color:var(--text-muted);" dir="ltr"><i class="fas fa-phone-alt"></i> 0555 12 34 56</div>
-          </td>
-          <td><span class="badge badge-info" style="font-family: monospace;">O+</span></td>
-          <td class="col-hide-mobile"><span style="font-size:11px;">نقدي كامل</span></td>
-          <td class="col-hide-mobile" style="color:var(--text-muted)">-</td>
-          <td><span class="badge badge-success">نشط</span></td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="ملف الطالب" onclick="openModal('modal-student-profile')"><i class="fas fa-id-card"></i></button>
-              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-              <button class="action-btn" style="color:var(--brand-warning)" title="تغيير الحالة" onclick="openModal('modal-change-status')"><i class="fas fa-exchange-alt"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr style="background: rgba(229,62,62,0.03);">
-          <td><input type="checkbox" class="student-checkbox" onchange="updateBulkActions()"></td>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-orange">يص</div>
-              <div><strong>ياسين صالح</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">STU-2024-00891</div></div>
-            </div>
-          </td>
-          <td>الفصل الثاني (ب)</td>
-          <td>
-            <div style="font-size:12px; font-weight:600;">صالح محمد</div>
-            <div style="font-size:10px; color:var(--text-muted);" dir="ltr"><i class="fas fa-phone-alt"></i> 0555 98 76 54</div>
-          </td>
-          <td><span class="badge badge-info" style="font-family: monospace;">A+</span></td>
-          <td class="col-hide-mobile"><span style="font-size:11px;">تقسيط فصلي</span></td>
-          <td class="col-hide-mobile" style="color:var(--brand-danger);font-weight:700;">25,000 دج</td>
-          <td><span class="badge badge-warning">موقوف</span></td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="ملف الطالب" onclick="openModal('modal-student-profile')"><i class="fas fa-id-card"></i></button>
-              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-              <button class="action-btn" style="color:var(--brand-warning)" title="تغيير الحالة" onclick="openModal('modal-change-status')"><i class="fas fa-exchange-alt"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr style="opacity: 0.7;">
-          <td><input type="checkbox" class="student-checkbox" onchange="updateBulkActions()"></td>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-gray" style="filter: grayscale(1);">لم</div>
-              <div><strong>ليان محمود</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">STU-2023-00501</div></div>
-            </div>
-          </td>
-          <td>الفصل الثالث (ج)</td>
-          <td>
-            <div style="font-size:12px; font-weight:600;">محمود عبد الله</div>
-            <div style="font-size:10px; color:var(--text-muted);" dir="ltr"><i class="fas fa-phone-alt"></i> 0555 11 22 33</div>
-          </td>
-          <td><span class="badge badge-info" style="font-family: monospace;">B-</span></td>
-          <td class="col-hide-mobile"><span style="font-size:11px;">إعفاء كامل</span></td>
-          <td class="col-hide-mobile" style="color:var(--text-muted)">-</td>
-          <td><span class="badge badge-gray">منسحب</span></td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="ملف الطالب" onclick="openModal('modal-student-profile')"><i class="fas fa-id-card"></i></button>
-            </div>
-          </td>
-        </tr>
+      <tbody id="students-tbody">
+        <tr><td colspan="8" style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب بيانات الطلاب...</td></tr>
       </tbody>
     </table>
-  </div>
-  
-  <div class="pagination">
-    <span>عرض 1-3 من أصل 487 طالب</span>
-    <div class="pagination-btns">
-      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">...</button>
-      <button class="page-btn">49</button>
-      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
-    </div>
   </div>
 </div>
 
@@ -247,30 +142,16 @@
     
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">الاسم الكامل للطالب *</label>
-        <input type="text" class="form-input" placeholder="الاسم الرباعي" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">رقم الهوية / شهادة الميلاد</label>
-        <input type="text" class="form-input" placeholder="اختياري">
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
         <label class="form-label">تاريخ الميلاد *</label>
-        <input type="date" class="form-input" required>
+        <input type="date" id="ns-dob" class="form-input" required>
       </div>
       <div class="form-group">
-        <label class="form-label">الجنس *</label>
-        <select class="form-select" required>
-          <option>ذكر</option>
-          <option>أنثى</option>
-        </select>
+        <label class="form-label">تاريخ التسجيل *</label>
+        <input type="date" id="ns-reg-date" class="form-input" required>
       </div>
       <div class="form-group">
         <label class="form-label">فصيلة الدم</label>
-        <select class="form-select">
+        <select id="ns-blood" class="form-select">
           <option value="">غير معروف</option>
           <option>A+</option><option>A-</option>
           <option>B+</option><option>B-</option>
@@ -282,42 +163,44 @@
 
     <div class="form-group" style="background: rgba(43,108,176,0.05); padding: 12px; border: 1px dashed var(--brand-info); border-radius: var(--radius-md);">
       <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
-        <label class="form-label" style="margin: 0;">ولي الأمر (المسؤول المالي) *</label>
-        <a href="#" style="font-size: 11px; color: var(--brand-info); font-weight: 700; text-decoration: none;"><i class="fas fa-plus"></i> إضافة ولي أمر جديد</a>
+        <label class="form-label" style="margin: 0;">الطالب و ولي الأمر (من جدول المستخدمين) *</label>
       </div>
-      <select class="form-select" required>
-        <option value="">-- ابحث أو اختر ولي الأمر --</option>
-        <option>خالد سعيد (0555123456)</option>
-        <option>صالح محمد (0555987654)</option>
-      </select>
+      <div class="form-row">
+          <div class="form-group" style="margin-bottom:0;">
+             <select id="ns-user-id" class="form-select" required>
+                <option value="">-- اختر حساب الطالب --</option>
+             </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+             <select id="ns-parent-id" class="form-select" required>
+                <option value="">-- اختر حساب ولي الأمر --</option>
+             </select>
+          </div>
+      </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">الفصل الدراسي *</label>
-        <select class="form-select" required>
+        <select id="ns-class-id" class="form-select" required>
           <option value="">-- اختر الفصل --</option>
-          <option>الفصل الأول (أ) - متاح</option>
-          <option>الفصل الثاني (ب) - شبه ممتلئ</option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label">السياسة المالية المطبقة</label>
-        <select class="form-select">
-          <option>الدفع النقدي الكامل (الافتراضي)</option>
-          <option>خصم الإخوة (20%)</option>
-          <option>تقسيط فصلي (3 دفعات)</option>
+        <select id="ns-policy-id" class="form-select">
+          <option value="">-- بدون سياسة / افتراضي --</option>
         </select>
       </div>
     </div>
 
     <div class="form-group">
-      <label class="form-label">معلومات طبية / ملاحظات (حساسية، أمراض مزمنة...)</label>
-      <textarea class="form-textarea" rows="2" placeholder="أي معلومات يجب أن تعرفها الإدارة أو العيادة..."></textarea>
+      <label class="form-label">معلومات طبية / ملاحظات</label>
+      <textarea id="ns-medical" class="form-textarea" rows="2" placeholder="حساسية، أمراض مزمنة..."></textarea>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم تسجيل الطالب (STU-2026-0001) بنجاح', 'success');closeModal('modal-new-student')">
+      <button class="btn btn-primary" onclick="submitNewStudent()">
         <i class="fas fa-save"></i> حفظ وتسجيل
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-new-student')">إلغاء</button>
@@ -332,22 +215,18 @@
       <button class="modal-close" onclick="closeModal('modal-change-status')"><i class="fas fa-times"></i></button>
     </div>
     
+    <input type="hidden" id="cs-student-id">
+    
     <div class="form-group">
       <label class="form-label">الحالة الجديدة *</label>
-      <select class="form-select" required>
-        <option value="active">نشط (مُنتظم)</option>
-        <option value="suspended">موقوف (مؤقتاً)</option>
-        <option value="withdrawn">منسحب (نقل أو فصل)</option>
+      <select id="cs-status" class="form-select" required>
+        <option value="Active">نشط</option>
+        <option value="Inactive">موقوف / منسحب</option>
       </select>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">سبب التغيير / ملاحظات *</label>
-      <textarea class="form-textarea" rows="3" placeholder="يرجى توضيح سبب تغيير الحالة (يُحفظ في سجل الطالب)..." required></textarea>
-    </div>
-    
     <div class="modal-footer">
-      <button class="btn btn-primary" style="background: var(--brand-warning); border-color: var(--brand-warning);" onclick="showToast('تم تحديث حالة الطالب بنجاح', 'success');closeModal('modal-change-status')">
+      <button class="btn btn-primary" style="background: var(--brand-warning); border-color: var(--brand-warning);" onclick="submitStatusChange()">
         حفظ التغيير
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-change-status')">إلغاء</button>
@@ -358,189 +237,59 @@
 <div class="modal-overlay" id="modal-student-profile">
   <div class="modal" style="max-width: 800px; width: 95%;">
     <div class="modal-header">
-      <div class="modal-title">📋 ملف الطالب: أحمد خالد سعيد</div>
+      <div class="modal-title">📋 ملف الطالب</div>
       <button class="modal-close" onclick="closeModal('modal-student-profile')"><i class="fas fa-times"></i></button>
     </div>
     
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
       <div style="display: flex; align-items: center; gap: 16px;">
-        <div class="avatar avatar-blue" style="width: 72px; height: 72px; font-size: 28px;">أخ</div>
+        <div class="avatar avatar-blue" id="prof-avatar" style="width: 72px; height: 72px; font-size: 28px;">؟</div>
         <div>
-          <h3 style="margin: 0 0 6px 0; font-size: 18px; font-weight: 800; color: var(--text-primary);">أحمد خالد سعيد</h3>
-          <span style="font-family: monospace; font-weight: 700; color: var(--text-muted); font-size: 12px; margin-left: 8px;">#STU-2025-01042</span>
-          <span class="badge badge-success">نشط</span>
+          <h3 id="prof-name" style="margin: 0 0 6px 0; font-size: 18px; font-weight: 800; color: var(--text-primary);">...</h3>
+          <span id="prof-id" style="font-family: monospace; font-weight: 700; color: var(--text-muted); font-size: 12px; margin-left: 8px;">STU-..</span>
+          <span id="prof-status"></span>
           <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
-            <i class="fas fa-chalkboard"></i> الفصل الأول (أ) &nbsp;&nbsp;|&nbsp;&nbsp; 
-            <i class="fas fa-user-shield"></i> ولي الأمر: خالد سعيد
+            <i class="fas fa-chalkboard"></i> <span id="prof-class">...</span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+            <i class="fas fa-user-shield"></i> ولي الأمر: <span id="prof-parent">...</span>
           </div>
         </div>
-      </div>
-      <div>
-        <button class="btn btn-ghost btn-sm"><i class="fas fa-print"></i> طباعة الملف</button>
       </div>
     </div>
 
     <div class="profile-tabs">
       <button class="profile-tab-btn active" onclick="switchStudentTab('tab-stu-personal')">البيانات الشخصية</button>
-      <button class="profile-tab-btn" onclick="switchStudentTab('tab-stu-attendance')">الحضور</button>
-      <button class="profile-tab-btn" onclick="switchStudentTab('tab-stu-grades')">الدرجات</button>
-      <button class="profile-tab-btn" onclick="switchStudentTab('tab-stu-fees')">الرسوم المالية</button>
-      <button class="profile-tab-btn" onclick="switchStudentTab('tab-stu-notes')">الملاحظات (للمدير)</button>
+      <button class="profile-tab-btn" onclick="switchStudentTab('tab-stu-attendance')">الحضور (قريباً)</button>
     </div>
 
     <div id="tab-stu-personal" class="profile-tab-content active">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px; margin-bottom: 16px;">
         <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
-          <div style="color: var(--text-muted); margin-bottom: 4px;">تاريخ الميلاد / العمر</div>
-          <div style="font-weight: 700; color: var(--text-primary);">2017/05/12 (8 سنوات)</div>
+          <div style="color: var(--text-muted); margin-bottom: 4px;">تاريخ الميلاد</div>
+          <div id="prof-dob" style="font-weight: 700; color: var(--text-primary);">-</div>
         </div>
         <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
           <div style="color: var(--text-muted); margin-bottom: 4px;">فصيلة الدم</div>
-          <div style="font-weight: 700; color: var(--brand-info); font-family: monospace;">O+</div>
+          <div id="prof-blood" style="font-weight: 700; color: var(--brand-info); font-family: monospace;">-</div>
         </div>
         <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
           <div style="color: var(--text-muted); margin-bottom: 4px;">تاريخ التسجيل</div>
-          <div style="font-weight: 700; color: var(--text-primary);">2025/08/15</div>
+          <div id="prof-reg-date" style="font-weight: 700; color: var(--text-primary);">-</div>
         </div>
         <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
-          <div style="color: var(--text-muted); margin-bottom: 4px;">الفرع</div>
-          <div style="font-weight: 700; color: var(--text-primary);">الفرع الرئيسي</div>
+          <div style="color: var(--text-muted); margin-bottom: 4px;">السياسة المالية</div>
+          <div id="prof-policy" style="font-weight: 700; color: var(--text-primary);">-</div>
         </div>
       </div>
       <div style="background: rgba(229,62,62,0.05); border: 1px dashed rgba(229,62,62,0.3); padding: 12px; border-radius: var(--radius-md);">
-        <div style="color: var(--brand-danger); font-weight: 700; margin-bottom: 4px;"><i class="fas fa-notes-medical"></i> معلومات طبية (حساسية/أمراض):</div>
-        <div style="font-size: 13px; color: var(--text-primary);">الطالب يعاني من حساسية خفيفة تجاه الفول السوداني. يرجى الانتباه في وقت الوجبات.</div>
+        <div style="color: var(--brand-danger); font-weight: 700; margin-bottom: 4px;"><i class="fas fa-notes-medical"></i> معلومات طبية:</div>
+        <div id="prof-medical" style="font-size: 13px; color: var(--text-primary);">لا توجد ملاحظات طبية.</div>
       </div>
     </div>
 
     <div id="tab-stu-attendance" class="profile-tab-content">
-      <div style="display: flex; gap: 24px; align-items: center; margin-bottom: 24px; flex-wrap: wrap;">
-        <div style="flex: 0 0 120px; text-align: center;">
-          <svg viewBox="0 0 36 36" class="circular-chart green">
-            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            <path class="circle" stroke-dasharray="92, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            <text x="18" y="20.5" class="percentage">92%</text>
-          </svg>
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 8px;">نسبة الحضور السنوية</div>
-        </div>
-        <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-           <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md); text-align: center;">
-             <div style="font-size: 20px; font-weight: 800; color: var(--brand-success);">142</div>
-             <div style="font-size: 11px; color: var(--text-muted);">أيام الحضور</div>
-           </div>
-           <div style="background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md); text-align: center;">
-             <div style="font-size: 20px; font-weight: 800; color: var(--brand-danger);">12</div>
-             <div style="font-size: 11px; color: var(--text-muted);">أيام الغياب</div>
-           </div>
-        </div>
-      </div>
-      
-      <h5 style="margin: 0 0 10px 0; font-size: 13px;">آخر 10 غيابات</h5>
-      <div class="table-wrapper" style="max-height: 200px; overflow-y: auto;">
-        <table class="data-table" style="font-size: 11px;">
-          <thead style="position: sticky; top: 0; z-index: 1;"><tr><th>التاريخ</th><th>المادة/اليوم</th><th>الحالة</th><th>السبب (إن وجد)</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>2026/02/15</td><td>اليوم كاملاً</td>
-              <td><span class="badge badge-info">مبرر</span></td>
-              <td>عذر طبي (مرفق)</td>
-            </tr>
-            <tr>
-              <td>2026/01/10</td><td>الرياضيات (الحصة 1)</td>
-              <td><span class="badge badge-danger">غير مبرر</span></td>
-              <td style="color:var(--text-muted)">-</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="tab-stu-grades" class="profile-tab-content">
-      <div class="table-wrapper">
-        <table class="data-table" style="font-size: 11px;">
-          <thead>
-            <tr><th>المادة</th><th>التقييم/الامتحان</th><th>الدرجة</th><th>التاريخ</th><th>المعلم</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>اللغة العربية</strong></td>
-              <td>امتحان منتصف الفصل</td>
-              <td style="font-weight: 800; color: var(--brand-success);">18.5 / 20</td>
-              <td>2026/02/20</td>
-              <td>أ. فاطمة كمال</td>
-            </tr>
-            <tr>
-              <td><strong>الرياضيات</strong></td>
-              <td>امتحان منتصف الفصل</td>
-              <td style="font-weight: 800; color: var(--brand-warning);">12.0 / 20</td>
-              <td>2026/02/22</td>
-              <td>أ. أحمد علي</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="text-align: left; margin-top: 10px;">
-        <button class="btn btn-ghost btn-sm"><i class="fas fa-file-pdf"></i> تحميل كشف النقاط</button>
-      </div>
-    </div>
-
-    <div id="tab-stu-fees" class="profile-tab-content">
-      <div style="display: flex; gap: 16px; margin-bottom: 16px; text-align: center;">
-        <div style="flex: 1; background: var(--bg-surface-2); padding: 12px; border-radius: var(--radius-md);">
-          <div style="font-size: 11px; color: var(--text-muted);">إجمالي الرسوم (السياسة النقدية)</div>
-          <div style="font-size: 16px; font-weight: 800;">45,000 دج</div>
-        </div>
-        <div style="flex: 1; background: rgba(72,187,120,0.05); padding: 12px; border-radius: var(--radius-md); border: 1px dashed var(--brand-success);">
-          <div style="font-size: 11px; color: var(--brand-success);">المدفوع</div>
-          <div style="font-size: 16px; font-weight: 800; color: var(--brand-success);">45,000 دج</div>
-        </div>
-        <div style="flex: 1; background: rgba(229,62,62,0.05); padding: 12px; border-radius: var(--radius-md); border: 1px dashed var(--brand-danger);">
-          <div style="font-size: 11px; color: var(--brand-danger);">المتبقي</div>
-          <div style="font-size: 16px; font-weight: 800; color: var(--brand-danger);">0 دج</div>
-        </div>
-      </div>
-      
-      <div style="margin-bottom: 20px;">
-        <div class="progress-bar-wrap" style="height: 10px; margin: 0;">
-          <div class="progress-bar-track"><div class="progress-bar-fill" style="width: 100%; background: var(--brand-success);"></div></div>
-        </div>
-        <div style="text-align: center; font-size: 10px; font-weight: 700; color: var(--brand-success); margin-top: 4px;">تم سداد 100% من الرسوم</div>
-      </div>
-
-      <h5 style="margin: 0 0 10px 0; font-size: 13px;">سجل الدفعات</h5>
-      <div class="table-wrapper">
-        <table class="data-table" style="font-size: 11px;">
-          <thead><tr><th>الإيصال</th><th>التاريخ</th><th>المبلغ</th><th>الطريقة</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>#REC-2025-0901</td>
-              <td>2025/09/01</td>
-              <td style="font-weight:700;">45,000 دج</td>
-              <td><span class="badge badge-gray">تحويل بنكي</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="tab-stu-notes" class="profile-tab-content">
-      <div class="form-group">
-        <label class="form-label" style="color: var(--brand-primary);"><i class="fas fa-lock"></i> إضافة ملاحظة إدارية (تظهر للإدارة فقط)</label>
-        <textarea class="form-textarea" rows="3" placeholder="اكتب ملاحظة حول سلوك الطالب، استدعاء ولي الأمر..."></textarea>
-        <div style="text-align: left; margin-top: 8px;">
-          <button class="btn btn-primary btn-sm" onclick="showToast('تم حفظ الملاحظة', 'success')">حفظ الملاحظة</button>
-        </div>
-      </div>
-      
-      <h5 style="margin: 20px 0 10px 0; font-size: 13px;">سجل الملاحظات السابقة</h5>
-      <div style="background: var(--bg-surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; font-size: 12px;">
-        <div style="display: flex; justify-content: space-between; color: var(--text-muted); margin-bottom: 6px; font-size: 10px;">
-          <span>بواسطة: أحمد الدراجي (المدير)</span>
-          <span>2025/11/10 10:30 ص</span>
-        </div>
-        <div style="color: var(--text-primary); line-height: 1.5;">
-          تم استدعاء ولي الأمر لمناقشة تراجع مستوى الطالب في مادة الرياضيات. تعهد ولي الأمر بالمتابعة المنزلية.
-        </div>
+      <div style="padding: 30px; text-align: center; color: var(--text-muted);">
+         <i class="fas fa-clock fa-2x"></i><br><br>
+         بيانات الحضور والغياب سيتم ربطها قريباً فور إكتمال API الحضور.
       </div>
     </div>
     
@@ -551,42 +300,356 @@
 </div>
 
 <script>
-  // 1. منطق التحديد الجماعي (Bulk Actions)
-  function toggleAllStudents(source) {
+// =========================================================================
+// نظام البيانات المحلي (State Management)
+// =========================================================================
+let pageData = {
+    students: [],
+    users: {},
+    classes: {},
+    parents: {},
+    policies: {}
+};
+
+// =========================================================================
+// التهيئة وجلب البيانات (GET)
+// =========================================================================
+async function initStudentsSection() {
+    if (typeof AppConfig === 'undefined') {
+        console.error("يرجى التأكد من استدعاء ملف base.js");
+        document.getElementById('students-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;">خطأ: ملف الاتصال بالخادم مفقود</td></tr>';
+        return;
+    }
+
+    try {
+        // استخدام دالة get الحديثة لجلب البيانات بالتوازي
+        const [studentsRes, usersRes, classesRes, parentsRes, policiesRes] = await Promise.all([
+            AppConfig.get('students'),
+            AppConfig.get('users'),
+            AppConfig.get('classes'),
+            AppConfig.get('parents'),
+            AppConfig.get('financial_policies')
+        ]);
+
+        // تحويل المصفوفات إلى Objects لتسهيل البحث السريع
+        pageData.students = studentsRes || [];
+        pageData.users = (usersRes || []).reduce((acc, obj) => ({...acc, [obj.id]: obj}), {});
+        pageData.classes = (classesRes || []).reduce((acc, obj) => ({...acc, [obj.id]: obj}), {});
+        pageData.parents = (parentsRes || []).reduce((acc, obj) => ({...acc, [obj.id]: obj}), {});
+        pageData.policies = (policiesRes || []).reduce((acc, obj) => ({...acc, [obj.id]: obj}), {});
+
+        calculateKPIs();
+        populateDropdowns();
+        renderStudentsTable(pageData.students);
+
+    } catch (error) {
+        console.error("Error loading student data:", error);
+        document.getElementById('students-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;">حدث خطأ أثناء جلب البيانات من الخادم</td></tr>';
+    }
+}
+
+// =========================================================================
+// حساب المؤشرات العلوية (KPIs)
+// =========================================================================
+function calculateKPIs() {
+    let activeCount = 0;
+    let suspendedCount = 0;
+    let newThisMonth = 0;
+    
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    pageData.students.forEach(s => {
+        if (s.status === 'Active') activeCount++;
+        else suspendedCount++;
+
+        if (s.registration_date) {
+            const regDate = new Date(s.registration_date);
+            if (regDate.getMonth() === currentMonth && regDate.getFullYear() === currentYear) {
+                newThisMonth++;
+            }
+        }
+    });
+
+    document.getElementById('kpi-active-students').innerText = activeCount;
+    document.getElementById('kpi-suspended-students').innerText = suspendedCount;
+    document.getElementById('kpi-new-students').innerText = newThisMonth;
+}
+
+// =========================================================================
+// رسم جدول الطلاب (Render Table)
+// =========================================================================
+function renderStudentsTable(studentsArray) {
+    const tbody = document.getElementById('students-tbody');
+    tbody.innerHTML = '';
+
+    if (!studentsArray || studentsArray.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد بيانات للطلاب</td></tr>';
+        return;
+    }
+
+    studentsArray.forEach(student => {
+        const user = pageData.users[student.user_id] || {};
+        const stClass = pageData.classes[student.class_id] || {};
+        const parentRecord = pageData.parents[student.parent_id] || {};
+        const parentUser = pageData.users[parentRecord.user_id] || {};
+        const policy = pageData.policies[student.policy_id] || {};
+
+        const statusBadge = student.status === 'Active' 
+            ? '<span class="badge badge-success">نشط</span>' 
+            : '<span class="badge badge-warning">موقوف/منسحب</span>';
+
+        const year = student.registration_date ? student.registration_date.substring(0,4) : '202X';
+        const stuCode = `STU-${year}-${String(student.id).padStart(5, '0')}`;
+
+        const tr = document.createElement('tr');
+        if(student.status !== 'Active') tr.style.background = 'rgba(229,62,62,0.03)';
+
+        tr.innerHTML = `
+            <td><input type="checkbox" class="student-checkbox" value="${student.id}" onchange="updateBulkActions()"></td>
+            <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                <div class="avatar avatar-blue">${getInitials(user.full_name)}</div>
+                <div><strong>${user.full_name || 'غير محدد'}</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">${stuCode}</div></div>
+                </div>
+            </td>
+            <td>${stClass.class_name || 'غير معين'}</td>
+            <td>
+                <div style="font-size:12px; font-weight:600;">${parentUser.full_name || 'غير محدد'}</div>
+                <div style="font-size:10px; color:var(--text-muted);" dir="ltr"><i class="fas fa-phone-alt"></i> ${parentUser.phone || '-'}</div>
+            </td>
+            <td><span class="badge badge-info" style="font-family: monospace;">${student.blood_group || '-'}</span></td>
+            <td class="col-hide-mobile"><span style="font-size:11px;">${policy.policy_name || 'افتراضي'}</span></td>
+            <td>${statusBadge}</td>
+            <td>
+                <div class="action-btns">
+                <button class="action-btn view" title="ملف الطالب" onclick="viewStudentProfile(${student.id})"><i class="fas fa-id-card"></i></button>
+                <button class="action-btn" style="color:var(--brand-warning)" title="تغيير الحالة" onclick="openChangeStatusModal(${student.id}, '${student.status}')"><i class="fas fa-exchange-alt"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// =========================================================================
+// الفلاتر (Filters)
+// =========================================================================
+function filterStudentsTable() {
+    const searchVal = document.getElementById('students-search').value.toLowerCase();
+    const classVal = document.getElementById('students-filter-class').value;
+    const statusVal = document.getElementById('students-filter-status').value;
+
+    const filtered = pageData.students.filter(student => {
+        const user = pageData.users[student.user_id] || {};
+        const matchName = (user.full_name || '').toLowerCase().includes(searchVal);
+        const matchClass = classVal === "" || String(student.class_id) === classVal;
+        const matchStatus = statusVal === "" || student.status === statusVal;
+        return matchName && matchClass && matchStatus;
+    });
+
+    renderStudentsTable(filtered);
+}
+
+// =========================================================================
+// تعبئة القوائم المنسدلة (Dropdowns)
+// =========================================================================
+function populateDropdowns() {
+    // 1. فلاتر الفصول
+    const classFilter = document.getElementById('students-filter-class');
+    const classSelect = document.getElementById('ns-class-id');
+    
+    // مسح الخيارات القديمة قبل التعبئة
+    classFilter.innerHTML = '<option value="">جميع الفصول</option>';
+    classSelect.innerHTML = '<option value="">-- اختر الفصل --</option>';
+
+    Object.values(pageData.classes).forEach(cls => {
+        const opt = `<option value="${cls.id}">${cls.class_name}</option>`;
+        classFilter.innerHTML += opt;
+        classSelect.innerHTML += opt;
+    });
+
+    // 2. مستخدمين للنافذة المنبثقة
+    const userSelect = document.getElementById('ns-user-id');
+    const parentSelect = document.getElementById('ns-parent-id');
+    
+    userSelect.innerHTML = '<option value="">-- اختر حساب الطالب --</option>';
+    parentSelect.innerHTML = '<option value="">-- اختر حساب ولي الأمر --</option>';
+
+    Object.values(pageData.users).forEach(u => {
+        userSelect.innerHTML += `<option value="${u.id}">${u.full_name} (${u.username})</option>`;
+    });
+
+    Object.values(pageData.parents).forEach(p => {
+        const u = pageData.users[p.user_id] || {};
+        parentSelect.innerHTML += `<option value="${p.id}">${u.full_name || 'ولي أمر ID:'+p.id}</option>`;
+    });
+
+    // 3. السياسات المالية
+    const policySelect = document.getElementById('ns-policy-id');
+    policySelect.innerHTML = '<option value="">-- بدون سياسة / افتراضي --</option>';
+    Object.values(pageData.policies).forEach(pol => {
+        policySelect.innerHTML += `<option value="${pol.id}">${pol.policy_name}</option>`;
+    });
+}
+
+// =========================================================================
+// الإضافة (POST) - تسجيل طالب جديد
+// =========================================================================
+function openNewStudentModal() {
+    document.getElementById('ns-reg-date').valueAsDate = new Date(); // اليوم كافتراضي
+    openModal('modal-new-student');
+}
+
+async function submitNewStudent() {
+    const payload = {
+        user_id: parseInt(document.getElementById('ns-user-id').value) || null,
+        parent_id: parseInt(document.getElementById('ns-parent-id').value) || null,
+        class_id: parseInt(document.getElementById('ns-class-id').value) || null,
+        policy_id: parseInt(document.getElementById('ns-policy-id').value) || null,
+        
+        // جلب التاريخ بصيغة YYYY-MM-DD المطابقة للسيرفر (دون إضافة وقت)
+        date_of_birth: document.getElementById('ns-dob').value || null,
+        registration_date: document.getElementById('ns-reg-date').value || null,
+        
+        blood_group: document.getElementById('ns-blood').value || null,
+        medical_info: document.getElementById('ns-medical').value || null,
+        status: "Active"
+    };
+
+    // التحقق من الحقول الأساسية
+    if (!payload.user_id || !payload.class_id || !payload.date_of_birth || !payload.registration_date) {
+        alert("يرجى تعبئة الحقول الإجبارية (*)");
+        return;
+    }
+
+    // إرسال البيانات باستخدام دالة post من AppConfig
+    const result = await AppConfig.post('students/', payload);
+
+    if (result !== null) { 
+        if(typeof showToast === 'function') showToast('تم تسجيل الطالب بنجاح', 'success');
+        closeModal('modal-new-student');
+        initStudentsSection(); // إعادة التحميل لتحديث الجدول
+    } else {
+        alert("حدث خطأ أثناء التسجيل. يُرجى مراجعة الكونسول للمزيد من التفاصيل.");
+    }
+}
+
+// =========================================================================
+// التحديث (PUT) - تغيير حالة الطالب
+// =========================================================================
+function openChangeStatusModal(studentId, currentStatus) {
+    document.getElementById('cs-student-id').value = studentId;
+    document.getElementById('cs-status').value = currentStatus || 'Active';
+    openModal('modal-change-status');
+}
+
+async function submitStatusChange() {
+    const id = document.getElementById('cs-student-id').value;
+    const newStatus = document.getElementById('cs-status').value;
+    
+    // جلب بيانات الطالب الحالية للحفاظ عليها عند التحديث
+    const student = pageData.students.find(s => s.id == id);
+    if (!student) return;
+
+    const payload = { ...student, status: newStatus };
+
+    // إرسال البيانات باستخدام دالة put من AppConfig
+    const result = await AppConfig.put('students', id, payload);
+
+    if (result !== null) { 
+        if(typeof showToast === 'function') showToast('تم تحديث حالة الطالب', 'success');
+        closeModal('modal-change-status');
+        initStudentsSection(); // تحديث الجدول بالمستجدات
+    } else {
+        alert("حدث خطأ أثناء تحديث الحالة.");
+    }
+}
+
+// =========================================================================
+// عرض ملف الطالب (Profile Modal)
+// =========================================================================
+function viewStudentProfile(id) {
+    const student = pageData.students.find(s => s.id == id);
+    if (!student) return;
+
+    const user = pageData.users[student.user_id] || {};
+    const stClass = pageData.classes[student.class_id] || {};
+    const parentRecord = pageData.parents[student.parent_id] || {};
+    const parentUser = pageData.users[parentRecord.user_id] || {};
+    const policy = pageData.policies[student.policy_id] || {};
+
+    document.getElementById('prof-name').innerText = user.full_name || 'غير محدد';
+    document.getElementById('prof-id').innerText = `STU-${String(student.id).padStart(5,'0')}`;
+    document.getElementById('prof-avatar').innerText = getInitials(user.full_name);
+    
+    document.getElementById('prof-status').innerHTML = student.status === 'Active' 
+        ? '<span class="badge badge-success">نشط</span>' 
+        : '<span class="badge badge-warning">موقوف/منسحب</span>';
+    
+    document.getElementById('prof-class').innerText = stClass.class_name || '-';
+    document.getElementById('prof-parent').innerText = parentUser.full_name || '-';
+    
+    document.getElementById('prof-dob').innerText = student.date_of_birth || '-';
+    document.getElementById('prof-blood').innerText = student.blood_group || '-';
+    document.getElementById('prof-reg-date').innerText = student.registration_date || '-';
+    document.getElementById('prof-policy').innerText = policy.policy_name || 'افتراضي';
+    document.getElementById('prof-medical').innerText = student.medical_info || 'لا توجد ملاحظات طبية.';
+
+    // تفعيل أول تبويب افتراضياً عند فتح الملف
+    switchStudentTab('tab-stu-personal');
+    openModal('modal-student-profile');
+}
+
+// =========================================================================
+// دوال مساعدة عامة (Helpers)
+// =========================================================================
+function getInitials(name) {
+    if (!name) return '؟؟';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
+}
+
+function toggleAllStudents(source) {
     const checkboxes = document.querySelectorAll('.student-checkbox');
     checkboxes.forEach(cb => cb.checked = source.checked);
     updateBulkActions();
-  }
+}
 
-  function updateBulkActions() {
+function updateBulkActions() {
     const checkboxes = document.querySelectorAll('.student-checkbox:checked');
     const bulkBar = document.getElementById('bulk-actions-bar');
     const countText = document.getElementById('selected-count');
     
     if (checkboxes.length > 0) {
-      countText.innerText = checkboxes.length;
-      bulkBar.style.display = 'flex';
+        countText.innerText = checkboxes.length;
+        bulkBar.style.display = 'flex';
     } else {
-      bulkBar.style.display = 'none';
-      document.getElementById('select-all').checked = false;
+        bulkBar.style.display = 'none';
+        document.getElementById('select-all').checked = false;
     }
-  }
+}
 
-  // 2. التبديل بين تبويبات ملف الطالب
-  function switchStudentTab(tabId) {
-    // إخفاء كل المحتويات
-    const contents = document.querySelectorAll('#modal-student-profile .profile-tab-content');
-    contents.forEach(c => c.classList.remove('active'));
+function switchStudentTab(tabId) {
+    document.querySelectorAll('#modal-student-profile .profile-tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('#modal-student-profile .profile-tab-btn').forEach(b => b.classList.remove('active'));
     
-    // إزالة تفعيل كل الأزرار
-    const btns = document.querySelectorAll('#modal-student-profile .profile-tab-btn');
-    btns.forEach(b => b.classList.remove('active'));
+    const targetContent = document.getElementById(tabId);
+    if (targetContent) targetContent.classList.add('active');
     
-    // تفعيل المحتوى المطلوب
-    document.getElementById(tabId).classList.add('active');
-    
-    // تفعيل الزر المرتبط
-    const targetBtn = Array.from(btns).find(btn => btn.getAttribute('onclick').includes(tabId));
-    if(targetBtn) targetBtn.classList.add('active');
-  }
+    // تفعيل الزر الذي تم الضغط عليه (إن وُجد)
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    } else {
+        // افتراضياً تفعيل الزر الأول
+        const firstBtn = document.querySelector('#modal-student-profile .profile-tab-btn');
+        if (firstBtn) firstBtn.classList.add('active');
+    }
+}
+
+// =========================================================================
+// التشغيل التلقائي عند التحميل
+// =========================================================================
+setTimeout(initStudentsSection, 100);
 </script>

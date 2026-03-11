@@ -61,7 +61,7 @@
     <div class="page-subtitle">مراقبة سعة الفصول والطلاب المسجّلين وتوزيعهم</div>
   </div>
   <div style="display:flex; gap:8px;">
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-class')">
+    <button class="btn btn-primary btn-sm" onclick="openAddClassModal()">
       <i class="fas fa-plus"></i> فصل جديد
     </button>
   </div>
@@ -72,28 +72,28 @@
     <div class="kpi-top">
       <div class="kpi-icon blue"><i class="fas fa-chalkboard"></i></div>
     </div>
-    <div class="kpi-value">12</div>
+    <div class="kpi-value" id="kpi-total-classes">0</div>
     <div class="kpi-label">إجمالي الفصول</div>
   </div>
   <div class="kpi-card green fade-in fade-in-delay-2">
     <div class="kpi-top">
       <div class="kpi-icon green"><i class="fas fa-user-graduate"></i></div>
     </div>
-    <div class="kpi-value">487</div>
-    <div class="kpi-label">إجمالي الطلاب المسجلين</div>
+    <div class="kpi-value" id="kpi-total-enrolled">0</div>
+    <div class="kpi-label">طلاب موزعين على الفصول</div>
   </div>
   <div class="kpi-card red fade-in fade-in-delay-3">
     <div class="kpi-top">
       <div class="kpi-icon red"><i class="fas fa-door-closed"></i></div>
     </div>
-    <div class="kpi-value">3</div>
+    <div class="kpi-value" id="kpi-full-classes">0</div>
     <div class="kpi-label">فصول ممتلئة</div>
   </div>
   <div class="kpi-card orange fade-in fade-in-delay-4">
     <div class="kpi-top">
       <div class="kpi-icon orange"><i class="fas fa-chair"></i></div>
     </div>
-    <div class="kpi-value">41</div>
+    <div class="kpi-value" id="kpi-available-seats">0</div>
     <div class="kpi-label">مقعد شاغر (متاح)</div>
   </div>
 </div>
@@ -102,112 +102,15 @@
   <div class="table-controls" style="margin: 0; border: none; padding: 0; background: transparent;">
     <div class="search-input-wrap" style="flex: 2;">
       <i class="fas fa-search"></i>
-      <input type="text" class="search-input" placeholder="بحث باسم الفصل...">
+      <input type="text" id="classes-search" class="search-input" placeholder="بحث باسم الفصل..." onkeyup="filterClasses()">
     </div>
-    <select class="filter-select">
-      <option>جميع المستويات</option>
-      <option>مستوى أول</option>
-      <option>مستوى ثاني</option>
-      <option>مستوى ثالث</option>
-    </select>
-    <select class="filter-select">
-      <option>الفرع الرئيسي</option>
-      <option>فرع الشمال</option>
-    </select>
-    <select class="filter-select">
-      <option>السنة: 2025-2026</option>
-      <option>السنة: 2024-2025</option>
-    </select>
-    <select class="filter-select">
-      <option>جميع الحالات</option>
-      <option>متاح للتسجيل</option>
-      <option>ممتلئ</option>
-    </select>
   </div>
 </div>
 
-<div class="classes-grid fade-in">
-
-  <div class="class-card status-safe">
-    <div class="class-header">
-      <div class="class-title">الفصل الأول (أ)</div>
-      <span class="badge badge-success">متاح</span>
-    </div>
-    <div class="class-level"><i class="fas fa-layer-group"></i> مستوى أول - ابتدائي</div>
-    
-    <div class="class-capacity-info">
-      <span>نسبة الإشغال</span>
-      <span class="capacity-text">60%</span>
-    </div>
-    <div class="class-progress"><div class="class-progress-bar" style="width: 60%;"></div></div>
-    <div class="class-seats-text">15 / 25 مقعد</div>
-    
-    <div class="class-actions">
-      <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="openModal('modal-class-students')"><i class="fas fa-users"></i> قائمة الطلاب</button>
-      <button class="btn btn-ghost btn-sm" style="width: 40px; padding: 0;" title="تعديل" onclick="openModal('modal-add-class')"><i class="fas fa-pen"></i></button>
-    </div>
+<div class="classes-grid fade-in" id="classes-grid-container">
+  <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+    <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>جاري جلب الفصول...
   </div>
-
-  <div class="class-card status-warning">
-    <div class="class-header">
-      <div class="class-title">الفصل الثاني (ب)</div>
-      <span class="badge badge-warning">شبه ممتلئ</span>
-    </div>
-    <div class="class-level"><i class="fas fa-layer-group"></i> مستوى ثاني - متوسط</div>
-    
-    <div class="class-capacity-info">
-      <span>نسبة الإشغال</span>
-      <span class="capacity-text">93%</span>
-    </div>
-    <div class="class-progress"><div class="class-progress-bar" style="width: 93%;"></div></div>
-    <div class="class-seats-text">28 / 30 مقعد</div>
-    
-    <div class="class-actions">
-      <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="openModal('modal-class-students')"><i class="fas fa-users"></i> قائمة الطلاب</button>
-      <button class="btn btn-ghost btn-sm" style="width: 40px; padding: 0;" title="تعديل"><i class="fas fa-pen"></i></button>
-    </div>
-  </div>
-
-  <div class="class-card status-full">
-    <div class="class-header">
-      <div class="class-title">الفصل الثالث (ج)</div>
-      <span class="badge badge-danger">ممتلئ</span>
-    </div>
-    <div class="class-level"><i class="fas fa-layer-group"></i> مستوى ثالث - ثانوي</div>
-    
-    <div class="class-capacity-info">
-      <span>نسبة الإشغال</span>
-      <span class="capacity-text">100%</span>
-    </div>
-    <div class="class-progress"><div class="class-progress-bar" style="width: 100%;"></div></div>
-    <div class="class-seats-text">35 / 35 مقعد</div>
-    
-    <div class="class-actions">
-      <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="openModal('modal-class-students')"><i class="fas fa-users"></i> قائمة الطلاب</button>
-      <button class="btn btn-ghost btn-sm" style="width: 40px; padding: 0;" title="تعديل"><i class="fas fa-pen"></i></button>
-    </div>
-  </div>
-
-  <div class="class-card status-safe">
-    <div class="class-header">
-      <div class="class-title">التمهيدي (نجوم)</div>
-      <span class="badge badge-success">متاح</span>
-    </div>
-    <div class="class-level"><i class="fas fa-layer-group"></i> تحضيري / روضة</div>
-    
-    <div class="class-capacity-info">
-      <span>نسبة الإشغال</span>
-      <span class="capacity-text">40%</span>
-    </div>
-    <div class="class-progress"><div class="class-progress-bar" style="width: 40%;"></div></div>
-    <div class="class-seats-text">8 / 20 مقعد</div>
-    
-    <div class="class-actions">
-      <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="openModal('modal-class-students')"><i class="fas fa-users"></i> قائمة الطلاب</button>
-      <button class="btn btn-ghost btn-sm" style="width: 40px; padding: 0;" title="تعديل"><i class="fas fa-pen"></i></button>
-    </div>
-  </div>
-
 </div>
 
 <div class="modal-overlay" id="modal-add-class">
@@ -219,26 +122,23 @@
     
     <div class="form-group">
       <label class="form-label">اسم الفصل *</label>
-      <input type="text" class="form-input" placeholder="مثال: الفصل الأول (أ)" required>
+      <input type="text" id="nc-name" class="form-input" placeholder="مثال: الفصل الأول (أ)" required>
     </div>
     
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">المستوى الدراسي *</label>
-        <select class="form-select" required>
-          <option value="">-- اختر المستوى --</option>
-          <option>تحضيري</option>
-          <option>مستوى أول</option>
-          <option>مستوى ثاني</option>
-          <option>مستوى ثالث</option>
-        </select>
+        <label class="form-label">المستوى الدراسي</label>
+        <input type="text" id="nc-level" class="form-input" placeholder="مثال: مستوى أول - ابتدائي">
       </div>
       <div class="form-group">
-        <label class="form-label">البرنامج الدراسي *</label>
-        <select class="form-select" required>
-          <option value="">-- اختر البرنامج --</option>
-          <option>برنامج التعليم الابتدائي</option>
-          <option>برنامج التعليم المتوسط</option>
+        <label class="form-label">الفئة العمرية (اختياري)</label>
+        <select id="nc-age-group" class="form-select">
+          <option value="">-- غير محدد --</option>
+          <option value="Bebe">رضع (Bebe)</option>
+          <option value="Pitsection">قسم صغير (Pitsection)</option>
+          <option value="MyenSection">قسم متوسط (MyenSection)</option>
+          <option value="GandSection">قسم كبير (GandSection)</option>
+          <option value="SchoolAge">في سن التمدرس (SchoolAge)</option>
         </select>
       </div>
     </div>
@@ -246,27 +146,18 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">الفرع *</label>
-        <select class="form-select" required>
-          <option>الفرع الرئيسي</option>
-          <option>فرع الشمال</option>
+        <select id="nc-branch-id" class="form-select" required>
+          <option value="">-- اختر الفرع --</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">السنة الدراسية *</label>
-        <select class="form-select" required>
-          <option selected>2025 - 2026 (الحالية)</option>
-        </select>
+      <div class="form-group" style="background: rgba(43,108,176,0.05); border: 1px dashed var(--brand-info); padding: 12px; border-radius: var(--radius-md);">
+        <label class="form-label" style="color: var(--brand-info); margin-bottom: 4px;">الطاقة الاستيعابية *</label>
+        <input type="number" id="nc-capacity" class="form-input" placeholder="مثال: 30" min="5" max="100" required>
       </div>
     </div>
 
-    <div class="form-group" style="background: rgba(43,108,176,0.05); border: 1px dashed var(--brand-info); padding: 12px; border-radius: var(--radius-md);">
-      <label class="form-label" style="color: var(--brand-info);">الطاقة الاستيعابية القصوى (عدد المقاعد) *</label>
-      <input type="number" class="form-input" placeholder="مثال: 30" min="5" max="100" required>
-      <div class="form-hint">بمجرد وصول عدد المسجلين لهذا الرقم، سيُغلق التسجيل في هذا الفصل تلقائياً.</div>
-    </div>
-    
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم إنشاء الفصل بنجاح', 'success');closeModal('modal-add-class')">
+      <button class="btn btn-primary" onclick="submitNewClass()">
         <i class="fas fa-save"></i> إنشاء الفصل
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-add-class')">إلغاء</button>
@@ -275,15 +166,15 @@
 </div>
 
 <div class="modal-overlay" id="modal-class-students">
-  <div class="modal" style="max-width: 750px;">
+  <div class="modal" style="max-width: 750px; width: 95%;">
     <div class="modal-header">
-      <div class="modal-title">👨‍🎓 قائمة طلاب الفصل: الفصل الأول (أ)</div>
+      <div class="modal-title" id="modal-class-students-title">👨‍🎓 قائمة طلاب الفصل</div>
       <button class="modal-close" onclick="closeModal('modal-class-students')"><i class="fas fa-times"></i></button>
     </div>
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <div style="font-size: 13px; color: var(--text-secondary);">
-        إجمالي الطلاب: <strong style="color: var(--text-primary);">15 طالب</strong> من أصل 25 مقعد.
+      <div style="font-size: 13px; color: var(--text-secondary);" id="modal-class-students-subtitle">
+        جاري التحميل...
       </div>
       <button class="btn btn-ghost btn-sm" onclick="showToast('جاري تصدير القائمة...', 'info')">
         <i class="fas fa-file-excel"></i> تصدير القائمة
@@ -298,47 +189,10 @@
             <th>الاسم الكامل</th>
             <th>تاريخ التسجيل</th>
             <th>الحالة</th>
-            <th>الإجراءات</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td style="font-family: monospace; font-weight: 700;">#STU-101</td>
-            <td>
-              <div style="display:flex;align-items:center;gap:8px">
-                <div class="avatar avatar-blue" style="width:24px;height:24px;font-size:10px">أخ</div>
-                <strong>أحمد خالد</strong>
-              </div>
-            </td>
-            <td>2025/08/15</td>
-            <td><span class="badge badge-success">منتظم</span></td>
-            <td><button class="action-btn view" title="ملف الطالب"><i class="fas fa-external-link-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td style="font-family: monospace; font-weight: 700;">#STU-102</td>
-            <td>
-              <div style="display:flex;align-items:center;gap:8px">
-                <div class="avatar avatar-green" style="width:24px;height:24px;font-size:10px">سم</div>
-                <strong>سارة محمد</strong>
-              </div>
-            </td>
-            <td>2025/08/16</td>
-            <td><span class="badge badge-success">منتظم</span></td>
-            <td><button class="action-btn view" title="ملف الطالب"><i class="fas fa-external-link-alt"></i></button></td>
-          </tr>
-          <tr style="background: rgba(240,165,0,0.05);">
-            <td style="font-family: monospace; font-weight: 700;">#STU-108</td>
-            <td>
-              <div style="display:flex;align-items:center;gap:8px">
-                <div class="avatar avatar-orange" style="width:24px;height:24px;font-size:10px">يص</div>
-                <strong>ياسين صالح</strong>
-              </div>
-            </td>
-            <td>2025/08/20</td>
-            <td><span class="badge badge-warning">تغيب متكرر</span></td>
-            <td><button class="action-btn view" title="ملف الطالب"><i class="fas fa-external-link-alt"></i></button></td>
-          </tr>
-        </tbody>
+        <tbody id="class-students-tbody">
+          </tbody>
       </table>
     </div>
     
@@ -347,3 +201,228 @@
     </div>
   </div>
 </div>
+
+<script>
+  let classesPageData = {
+      classes: [],
+      students: [],
+      users: {},
+      branches: {}
+  };
+
+  async function initClassesSection() {
+      if (typeof AppConfig === 'undefined') {
+          document.getElementById('classes-grid-container').innerHTML = '<div style="color:red; text-align:center; padding:20px;">خطأ: ملف الاتصال بالخادم مفقود</div>';
+          return;
+      }
+
+      try {
+          // جلب البيانات من الـ APIs
+          const [classesRes, studentsRes, usersRes, branchesRes] = await Promise.all([
+              AppConfig.get('classes'),
+              AppConfig.get('students'),
+              AppConfig.get('users'),
+              AppConfig.get('branches')
+          ]);
+
+          classesPageData.classes = classesRes || [];
+          classesPageData.students = studentsRes || [];
+          classesPageData.users = (usersRes || []).reduce((acc, u) => ({...acc, [u.id]: u}), {});
+          classesPageData.branches = (branchesRes || []).reduce((acc, b) => ({...acc, [b.id]: b}), {});
+
+          calculateClassesKPIs();
+          populateBranchesDropdown();
+          renderClassesGrid(classesPageData.classes);
+
+      } catch (error) {
+          console.error("Error loading classes data:", error);
+      }
+  }
+
+  // حساب المؤشرات (KPIs)
+  function calculateClassesKPIs() {
+      const totalClasses = classesPageData.classes.length;
+      let totalEnrolled = 0;
+      let fullClassesCount = 0;
+      let availableSeatsCount = 0;
+
+      // حساب عدد الطلاب المسجلين لكل فصل
+      let studentsPerClass = {};
+      classesPageData.students.forEach(s => {
+          if (s.class_id && s.status === 'Active') {
+              studentsPerClass[s.class_id] = (studentsPerClass[s.class_id] || 0) + 1;
+              totalEnrolled++;
+          }
+      });
+
+      classesPageData.classes.forEach(cls => {
+          const capacity = cls.capacity || 0;
+          const enrolled = studentsPerClass[cls.id] || 0;
+          
+          if (capacity > 0 && enrolled >= capacity) {
+              fullClassesCount++;
+          }
+          if (capacity > enrolled) {
+              availableSeatsCount += (capacity - enrolled);
+          }
+      });
+
+      document.getElementById('kpi-total-classes').innerText = totalClasses;
+      document.getElementById('kpi-total-enrolled').innerText = totalEnrolled;
+      document.getElementById('kpi-full-classes').innerText = fullClassesCount;
+      document.getElementById('kpi-available-seats').innerText = availableSeatsCount;
+  }
+
+  // رسم شبكة الكروت (Cards)
+  function renderClassesGrid(classesArray) {
+      const container = document.getElementById('classes-grid-container');
+      container.innerHTML = '';
+
+      if (classesArray.length === 0) {
+          container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">لا توجد فصول دراسية مضافة حتى الآن.</div>';
+          return;
+      }
+
+      classesArray.forEach(cls => {
+          // حساب عدد طلاب هذا الفصل
+          const enrolled = classesPageData.students.filter(s => s.class_id === cls.id && s.status === 'Active').length;
+          const capacity = cls.capacity || 0;
+          
+          let percentage = 0;
+          if (capacity > 0) percentage = Math.min(Math.round((enrolled / capacity) * 100), 100);
+
+          // تحديد حالة ولون الفصل
+          let statusClass = 'status-safe';
+          let statusBadge = '<span class="badge badge-success">متاح</span>';
+          
+          if (percentage >= 100) {
+              statusClass = 'status-full';
+              statusBadge = '<span class="badge badge-danger">ممتلئ</span>';
+          } else if (percentage >= 85) {
+              statusClass = 'status-warning';
+              statusBadge = '<span class="badge badge-warning">شبه ممتلئ</span>';
+          }
+
+          const card = document.createElement('div');
+          card.className = `class-card ${statusClass}`;
+          card.innerHTML = `
+              <div class="class-header">
+                <div class="class-title">${cls.class_name}</div>
+                ${statusBadge}
+              </div>
+              <div class="class-level"><i class="fas fa-layer-group"></i> ${cls.level || 'مستوى غير محدد'}</div>
+              
+              <div class="class-capacity-info">
+                <span>نسبة الإشغال</span>
+                <span class="capacity-text">${percentage}%</span>
+              </div>
+              <div class="class-progress"><div class="class-progress-bar" style="width: ${percentage}%;"></div></div>
+              <div class="class-seats-text">${enrolled} / ${capacity || '؟'} مقعد</div>
+              
+              <div class="class-actions">
+                <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="viewClassStudents(${cls.id}, '${cls.class_name}', ${enrolled}, ${capacity})"><i class="fas fa-users"></i> قائمة الطلاب</button>
+              </div>
+          `;
+          container.appendChild(card);
+      });
+  }
+
+  function filterClasses() {
+      const searchVal = document.getElementById('classes-search').value.toLowerCase();
+      const filtered = classesPageData.classes.filter(cls => 
+          cls.class_name.toLowerCase().includes(searchVal) || 
+          (cls.level && cls.level.toLowerCase().includes(searchVal))
+      );
+      renderClassesGrid(filtered);
+  }
+
+  function populateBranchesDropdown() {
+      const branchSelect = document.getElementById('nc-branch-id');
+      branchSelect.innerHTML = '<option value="">-- اختر الفرع --</option>';
+      Object.values(classesPageData.branches).forEach(b => {
+          branchSelect.innerHTML += `<option value="${b.id}">${b.branch_name}</option>`;
+      });
+  }
+
+  function openAddClassModal() {
+      openModal('modal-add-class');
+  }
+
+  // إرسال POST لإضافة فصل جديد
+  async function submitNewClass() {
+      const payload = {
+          class_name: document.getElementById('nc-name').value,
+          level: document.getElementById('nc-level').value || null,
+          age_group: document.getElementById('nc-age-group').value || null,
+          branch_id: parseInt(document.getElementById('nc-branch-id').value) || null,
+          capacity: parseInt(document.getElementById('nc-capacity').value) || null
+      };
+
+      if (!payload.class_name || !payload.capacity) {
+          alert("يرجى إدخال اسم الفصل والطاقة الاستيعابية!");
+          return;
+      }
+
+      const result = await AppConfig.post('classes/', payload);
+      
+      if (result !== null) {
+          if(typeof showToast === 'function') showToast('تم إنشاء الفصل بنجاح', 'success');
+          closeModal('modal-add-class');
+          initClassesSection(); // تحديث الواجهة
+      } else {
+          alert("حدث خطأ أثناء الإنشاء، راجع الكونسول.");
+      }
+  }
+
+  // عرض نافذة طلاب الفصل (Modal)
+  function viewClassStudents(classId, className, enrolled, capacity) {
+      document.getElementById('modal-class-students-title').innerText = `👨‍🎓 قائمة طلاب الفصل: ${className}`;
+      document.getElementById('modal-class-students-subtitle').innerHTML = `إجمالي الطلاب النشطين: <strong style="color: var(--text-primary);">${enrolled} طالب</strong> من أصل ${capacity || '?'} مقعد.`;
+      
+      const tbody = document.getElementById('class-students-tbody');
+      tbody.innerHTML = '';
+
+      // جلب طلاب هذا الفصل
+      const classStudents = classesPageData.students.filter(s => s.class_id === classId);
+
+      if (classStudents.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">لا يوجد طلاب مسجلين في هذا الفصل حتى الآن.</td></tr>';
+      } else {
+          classStudents.forEach(student => {
+              const user = classesPageData.users[student.user_id] || {};
+              const regDate = student.registration_date ? student.registration_date.split('T')[0] : '-';
+              const statusBadge = student.status === 'Active' 
+                  ? '<span class="badge badge-success">نشط</span>' 
+                  : '<span class="badge badge-warning">موقوف/منسحب</span>';
+
+              const tr = document.createElement('tr');
+              if (student.status !== 'Active') tr.style.opacity = '0.6';
+              
+              tr.innerHTML = `
+                  <td style="font-family: monospace; font-weight: 700;">STU-${student.id}</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <div class="avatar avatar-blue" style="width:24px;height:24px;font-size:10px">${getInitials(user.full_name)}</div>
+                      <strong>${user.full_name || 'غير محدد'}</strong>
+                    </div>
+                  </td>
+                  <td>${regDate}</td>
+                  <td>${statusBadge}</td>
+              `;
+              tbody.appendChild(tr);
+          });
+      }
+
+      openModal('modal-class-students');
+  }
+
+  function getInitials(name) {
+      if (!name) return '؟؟';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name.substring(0, 2).toUpperCase();
+  }
+
+  // تشغيل التهيئة فوراً
+  setTimeout(initClassesSection, 100);
+</script>

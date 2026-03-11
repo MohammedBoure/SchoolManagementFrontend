@@ -25,7 +25,7 @@
     <button class="btn btn-ghost btn-sm" style="color: var(--brand-info); border-color: rgba(43,108,176,0.3); background: rgba(43,108,176,0.05);" onclick="openModal('modal-bulk-grades')">
       <i class="fas fa-list-ol"></i> إدخال جماعي
     </button>
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-grade')">
+    <button class="btn btn-primary btn-sm" onclick="openAddGradeModal()">
       <i class="fas fa-plus"></i> إضافة تقييم
     </button>
   </div>
@@ -36,66 +36,45 @@
     <div class="kpi-top">
       <div class="kpi-icon blue"><i class="fas fa-chart-line"></i></div>
     </div>
-    <div class="kpi-value">82%</div>
+    <div class="kpi-value" id="kpi-avg">0%</div>
     <div class="kpi-label">متوسط الدرجات العام</div>
   </div>
   <div class="kpi-card green fade-in fade-in-delay-2">
     <div class="kpi-top">
       <div class="kpi-icon green"><i class="fas fa-check-circle"></i></div>
     </div>
-    <div class="kpi-value">34</div>
-    <div class="kpi-label">طالب ناجح هذا الفصل</div>
+    <div class="kpi-value" id="kpi-passed">0</div>
+    <div class="kpi-label">ناجح (أكثر من 50%)</div>
   </div>
   <div class="kpi-card orange fade-in fade-in-delay-3">
     <div class="kpi-top">
       <div class="kpi-icon orange"><i class="fas fa-hands-helping"></i></div>
     </div>
-    <div class="kpi-value">8</div>
-    <div class="kpi-label">طلاب بحاجة لدعم (أقل من 50%)</div>
+    <div class="kpi-value" id="kpi-support">0</div>
+    <div class="kpi-label">بحاجة لدعم (40% - 49%)</div>
   </div>
   <div class="kpi-card red fade-in fade-in-delay-4">
     <div class="kpi-top">
       <div class="kpi-icon red"><i class="fas fa-times-circle"></i></div>
     </div>
-    <div class="kpi-value">3</div>
-    <div class="kpi-label">طالب راسب</div>
+    <div class="kpi-value" id="kpi-failed">0</div>
+    <div class="kpi-label">راسب (أقل من 40%)</div>
   </div>
 </div>
 
 <div class="card data-table-card fade-in">
   <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
-    <div class="tabs">
-      <button class="tab-btn active">كل التقييمات</button>
-      <button class="tab-btn">الفصل الأول</button>
-      <button class="tab-btn">الفصل الثاني</button>
-      <button class="tab-btn">التقييم السنوي</button>
-    </div>
-    
     <div class="table-controls" style="width: 100%;">
-      <select class="filter-select">
-        <option>جميع الفصول</option>
-        <option>الفصل الأول (أ)</option>
-        <option>الفصل الثاني (ب)</option>
+      <div class="search-input-wrap" style="flex: 1;">
+        <i class="fas fa-search"></i>
+        <input type="text" id="grades-search" class="search-input" placeholder="بحث باسم الطالب..." onkeyup="filterGradesTable()">
+      </div>
+      <select id="grades-filter-class" class="filter-select" onchange="filterGradesTable()">
+        <option value="">جميع الفصول</option>
       </select>
-      <select class="filter-select">
-        <option>جميع المواد</option>
-        <option>رياضيات</option>
-        <option>لغة عربية</option>
-        <option>علوم</option>
+      <select id="grades-filter-assessment" class="filter-select" onchange="filterGradesTable()">
+        <option value="">جميع التقييمات / الامتحانات</option>
       </select>
-      <select class="filter-select">
-        <option>جميع المعلمين</option>
-        <option>أحمد الدراجي</option>
-        <option>فاطمة كمال</option>
-      </select>
-      <select class="filter-select">
-        <option>جميع النتائج</option>
-        <option>ممتاز (≥ 90%)</option>
-        <option>ناجح (≥ 50%)</option>
-        <option>يحتاج دعم (40% - 49%)</option>
-        <option>راسب (< 40%)</option>
-      </select>
-      <input type="date" class="filter-select" style="color:var(--text-muted)" title="تاريخ التقييم">
     </div>
   </div>
 
@@ -105,121 +84,22 @@
         <tr>
           <th>الطالب</th>
           <th>الفصل</th>
-          <th>المادة</th>
-          <th class="col-hide-mobile">المعلم</th>
+          <th>الامتحان / التقييم</th>
           <th style="text-align: center;">الدرجة</th>
           <th class="col-hide-mobile" style="text-align: center;">من أصل</th>
           <th style="text-align: center;">النسبة</th>
-          <th>التاريخ</th>
+          <th>ملاحظات المعلم</th>
           <th>الإجراءات</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-blue">أم</div>
-              <div><strong>أحمد محمود</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">STU-2025-010</div></div>
-            </div>
-          </td>
-          <td>الفصل الأول (أ)</td>
-          <td><strong>رياضيات</strong></td>
-          <td class="col-hide-mobile" style="font-size: 11px;">أ. فاطمة كمال</td>
-          <td style="text-align: center;" class="grade-excellent">19.0</td>
-          <td class="col-hide-mobile" style="text-align: center; color: var(--text-muted);">20</td>
-          <td style="text-align: center;"><span class="badge badge-excellent">95% (ممتاز)</span></td>
-          <td style="font-size: 11px; color: var(--text-muted);">2026/03/05</td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-              <button class="action-btn" style="color:var(--brand-danger)" title="إصدار شهادة PDF" onclick="showToast('جاري توليد الشهادة...', 'info')"><i class="fas fa-file-pdf"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-green">سخ</div>
-              <div><strong>سارة خالد</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">STU-2025-022</div></div>
-            </div>
-          </td>
-          <td>الفصل الأول (أ)</td>
-          <td><strong>علوم طبيعية</strong></td>
-          <td class="col-hide-mobile" style="font-size: 11px;">أ. أحمد علي</td>
-          <td style="text-align: center;" class="grade-good">15.5</td>
-          <td class="col-hide-mobile" style="text-align: center; color: var(--text-muted);">20</td>
-          <td style="text-align: center;"><span class="badge badge-success">77.5% (ناجح)</span></td>
-          <td style="font-size: 11px; color: var(--text-muted);">2026/03/05</td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-              <button class="action-btn" style="color:var(--brand-danger)" title="إصدار شهادة PDF"><i class="fas fa-file-pdf"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr style="background: rgba(221,107,32,0.02);">
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-orange">يص</div>
-              <div><strong>ياسين صالح</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">STU-2024-105</div></div>
-            </div>
-          </td>
-          <td>الفصل الثاني (ب)</td>
-          <td><strong>لغة فرنسية</strong></td>
-          <td class="col-hide-mobile" style="font-size: 11px;">أ. ماري كلير</td>
-          <td style="text-align: center;" class="grade-average">11.0</td>
-          <td class="col-hide-mobile" style="text-align: center; color: var(--text-muted);">20</td>
-          <td style="text-align: center;"><span class="badge badge-warning">55% (متوسط)</span></td>
-          <td style="font-size: 11px; color: var(--text-muted);">2026/03/04</td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-              <button class="action-btn" style="color:var(--brand-danger)" title="إصدار شهادة PDF"><i class="fas fa-file-pdf"></i></button>
-            </div>
-          </td>
-        </tr>
-
-        <tr style="background: rgba(229,62,62,0.03);">
-          <td>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="avatar avatar-red">عز</div>
-              <div><strong>عمر زايد</strong><div style="font-size:10px;color:var(--text-muted);font-family:monospace;">STU-2025-088</div></div>
-            </div>
-          </td>
-          <td>الفصل الثاني (ب)</td>
-          <td><strong>رياضيات</strong></td>
-          <td class="col-hide-mobile" style="font-size: 11px;">أ. فاطمة كمال</td>
-          <td style="text-align: center;" class="grade-poor">7.5</td>
-          <td class="col-hide-mobile" style="text-align: center; color: var(--text-muted);">20</td>
-          <td style="text-align: center;"><span class="badge badge-danger">37.5% (راسب)</span></td>
-          <td style="font-size: 11px; color: var(--text-muted);">2026/03/04</td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn edit" title="تعديل"><i class="fas fa-pen"></i></button>
-              <button class="action-btn" style="color:var(--brand-danger)" title="إصدار شهادة PDF"><i class="fas fa-file-pdf"></i></button>
-            </div>
-          </td>
-        </tr>
+      <tbody id="grades-tbody">
+        <tr><td colspan="8" style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري جلب التقييمات...</td></tr>
       </tbody>
     </table>
   </div>
-  
-  <div class="pagination">
-    <span>عرض 1-4 من أصل 850 تقييم</span>
-    <div class="pagination-btns">
-      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">...</button>
-      <button class="page-btn">85</button>
-      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
-    </div>
-  </div>
 </div>
 
+<!-- Modal: إضافة تقييم فردي -->
 <div class="modal-overlay" id="modal-add-grade">
   <div class="modal" style="max-width: 550px;">
     <div class="modal-header">
@@ -228,46 +108,27 @@
     </div>
     
     <div class="form-group">
-      <label class="form-label">بحث عن الطالب *</label>
-      <div class="search-input-wrap">
-        <i class="fas fa-search"></i>
-        <input type="text" class="search-input" placeholder="اكتب اسم الطالب أو رقمه للبحث...">
-      </div>
-      <select class="form-select" style="margin-top: 8px;" required>
-        <option value="">-- اختر طالباً من النتائج --</option>
-        <option>أحمد محمود (الفصل الأول)</option>
-        <option>سارة خالد (الفصل الأول)</option>
+      <label class="form-label">الطالب *</label>
+      <select id="ng-student-id" class="form-select" required>
+        <option value="">-- اختر الطالب --</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">الامتحان / التقييم *</label>
+      <select id="ng-assessment-id" class="form-select" onchange="updateMaxScore()" required>
+        <option value="">-- اختر التقييم --</option>
       </select>
     </div>
     
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">المادة *</label>
-        <select class="form-select" required>
-          <option value="">-- اختر المادة --</option>
-          <option>رياضيات</option>
-          <option>لغة عربية</option>
-          <option>علوم طبيعية</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">الفصل الدراسي للتنقيط *</label>
-        <select class="form-select" required>
-          <option>الفصل الأول</option>
-          <option>الفصل الثاني</option>
-          <option>الفصل الثالث</option>
-        </select>
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
         <label class="form-label">الدرجة المحققة *</label>
-        <input type="number" class="form-input" id="single_grade_val" placeholder="مثال: 15.5" step="0.25" min="0" oninput="calcSinglePercentage()" required>
+        <input type="number" id="ng-grade-val" class="form-input" placeholder="مثال: 15.5" step="0.25" min="0" oninput="calcSinglePercentage()" required>
       </div>
       <div class="form-group">
-        <label class="form-label">من أصل (العلامة الكاملة) *</label>
-        <input type="number" class="form-input" id="single_max_val" value="20" min="1" oninput="calcSinglePercentage()" required>
+        <label class="form-label">العلامة الكاملة (للمعلومة فقط)</label>
+        <input type="number" id="ng-max-val" class="form-input" value="20" disabled>
       </div>
     </div>
     
@@ -276,20 +137,13 @@
       <div id="single_percentage_display" style="font-size: 20px; font-weight: 800; font-family: 'Tajawal', sans-serif;">0%</div>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">تاريخ التقييم *</label>
-        <input type="date" class="form-input" required>
-      </div>
-    </div>
-
     <div class="form-group">
-      <label class="form-label">ملاحظات المعلم (تظهر في كشف النقاط)</label>
-      <textarea class="form-textarea" placeholder="مثال: مستوى جيد، يحتاج للتركيز أكثر..." rows="2"></textarea>
+      <label class="form-label">ملاحظات المعلم (اختياري)</label>
+      <textarea id="ng-remarks" class="form-textarea" placeholder="مثال: مستوى جيد، يحتاج للتركيز أكثر..." rows="2"></textarea>
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تم حفظ التقييم بنجاح', 'success');closeModal('modal-add-grade')">
+      <button class="btn btn-primary" onclick="submitNewGrade()">
         <i class="fas fa-save"></i> حفظ التقييم
       </button>
       <button class="btn btn-ghost" onclick="closeModal('modal-add-grade')">إلغاء</button>
@@ -297,109 +151,304 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-bulk-grades">
-  <div class="modal" style="max-width: 800px; width: 95%;">
-    <div class="modal-header">
-      <div class="modal-title" style="color: var(--brand-info);">📥 إدخال جماعي للدرجات (للمعلمين)</div>
-      <button class="modal-close" onclick="closeModal('modal-bulk-grades')"><i class="fas fa-times"></i></button>
-    </div>
-    
-    <div style="background: rgba(43,108,176,0.05); padding: 16px; border-radius: var(--radius-md); border: 1px dashed rgba(43,108,176,0.3); margin-bottom: 20px;">
-      <div class="form-row" style="margin-bottom: 0;">
-        <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">اختر الفصل *</label>
-          <select class="form-select"><option>الفصل الأول (أ)</option></select>
-        </div>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">اختر المادة *</label>
-          <select class="form-select"><option>رياضيات</option></select>
-        </div>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">الفصل الدراسي *</label>
-          <select class="form-select"><option>الفصل الأول</option></select>
-        </div>
-      </div>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-      <h5 style="margin: 0; font-size: 13px;">قائمة طلاب الفصل الأول (أ)</h5>
-      <div style="font-size: 12px; font-weight: 700;">العلامة من أصل: <input type="number" value="20" style="width: 50px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px;"></div>
-    </div>
-
-    <div class="table-wrapper" style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color);">
-      <table class="data-table" style="font-size: 12px;">
-        <thead style="position: sticky; top: 0; z-index: 1;">
-          <tr>
-            <th>رقم الطالب</th>
-            <th>اسم الطالب</th>
-            <th style="width: 120px; text-align: center;">الدرجة</th>
-            <th>ملاحظات قصيرة</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-family: monospace;">STU-2025-010</td>
-            <td><strong>أحمد محمود</strong></td>
-            <td><input type="number" class="form-input" style="padding: 4px; text-align: center; height: 32px;" value="19.0" step="0.25"></td>
-            <td><input type="text" class="form-input" style="padding: 4px; height: 32px;" placeholder="ممتاز"></td>
-          </tr>
-          <tr>
-            <td style="font-family: monospace;">STU-2025-022</td>
-            <td><strong>سارة خالد</strong></td>
-            <td><input type="number" class="form-input" style="padding: 4px; text-align: center; height: 32px;" placeholder="0.00" step="0.25"></td>
-            <td><input type="text" class="form-input" style="padding: 4px; height: 32px;" placeholder="ملاحظة..."></td>
-          </tr>
-          <tr>
-            <td style="font-family: monospace;">STU-2024-105</td>
-            <td><strong>ياسين صالح</strong></td>
-            <td><input type="number" class="form-input" style="padding: 4px; text-align: center; height: 32px;" placeholder="0.00" step="0.25"></td>
-            <td><input type="text" class="form-input" style="padding: 4px; height: 32px;" placeholder="ملاحظة..."></td>
-          </tr>
-          <tr>
-            <td style="font-family: monospace;">STU-2025-088</td>
-            <td><strong>عمر زايد</strong></td>
-            <td><input type="number" class="form-input" style="padding: 4px; text-align: center; height: 32px;" placeholder="0.00" step="0.25"></td>
-            <td><input type="text" class="form-input" style="padding: 4px; height: 32px;" placeholder="ملاحظة..."></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="modal-footer" style="margin-top: 20px;">
-      <button class="btn btn-primary" onclick="showToast('تم حفظ جميع درجات الفصل بنجاح', 'success');closeModal('modal-bulk-grades')">
-        <i class="fas fa-save"></i> حفظ جميع الدرجات
-      </button>
-      <button class="btn btn-ghost" onclick="closeModal('modal-bulk-grades')">إلغاء</button>
-    </div>
-  </div>
-</div>
-
 <script>
-  // دالة لحساب النسبة المئوية وتغيير لونها في نافذة إضافة تقييم فردي
+  let gradesData = {
+      grades: [],
+      students: {},
+      users: {},
+      classes: {},
+      assessments: {}, // سيتم تعبئتها لاحقاً عند جلب assessments.json
+      subjects: {}     // سيتم تعبئتها لاحقاً
+  };
+
+  async function initGradesSection() {
+      if (typeof AppConfig === 'undefined') return;
+
+      try {
+          // جلب البيانات، مع تجاهل الأخطاء للبيانات التي لم تتوفر بعد (Assessments/Subjects)
+          const [gradesRes, studentsRes, usersRes, classesRes, assessmentsRes, subjectsRes] = await Promise.all([
+              AppConfig.get('grades'),
+              AppConfig.get('students').catch(() => []),
+              AppConfig.get('users').catch(() => []),
+              AppConfig.get('classes').catch(() => []),
+              AppConfig.get('assessments').catch(() => []),
+              AppConfig.get('subjects').catch(() => [])
+          ]);
+
+          gradesData.grades = Array.isArray(gradesRes) ? gradesRes : [];
+          
+          if(Array.isArray(studentsRes)) gradesData.students = studentsRes.reduce((acc, s) => ({...acc, [s.id]: s}), {});
+          if(Array.isArray(usersRes)) gradesData.users = usersRes.reduce((acc, u) => ({...acc, [u.id]: u}), {});
+          if(Array.isArray(classesRes)) gradesData.classes = classesRes.reduce((acc, c) => ({...acc, [c.id]: c}), {});
+          if(Array.isArray(assessmentsRes)) gradesData.assessments = assessmentsRes.reduce((acc, a) => ({...acc, [a.id]: a}), {});
+          if(Array.isArray(subjectsRes)) gradesData.subjects = subjectsRes.reduce((acc, s) => ({...acc, [s.id]: s}), {});
+
+          populateDropdowns();
+          calculateKPIs();
+          filterGradesTable();
+
+      } catch (error) {
+          console.error("Error loading grades data:", error);
+          document.getElementById('grades-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;">حدث خطأ أثناء جلب البيانات</td></tr>';
+      }
+  }
+
+  // دوال مساعدة لاستخراج البيانات
+  function getStudentInfo(studentId) {
+      if (!studentId) return { name: '-', className: '-' };
+      const student = gradesData.students[studentId];
+      if (!student) return { name: `طالب #${studentId}`, className: '-' };
+      
+      const user = gradesData.users[student.user_id];
+      const cls = gradesData.classes[student.class_id];
+      
+      return {
+          name: user ? user.full_name : `طالب #${studentId}`,
+          className: cls ? cls.class_name : '-'
+      };
+  }
+
+  function getAssessmentInfo(assessmentId) {
+      // حالياً نفترض بيانات افتراضية لحين توفر الـ API
+      if (!assessmentId) return { name: '-', maxScore: 20 };
+      const assessment = gradesData.assessments[assessmentId];
+      if (!assessment) return { name: `تقييم #${assessmentId}`, maxScore: 20 };
+      
+      // إذا كان يوجد subject_id داخل الـ assessment
+      let subjectName = '';
+      if(assessment.subject_id && gradesData.subjects[assessment.subject_id]) {
+          subjectName = gradesData.subjects[assessment.subject_id].subject_name;
+      }
+      
+      const examName = assessment.assessment_name || `تقييم #${assessmentId}`;
+      const fullName = subjectName ? `${subjectName} - ${examName}` : examName;
+
+      return {
+          name: fullName,
+          maxScore: assessment.max_score || 20 // الافتراضي 20
+      };
+  }
+
+  function calculateKPIs() {
+      let totalPercents = 0;
+      let passed = 0, support = 0, failed = 0;
+      const count = gradesData.grades.length;
+
+      gradesData.grades.forEach(g => {
+          const max = getAssessmentInfo(g.assessment_id).maxScore;
+          const grade = parseFloat(g.grade_value) || 0;
+          let percent = max > 0 ? (grade / max) * 100 : 0;
+          
+          totalPercents += percent;
+
+          if (percent >= 50) passed++;
+          else if (percent >= 40) support++;
+          else failed++;
+      });
+
+      const avg = count > 0 ? (totalPercents / count).toFixed(1) : 0;
+
+      document.getElementById('kpi-avg').innerText = avg + '%';
+      document.getElementById('kpi-passed').innerText = passed;
+      document.getElementById('kpi-support').innerText = support;
+      document.getElementById('kpi-failed').innerText = failed;
+  }
+
+  function renderGradesTable(dataArray) {
+      const tbody = document.getElementById('grades-tbody');
+      tbody.innerHTML = '';
+
+      if (dataArray.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد درجات مطابقة</td></tr>';
+          return;
+      }
+
+      dataArray.sort((a, b) => b.id - a.id);
+
+      dataArray.forEach(g => {
+          const studentInfo = getStudentInfo(g.student_id);
+          const assessInfo = getAssessmentInfo(g.assessment_id);
+          
+          const gradeVal = parseFloat(g.grade_value) || 0;
+          const percent = assessInfo.maxScore > 0 ? (gradeVal / assessInfo.maxScore) * 100 : 0;
+
+          // تحديد الألوان بناءً على النسبة
+          let colorClass = 'grade-poor';
+          let badgeHTML = `<span class="badge badge-danger">${percent.toFixed(1)}% (راسب)</span>`;
+          let rowBg = 'background: rgba(229,62,62,0.03);'; // أحمر خفيف
+
+          if (percent >= 90) {
+              colorClass = 'grade-excellent';
+              badgeHTML = `<span class="badge badge-excellent">${percent.toFixed(1)}% (ممتاز)</span>`;
+              rowBg = '';
+          } else if (percent >= 70) {
+              colorClass = 'grade-good';
+              badgeHTML = `<span class="badge badge-success">${percent.toFixed(1)}% (جيد)</span>`;
+              rowBg = '';
+          } else if (percent >= 50) {
+              colorClass = 'grade-good';
+              badgeHTML = `<span class="badge badge-success">${percent.toFixed(1)}% (ناجح)</span>`;
+              rowBg = '';
+          } else if (percent >= 40) {
+              colorClass = 'grade-average';
+              badgeHTML = `<span class="badge badge-warning">${percent.toFixed(1)}% (دعم)</span>`;
+              rowBg = 'background: rgba(221,107,32,0.02);'; // برتقالي خفيف
+          }
+
+          const tr = document.createElement('tr');
+          tr.style = rowBg;
+          tr.innerHTML = `
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="avatar avatar-blue">${getInitials(studentInfo.name)}</div>
+                  <div><strong>${studentInfo.name}</strong></div>
+                </div>
+              </td>
+              <td>${studentInfo.className}</td>
+              <td><strong>${assessInfo.name}</strong></td>
+              <td style="text-align: center;" class="${colorClass}">${gradeVal}</td>
+              <td class="col-hide-mobile" style="text-align: center; color: var(--text-muted);">${assessInfo.maxScore}</td>
+              <td style="text-align: center;">${badgeHTML}</td>
+              <td style="font-size: 12px; color: var(--text-muted); max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${g.teacher_remarks || ''}">
+                 ${g.teacher_remarks || '-'}
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="action-btn delete" style="color:var(--brand-danger);" title="حذف" onclick="deleteGrade(${g.id})"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+          `;
+          tbody.appendChild(tr);
+      });
+  }
+
+  function filterGradesTable() {
+      const searchVal = document.getElementById('grades-search').value.toLowerCase();
+      const classVal = document.getElementById('grades-filter-class').value;
+      const assessVal = document.getElementById('grades-filter-assessment').value;
+
+      const filtered = gradesData.grades.filter(g => {
+          const student = gradesData.students[g.student_id] || {};
+          const sName = getStudentInfo(g.student_id).name.toLowerCase();
+          
+          const matchSearch = sName.includes(searchVal);
+          const matchClass = classVal === "" || String(student.class_id) === classVal;
+          const matchAssess = assessVal === "" || String(g.assessment_id) === assessVal;
+
+          return matchSearch && matchClass && matchAssess;
+      });
+
+      renderGradesTable(filtered);
+  }
+
+  function populateDropdowns() {
+      // Classes Dropdown
+      const classFilter = document.getElementById('grades-filter-class');
+      Object.values(gradesData.classes).forEach(c => {
+          classFilter.innerHTML += `<option value="${c.id}">${c.class_name}</option>`;
+      });
+
+      // Assessments Dropdown
+      const assessFilter = document.getElementById('grades-filter-assessment');
+      const addAssessSelect = document.getElementById('ng-assessment-id');
+      Object.values(gradesData.assessments).forEach(a => {
+          const info = getAssessmentInfo(a.id);
+          const opt = `<option value="${a.id}">${info.name}</option>`;
+          assessFilter.innerHTML += opt;
+          addAssessSelect.innerHTML += opt;
+      });
+
+      // Students Dropdown for Add Modal
+      const addStudentSelect = document.getElementById('ng-student-id');
+      Object.values(gradesData.students).forEach(s => {
+          const info = getStudentInfo(s.id);
+          addStudentSelect.innerHTML += `<option value="${s.id}">${info.name} (${info.className})</option>`;
+      });
+  }
+
+  // ================= الإضافة والحذف =================
+
+  function openAddGradeModal() {
+      document.getElementById('ng-student-id').value = '';
+      document.getElementById('ng-assessment-id').value = '';
+      document.getElementById('ng-grade-val').value = '';
+      document.getElementById('ng-remarks').value = '';
+      document.getElementById('single_percentage_display').innerText = '0%';
+      document.getElementById('single_percentage_display').style.color = 'var(--text-main)';
+      openModal('modal-add-grade');
+  }
+
+  function updateMaxScore() {
+      const assessId = document.getElementById('ng-assessment-id').value;
+      const info = getAssessmentInfo(assessId);
+      document.getElementById('ng-max-val').value = info.maxScore;
+      calcSinglePercentage();
+  }
+
   function calcSinglePercentage() {
-    const gradeInput = document.getElementById('single_grade_val');
-    const maxInput = document.getElementById('single_max_val');
-    const display = document.getElementById('single_percentage_display');
+      const grade = parseFloat(document.getElementById('ng-grade-val').value) || 0;
+      const max = parseFloat(document.getElementById('ng-max-val').value) || 1; 
+      const display = document.getElementById('single_percentage_display');
 
-    const grade = parseFloat(gradeInput.value) || 0;
-    const max = parseFloat(maxInput.value) || 1; // تجنب القسمة على صفر
-
-    if (max > 0) {
       let percent = (grade / max) * 100;
-      percent = percent > 100 ? 100 : percent; // أقصى حد 100%
+      percent = percent > 100 ? 100 : percent; 
       
       display.innerText = percent.toFixed(1) + '%';
 
-      // تغيير لون النص بناءً على النسبة
-      if (percent >= 90) {
-        display.style.color = '#d69e2e'; // ذهبي
-      } else if (percent >= 70) {
-        display.style.color = 'var(--brand-success)'; // أخضر
-      } else if (percent >= 50) {
-        display.style.color = 'var(--brand-warning)'; // برتقالي
-      } else {
-        display.style.color = 'var(--brand-danger)'; // أحمر
-      }
-    }
+      if (percent >= 90) display.style.color = '#d69e2e'; 
+      else if (percent >= 50) display.style.color = 'var(--brand-success)'; 
+      else if (percent >= 40) display.style.color = 'var(--brand-warning)'; 
+      else display.style.color = 'var(--brand-danger)'; 
   }
+
+  async function submitNewGrade() {
+      const studentId = document.getElementById('ng-student-id').value;
+      const assessId = document.getElementById('ng-assessment-id').value;
+      const gradeVal = document.getElementById('ng-grade-val').value;
+      const remarks = document.getElementById('ng-remarks').value.trim();
+
+      if (!studentId || !assessId || gradeVal === '') {
+          alert("الرجاء تعبئة جميع الحقول الإجبارية (*)");
+          return;
+      }
+
+      // بناء Payload بناءً على InsertGrades Schema
+      const payload = {
+          student_id: parseInt(studentId),
+          assessment_id: parseInt(assessId),
+          grade_value: parseFloat(gradeVal),
+          teacher_remarks: remarks || null
+      };
+
+      const res = await AppConfig.post('grades/', payload);
+
+      if (res && res.success) {
+          if(typeof showToast === 'function') showToast('تم حفظ التقييم بنجاح', 'success');
+          closeModal('modal-add-grade');
+          initGradesSection(); 
+      } else {
+          alert("❌ حدث خطأ أثناء الحفظ.");
+      }
+  }
+
+  async function deleteGrade(id) {
+      if(!confirm("هل أنت متأكد من حذف هذا التقييم؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+
+      const res = await AppConfig.delete('grades', id);
+      if(res && res.success) {
+          if(typeof showToast === 'function') showToast('تم الحذف بنجاح', 'success');
+          initGradesSection();
+      } else {
+          alert("تعذر حذف التقييم.");
+      }
+  }
+
+  function getInitials(name) {
+      if (!name || name === '-') return '؟؟';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name.substring(0, 2).toUpperCase();
+  }
+
+  setTimeout(initGradesSection, 100);
 </script>
