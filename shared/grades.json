@@ -1,8 +1,8 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "Teachers API Docs",
-        "description": "Strict API specification for the 'teachers' table. Use this to generate frontend services, API calls, and UI components.",
+        "title": "Grades API Docs",
+        "description": "Strict API specification for the 'grades' table. Use this to generate frontend services, API calls, and UI components.",
         "version": "0.3.0"
     },
     "servers": [
@@ -12,12 +12,12 @@
         }
     ],
     "paths": {
-        "/crud/teachers": {
+        "/crud/grades": {
             "get": {
                 "tags": [
-                    "teachers"
+                    "grades"
                 ],
-                "description": "List all teachers with optional filters. Strings accept SQL LIKE syntax (%%val%%). Suffix _ge / _le means >= / <=.",
+                "description": "List all grades with optional filters. Strings accept SQL LIKE syntax (%%val%%). Suffix _ge / _le means >= / <=.",
                 "operationId": "get_all",
                 "parameters": [
                     {
@@ -57,7 +57,7 @@
                         }
                     },
                     {
-                        "name": "user_id",
+                        "name": "student_id",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -69,7 +69,7 @@
                         }
                     },
                     {
-                        "name": "user_id_ge",
+                        "name": "student_id_ge",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -81,7 +81,7 @@
                         }
                     },
                     {
-                        "name": "user_id_le",
+                        "name": "student_id_le",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -93,7 +93,79 @@
                         }
                     },
                     {
-                        "name": "specialty",
+                        "name": "assessment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assessment_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assessment_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "grade_value",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "grade_value_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "grade_value_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "teacher_remarks",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -101,42 +173,6 @@
                                 "string",
                                 "null"
                             ]
-                        }
-                    },
-                    {
-                        "name": "hire_date",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "hire_date_ge",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "hire_date_le",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
                         }
                     }
                 ],
@@ -148,7 +184,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Teachers"
+                                        "$ref": "#/components/schemas/Grades"
                                     }
                                 }
                             }
@@ -160,18 +196,18 @@
                 }
             }
         },
-        "/crud/teachers/": {
+        "/crud/grades/": {
             "post": {
                 "tags": [
-                    "teachers"
+                    "grades"
                 ],
-                "description": "Create a new Teachers.",
+                "description": "Create a new Grades.",
                 "operationId": "add",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/InsertTeachers"
+                                "$ref": "#/components/schemas/InsertGrades"
                             }
                         }
                     },
@@ -196,12 +232,12 @@
                 }
             }
         },
-        "/crud/teachers/count": {
+        "/crud/grades/count": {
             "get": {
                 "tags": [
-                    "teachers"
+                    "grades"
                 ],
-                "description": "Count teachers rows matching the supplied filters.",
+                "description": "Count grades rows matching the supplied filters.",
                 "operationId": "get_count",
                 "parameters": [
                     {
@@ -241,7 +277,7 @@
                         }
                     },
                     {
-                        "name": "user_id",
+                        "name": "student_id",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -253,7 +289,7 @@
                         }
                     },
                     {
-                        "name": "user_id_ge",
+                        "name": "student_id_ge",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -265,7 +301,7 @@
                         }
                     },
                     {
-                        "name": "user_id_le",
+                        "name": "student_id_le",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -277,7 +313,79 @@
                         }
                     },
                     {
-                        "name": "specialty",
+                        "name": "assessment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assessment_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assessment_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "grade_value",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "grade_value_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "grade_value_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "teacher_remarks",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -285,42 +393,6 @@
                                 "string",
                                 "null"
                             ]
-                        }
-                    },
-                    {
-                        "name": "hire_date",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "hire_date_ge",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "hire_date_le",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
                         }
                     }
                 ],
@@ -342,12 +414,12 @@
                 }
             }
         },
-        "/crud/teachers/sum/{field}": {
+        "/crud/grades/sum/{field}": {
             "get": {
                 "tags": [
-                    "teachers"
+                    "grades"
                 ],
-                "description": "Sum a numeric column of teachers across rows matching the supplied filters. Valid values for `field`: `id`, `user_id`.",
+                "description": "Sum a numeric column of grades across rows matching the supplied filters. Valid values for `field`: `id`, `student_id`, `assessment_id`, `grade_value`.",
                 "operationId": "get_sum",
                 "parameters": [
                     {
@@ -387,7 +459,7 @@
                         }
                     },
                     {
-                        "name": "user_id",
+                        "name": "student_id",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -399,7 +471,7 @@
                         }
                     },
                     {
-                        "name": "user_id_ge",
+                        "name": "student_id_ge",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -411,7 +483,7 @@
                         }
                     },
                     {
-                        "name": "user_id_le",
+                        "name": "student_id_le",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -423,7 +495,79 @@
                         }
                     },
                     {
-                        "name": "specialty",
+                        "name": "assessment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assessment_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assessment_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "grade_value",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "grade_value_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "grade_value_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "teacher_remarks",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -431,42 +575,6 @@
                                 "string",
                                 "null"
                             ]
-                        }
-                    },
-                    {
-                        "name": "hire_date",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "hire_date_ge",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "hire_date_le",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "format": "date"
                         }
                     },
                     {
@@ -491,12 +599,12 @@
                 }
             }
         },
-        "/crud/teachers/{id}": {
+        "/crud/grades/{id}": {
             "put": {
                 "tags": [
-                    "teachers"
+                    "grades"
                 ],
-                "description": "Update an existing Teachers.",
+                "description": "Update an existing Grades.",
                 "operationId": "update",
                 "parameters": [
                     {
@@ -513,7 +621,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/InsertTeachers"
+                                "$ref": "#/components/schemas/UpdateGrades"
                             }
                         }
                     },
@@ -542,9 +650,9 @@
             },
             "delete": {
                 "tags": [
-                    "teachers"
+                    "grades"
                 ],
-                "description": "Permanently delete a Teachers.",
+                "description": "Permanently delete a Grades.",
                 "operationId": "delete",
                 "parameters": [
                     {
@@ -579,61 +687,104 @@
     },
     "components": {
         "schemas": {
-            "Teachers": {
+            "Grades": {
                 "type": "object",
                 "required": [
-                    "id"
+                    "id",
+                    "grade_value"
                 ],
                 "properties": {
-                    "hire_date": {
+                    "assessment_id": {
                         "type": [
-                            "string",
+                            "integer",
                             "null"
                         ],
-                        "format": "date"
+                        "format": "int32"
+                    },
+                    "grade_value": {
+                        "type": "number",
+                        "format": "double"
                     },
                     "id": {
                         "type": "integer",
                         "format": "int32"
                     },
-                    "specialty": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "user_id": {
+                    "student_id": {
                         "type": [
                             "integer",
                             "null"
                         ],
                         "format": "int32"
+                    },
+                    "teacher_remarks": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
-            "InsertTeachers": {
+            "InsertGrades": {
                 "type": "object",
-                "description": "struct of acadimic years to insert to database",
+                "required": [
+                    "grade_value"
+                ],
                 "properties": {
-                    "hire_date": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date"
-                    },
-                    "specialty": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "user_id": {
+                    "assessment_id": {
                         "type": [
                             "integer",
                             "null"
                         ],
                         "format": "int32"
+                    },
+                    "grade_value": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "student_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "teacher_remarks": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "UpdateGrades": {
+                "type": "object",
+                "properties": {
+                    "assessment_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "grade_value": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "double"
+                    },
+                    "student_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "format": "int32"
+                    },
+                    "teacher_remarks": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             }

@@ -3,7 +3,7 @@
     "info": {
         "title": "Branches API Docs",
         "description": "Strict API specification for the 'branches' table. Use this to generate frontend services, API calls, and UI components.",
-        "version": "0.2.0"
+        "version": "0.3.0"
     },
     "servers": [
         {
@@ -17,11 +17,82 @@
                 "tags": [
                     "branches"
                 ],
-                "description": "Retrieve a list of all branch records.",
-                "operationId": "getall_branches",
+                "description": "List all branches with optional filters. Strings accept SQL LIKE syntax (%%val%%). Suffix _ge / _le means >= / <=.",
+                "operationId": "get_all",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "branch_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "The list of branch records was retrieved successfully. The list may be empty.",
+                        "description": "Record list returned.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -34,7 +105,7 @@
                         }
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while fetching the branch records."
+                        "description": "Internal error."
                     }
                 }
             }
@@ -44,8 +115,8 @@
                 "tags": [
                     "branches"
                 ],
-                "description": "Create a new branch.",
-                "operationId": "add_branches",
+                "description": "Create a new Branches.",
+                "operationId": "add",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -58,69 +129,225 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The branch was successfully created."
+                        "description": "Successfully created."
                     },
                     "400": {
-                        "description": "Malformed request syntax. failed to parse the JSON payload for the branch."
+                        "description": "Malformed request syntax."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the branch."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The branch payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while creating the branch."
+                        "description": "Internal error."
                     }
                 }
             }
         },
-        "/crud/branches/{id}": {
+        "/crud/branches/count": {
             "get": {
                 "tags": [
                     "branches"
                 ],
-                "description": "Retrieve a specific branch by its unique identifier.",
-                "operationId": "select_branches",
+                "description": "Count branches rows matching the supplied filters.",
+                "operationId": "get_count",
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "required": true,
+                        "in": "query",
+                        "required": false,
                         "schema": {
-                            "type": "integer",
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "branch_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "The requested branch was retrieved successfully.",
+                        "description": "Row count returned.",
                         "content": {
-                            "application/json": {
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Branches"
+                                    "type": "integer",
+                                    "format": "int64"
                                 }
                             }
                         }
                     },
-                    "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
-                    },
-                    "404": {
-                        "description": "A branch with the specified ID was not found in the database."
-                    },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while retrieving the branch."
+                        "description": "Internal error."
                     }
                 }
-            },
+            }
+        },
+        "/crud/branches/sum/{field}": {
+            "get": {
+                "tags": [
+                    "branches"
+                ],
+                "description": "Sum a numeric column of branches across rows matching the supplied filters. Valid values for `field`: `id`.",
+                "operationId": "get_sum",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "branch_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sum returned as `{field, value}`."
+                    },
+                    "400": {
+                        "description": "Field does not exist or is not summable."
+                    },
+                    "500": {
+                        "description": "Internal error."
+                    }
+                }
+            }
+        },
+        "/crud/branches/{id}": {
             "put": {
                 "tags": [
                     "branches"
                 ],
-                "description": "Update an existing branch by its unique identifier.",
-                "operationId": "update_branches",
+                "description": "Update an existing Branches.",
+                "operationId": "update",
                 "parameters": [
                     {
                         "name": "id",
@@ -144,22 +371,22 @@
                 },
                 "responses": {
                     "204": {
-                        "description": "The branch was updated successfully. No content is returned."
+                        "description": "Updated successfully."
                     },
                     "400": {
-                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                        "description": "Invalid payload."
                     },
                     "404": {
-                        "description": "The branch requested for update was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the branch."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The update payload for the branch failed semantic validation."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to update the branch."
+                        "description": "Internal error."
                     }
                 }
             },
@@ -167,8 +394,8 @@
                 "tags": [
                     "branches"
                 ],
-                "description": "Permanently delete a branch by its unique identifier.",
-                "operationId": "delete_branches",
+                "description": "Permanently delete a Branches.",
+                "operationId": "delete",
                 "parameters": [
                     {
                         "name": "id",
@@ -182,19 +409,19 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "The branch was deleted successfully. No content is returned."
+                        "description": "Deleted successfully."
                     },
                     "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                        "description": "Invalid ID."
                     },
                     "404": {
-                        "description": "The branch requested for deletion was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "Cannot delete the branch because it is currently referenced by other records (Foreign Key Violation)."
+                        "description": "Constraint violation."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to delete the branch."
+                        "description": "Internal error."
                     }
                 }
             }

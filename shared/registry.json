@@ -5,6 +5,7 @@
     "branches",
     "classes",
     "financial_policies",
+    "grades",
     "parents",
     "programs",
     "schedules",
@@ -13,6 +14,5 @@
     "subjects",
     "teacher_assignments",
     "teachers",
-    "users",
-    "experemental"
+    "users"
 ]

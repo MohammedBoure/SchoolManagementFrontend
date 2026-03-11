@@ -3,7 +3,7 @@
     "info": {
         "title": "Users API Docs",
         "description": "Strict API specification for the 'users' table. Use this to generate frontend services, API calls, and UI components.",
-        "version": "0.2.0"
+        "version": "0.3.0"
     },
     "servers": [
         {
@@ -17,11 +17,231 @@
                 "tags": [
                     "users"
                 ],
-                "description": "Retrieve a list of all user records.",
-                "operationId": "getall_users",
+                "description": "List all users with optional filters. Strings accept SQL LIKE syntax (%%val%%). Suffix _ge / _le means >= / <=.",
+                "operationId": "get_all",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name_ar",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name_fr",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "created_at",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "created_at_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "created_at_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "The list of user records was retrieved successfully. The list may be empty.",
+                        "description": "Record list returned.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -34,7 +254,7 @@
                         }
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while fetching the user records."
+                        "description": "Internal error."
                     }
                 }
             }
@@ -44,8 +264,8 @@
                 "tags": [
                     "users"
                 ],
-                "description": "Create a new user.",
-                "operationId": "add_users",
+                "description": "Create a new Users.",
+                "operationId": "add",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -58,69 +278,523 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The user was successfully created."
+                        "description": "Successfully created."
                     },
                     "400": {
-                        "description": "Malformed request syntax. failed to parse the JSON payload for the user."
+                        "description": "Malformed request syntax."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the user."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The user payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while creating the user."
+                        "description": "Internal error."
                     }
                 }
             }
         },
-        "/crud/users/{id}": {
+        "/crud/users/count": {
             "get": {
                 "tags": [
                     "users"
                 ],
-                "description": "Retrieve a specific user by its unique identifier.",
-                "operationId": "select_users",
+                "description": "Count users rows matching the supplied filters.",
+                "operationId": "get_count",
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "required": true,
+                        "in": "query",
+                        "required": false,
                         "schema": {
-                            "type": "integer",
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name_ar",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name_fr",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "created_at",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "created_at_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "created_at_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "The requested user was retrieved successfully.",
+                        "description": "Row count returned.",
                         "content": {
-                            "application/json": {
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Users"
+                                    "type": "integer",
+                                    "format": "int64"
                                 }
                             }
                         }
                     },
-                    "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
-                    },
-                    "404": {
-                        "description": "A user with the specified ID was not found in the database."
-                    },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while retrieving the user."
+                        "description": "Internal error."
                     }
                 }
-            },
+            }
+        },
+        "/crud/users/sum/{field}": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "description": "Sum a numeric column of users across rows matching the supplied filters. Valid values for `field`: `id`, `branch_id`.",
+                "operationId": "get_sum",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "branch_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name_ar",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "full_name_fr",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "created_at",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "created_at_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "created_at_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sum returned as `{field, value}`."
+                    },
+                    "400": {
+                        "description": "Field does not exist or is not summable."
+                    },
+                    "500": {
+                        "description": "Internal error."
+                    }
+                }
+            }
+        },
+        "/crud/users/{id}": {
             "put": {
                 "tags": [
                     "users"
                 ],
-                "description": "Update an existing user by its unique identifier.",
-                "operationId": "update_users",
+                "description": "Update an existing Users.",
+                "operationId": "update",
                 "parameters": [
                     {
                         "name": "id",
@@ -144,22 +818,22 @@
                 },
                 "responses": {
                     "204": {
-                        "description": "The user was updated successfully. No content is returned."
+                        "description": "Updated successfully."
                     },
                     "400": {
-                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                        "description": "Invalid payload."
                     },
                     "404": {
-                        "description": "The user requested for update was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the user."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The update payload for the user failed semantic validation."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to update the user."
+                        "description": "Internal error."
                     }
                 }
             },
@@ -167,8 +841,8 @@
                 "tags": [
                     "users"
                 ],
-                "description": "Permanently delete a user by its unique identifier.",
-                "operationId": "delete_users",
+                "description": "Permanently delete a Users.",
+                "operationId": "delete",
                 "parameters": [
                     {
                         "name": "id",
@@ -182,19 +856,19 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "The user was deleted successfully. No content is returned."
+                        "description": "Deleted successfully."
                     },
                     "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                        "description": "Invalid ID."
                     },
                     "404": {
-                        "description": "The user requested for deletion was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "Cannot delete the user because it is currently referenced by other records (Foreign Key Violation)."
+                        "description": "Constraint violation."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to delete the user."
+                        "description": "Internal error."
                     }
                 }
             }

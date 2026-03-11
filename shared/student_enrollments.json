@@ -3,7 +3,7 @@
     "info": {
         "title": "Student Enrollments API Docs",
         "description": "Strict API specification for the 'student_enrollments' table. Use this to generate frontend services, API calls, and UI components.",
-        "version": "0.2.0"
+        "version": "0.3.0"
     },
     "servers": [
         {
@@ -17,11 +17,226 @@
                 "tags": [
                     "student_enrollments"
                 ],
-                "description": "Retrieve a list of all student enrollments records.",
-                "operationId": "getall_student_enrollments",
+                "description": "List all student_enrollments with optional filters. Strings accept SQL LIKE syntax (%%val%%). Suffix _ge / _le means >= / <=.",
+                "operationId": "get_all",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "group_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "enrollment_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "The list of student enrollments records was retrieved successfully. The list may be empty.",
+                        "description": "Record list returned.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -34,7 +249,7 @@
                         }
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while fetching the student enrollments records."
+                        "description": "Internal error."
                     }
                 }
             }
@@ -44,8 +259,8 @@
                 "tags": [
                     "student_enrollments"
                 ],
-                "description": "Create a new student enrollments.",
-                "operationId": "add_student_enrollments",
+                "description": "Create a new StudentEnrollments.",
+                "operationId": "add",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -58,69 +273,513 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The student enrollments was successfully created."
+                        "description": "Successfully created."
                     },
                     "400": {
-                        "description": "Malformed request syntax. failed to parse the JSON payload for the student enrollments."
+                        "description": "Malformed request syntax."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the student enrollments."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The student enrollments payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while creating the student enrollments."
+                        "description": "Internal error."
                     }
                 }
             }
         },
-        "/crud/student_enrollments/{id}": {
+        "/crud/student_enrollments/count": {
             "get": {
                 "tags": [
                     "student_enrollments"
                 ],
-                "description": "Retrieve a specific student enrollments by its unique identifier.",
-                "operationId": "select_student_enrollments",
+                "description": "Count student_enrollments rows matching the supplied filters.",
+                "operationId": "get_count",
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "required": true,
+                        "in": "query",
+                        "required": false,
                         "schema": {
-                            "type": "integer",
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "group_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "enrollment_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "The requested student enrollments was retrieved successfully.",
+                        "description": "Row count returned.",
                         "content": {
-                            "application/json": {
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/StudentEnrollments"
+                                    "type": "integer",
+                                    "format": "int64"
                                 }
                             }
                         }
                     },
-                    "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
-                    },
-                    "404": {
-                        "description": "A student enrollments with the specified ID was not found in the database."
-                    },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while retrieving the student enrollments."
+                        "description": "Internal error."
                     }
                 }
-            },
+            }
+        },
+        "/crud/student_enrollments/sum/{field}": {
+            "get": {
+                "tags": [
+                    "student_enrollments"
+                ],
+                "description": "Sum a numeric column of student_enrollments across rows matching the supplied filters. Valid values for `field`: `id`, `student_id`, `program_id`, `academic_year_id`.",
+                "operationId": "get_sum",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "student_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "program_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "group_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "enrollment_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "notes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sum returned as `{field, value}`."
+                    },
+                    "400": {
+                        "description": "Field does not exist or is not summable."
+                    },
+                    "500": {
+                        "description": "Internal error."
+                    }
+                }
+            }
+        },
+        "/crud/student_enrollments/{id}": {
             "put": {
                 "tags": [
                     "student_enrollments"
                 ],
-                "description": "Update an existing student enrollments by its unique identifier.",
-                "operationId": "update_student_enrollments",
+                "description": "Update an existing StudentEnrollments.",
+                "operationId": "update",
                 "parameters": [
                     {
                         "name": "id",
@@ -144,22 +803,22 @@
                 },
                 "responses": {
                     "204": {
-                        "description": "The student enrollments was updated successfully. No content is returned."
+                        "description": "Updated successfully."
                     },
                     "400": {
-                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                        "description": "Invalid payload."
                     },
                     "404": {
-                        "description": "The student enrollments requested for update was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the student enrollments."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The update payload for the student enrollments failed semantic validation."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to update the student enrollments."
+                        "description": "Internal error."
                     }
                 }
             },
@@ -167,8 +826,8 @@
                 "tags": [
                     "student_enrollments"
                 ],
-                "description": "Permanently delete a student enrollments by its unique identifier.",
-                "operationId": "delete_student_enrollments",
+                "description": "Permanently delete a StudentEnrollments.",
+                "operationId": "delete",
                 "parameters": [
                     {
                         "name": "id",
@@ -182,19 +841,19 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "The student enrollments was deleted successfully. No content is returned."
+                        "description": "Deleted successfully."
                     },
                     "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                        "description": "Invalid ID."
                     },
                     "404": {
-                        "description": "The student enrollments requested for deletion was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "Cannot delete the student enrollments because it is currently referenced by other records (Foreign Key Violation)."
+                        "description": "Constraint violation."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to delete the student enrollments."
+                        "description": "Internal error."
                     }
                 }
             }

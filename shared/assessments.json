@@ -3,7 +3,7 @@
     "info": {
         "title": "Assessments API Docs",
         "description": "Strict API specification for the 'assessments' table. Use this to generate frontend services, API calls, and UI components.",
-        "version": "0.2.0"
+        "version": "0.3.0"
     },
     "servers": [
         {
@@ -17,11 +17,179 @@
                 "tags": [
                     "assessments"
                 ],
-                "description": "Retrieve a list of all assessment records.",
-                "operationId": "getall_assessments",
+                "description": "List all assessments with optional filters. Strings accept SQL LIKE syntax (%%val%%). Suffix _ge / _le means >= / <=.",
+                "operationId": "get_all",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "type_",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "max_grade",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "max_grade_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "max_grade_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "assignment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assignment_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assignment_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "due_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "due_date_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "due_date_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "The list of assessment records was retrieved successfully. The list may be empty.",
+                        "description": "Record list returned.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -34,7 +202,7 @@
                         }
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while fetching the assessment records."
+                        "description": "Internal error."
                     }
                 }
             }
@@ -44,8 +212,8 @@
                 "tags": [
                     "assessments"
                 ],
-                "description": "Create a new assessment.",
-                "operationId": "add_assessments",
+                "description": "Create a new Assessments.",
+                "operationId": "add",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -58,69 +226,419 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The assessment was successfully created."
+                        "description": "Successfully created."
                     },
                     "400": {
-                        "description": "Malformed request syntax. failed to parse the JSON payload for the assessment."
+                        "description": "Malformed request syntax."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while saving the assessment."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The assessment payload is valid JSON but failed semantic validation (e.g., missing fields)."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while creating the assessment."
+                        "description": "Internal error."
                     }
                 }
             }
         },
-        "/crud/assessments/{id}": {
+        "/crud/assessments/count": {
             "get": {
                 "tags": [
                     "assessments"
                 ],
-                "description": "Retrieve a specific assessment by its unique identifier.",
-                "operationId": "select_assessments",
+                "description": "Count assessments rows matching the supplied filters.",
+                "operationId": "get_count",
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "required": true,
+                        "in": "query",
+                        "required": false,
                         "schema": {
-                            "type": "integer",
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "type_",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "max_grade",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "max_grade_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "max_grade_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "assignment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assignment_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assignment_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "due_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "due_date_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "due_date_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "The requested assessment was retrieved successfully.",
+                        "description": "Row count returned.",
                         "content": {
-                            "application/json": {
+                            "text/plain": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Assessments"
+                                    "type": "integer",
+                                    "format": "int64"
                                 }
                             }
                         }
                     },
-                    "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed as an integer."
-                    },
-                    "404": {
-                        "description": "A assessment with the specified ID was not found in the database."
-                    },
                     "500": {
-                        "description": "An unexpected internal database or server error occurred while retrieving the assessment."
+                        "description": "Internal error."
                     }
                 }
-            },
+            }
+        },
+        "/crud/assessments/sum/{field}": {
+            "get": {
+                "tags": [
+                    "assessments"
+                ],
+                "description": "Sum a numeric column of assessments across rows matching the supplied filters. Valid values for `field`: `id`, `max_grade`, `assignment_id`.",
+                "operationId": "get_sum",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "type_",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "max_grade",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "max_grade_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "max_grade_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ],
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "assignment_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assignment_id_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "assignment_id_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "due_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "due_date_ge",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "due_date_le",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sum returned as `{field, value}`."
+                    },
+                    "400": {
+                        "description": "Field does not exist or is not summable."
+                    },
+                    "500": {
+                        "description": "Internal error."
+                    }
+                }
+            }
+        },
+        "/crud/assessments/{id}": {
             "put": {
                 "tags": [
                     "assessments"
                 ],
-                "description": "Update an existing assessment by its unique identifier.",
-                "operationId": "update_assessments",
+                "description": "Update an existing Assessments.",
+                "operationId": "update",
                 "parameters": [
                     {
                         "name": "id",
@@ -144,22 +662,22 @@
                 },
                 "responses": {
                     "204": {
-                        "description": "The assessment was updated successfully. No content is returned."
+                        "description": "Updated successfully."
                     },
                     "400": {
-                        "description": "The ID in the path is invalid, or the JSON payload syntax is malformed."
+                        "description": "Invalid payload."
                     },
                     "404": {
-                        "description": "The assessment requested for update was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "A database conflict occurred (e.g., a unique constraint or foreign key violation) while updating the assessment."
+                        "description": "Conflict occurred."
                     },
                     "422": {
-                        "description": "The update payload for the assessment failed semantic validation."
+                        "description": "Validation failed."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to update the assessment."
+                        "description": "Internal error."
                     }
                 }
             },
@@ -167,8 +685,8 @@
                 "tags": [
                     "assessments"
                 ],
-                "description": "Permanently delete a assessment by its unique identifier.",
-                "operationId": "delete_assessments",
+                "description": "Permanently delete a Assessments.",
+                "operationId": "delete",
                 "parameters": [
                     {
                         "name": "id",
@@ -182,19 +700,19 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "The assessment was deleted successfully. No content is returned."
+                        "description": "Deleted successfully."
                     },
                     "400": {
-                        "description": "The provided ID in the URL path is invalid or cannot be parsed."
+                        "description": "Invalid ID."
                     },
                     "404": {
-                        "description": "The assessment requested for deletion was not found in the database."
+                        "description": "Not found."
                     },
                     "409": {
-                        "description": "Cannot delete the assessment because it is currently referenced by other records (Foreign Key Violation)."
+                        "description": "Constraint violation."
                     },
                     "500": {
-                        "description": "An unexpected internal database error occurred while attempting to delete the assessment."
+                        "description": "Internal error."
                     }
                 }
             }

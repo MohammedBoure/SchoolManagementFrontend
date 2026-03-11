@@ -1,0 +1,112 @@
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">⚙️ الإعدادات</div>
+    <div class="page-subtitle">تخصيص واجهة النظام وتفضيلات الإشعارات</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-primary" onclick="showToast('تم تطبيق الإعدادات', 'success')">
+      <i class="fas fa-save"></i> حفظ الإعدادات
+    </button>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 24px; max-width: 800px;" class="fade-in">
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-paint-brush" style="color: var(--brand-primary); margin-left: 8px;"></i> المظهر واللغة</div>
+    </div>
+    <div class="card-body">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+        <div>
+          <div style="font-weight: 600; font-size: 1rem;">الوضع الداكن (Dark Mode)</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">تغيير مظهر النظام إلى الألوان الداكنة لإراحة العين</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-dark-mode" onchange="Layout.toggleTheme(); updateThemeToggleState(this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="font-weight: 600;">لغة الواجهة الافتراضية</label>
+        <select class="form-select" style="max-width: 300px;">
+          <option value="ar" selected>العربية (الافتراضي)</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-bell" style="color: var(--brand-accent); margin-left: 8px;"></i> تفضيلات الإشعارات</div>
+    </div>
+    <div class="card-body">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+          <div style="font-weight: 600; font-size: 0.95rem;">تنبيهات النظام الداخلية (In-app)</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">إظهار الإشعارات المنبثقة داخل التطبيق أثناء الاستخدام</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+          <div style="font-weight: 600; font-size: 0.95rem;">إشعارات البريد الإلكتروني</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">تلقي رسائل البريد الإلكتروني للتقارير والرسائل الهامة</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 600; font-size: 0.95rem;">إشعار صوتي</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">تشغيل نغمة تنبيه قصيرة عند استلام رسالة جديدة</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-building" style="color: var(--text-muted); margin-left: 8px;"></i> الفرع الافتراضي</div>
+    </div>
+    <div class="card-body">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="font-weight: 600;">الفرع الذي يُفتح عليه النظام عند تسجيل الدخول</label>
+        <select class="form-select" style="max-width: 300px;">
+          <option value="main">الفرع الرئيسي</option>
+          <option value="north">فرع الشمال</option>
+          <option value="south">فرع الجنوب</option>
+        </select>
+        <div class="form-hint" style="margin-top: 8px;">ملاحظة: يمكنك التبديل بين الفروع لاحقاً من الشريط العلوي.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" onload="
+  const isDark = localStorage.getItem('school-theme') === 'dark';
+  const toggle = document.getElementById('setting-dark-mode');
+  if (toggle) toggle.checked = isDark;
+" style="display:none;">
+
+<script>
+  // دالة صغيرة لتحديث حالة المفتاح يدوياً (في حال احتجت لها لاحقاً)
+  function updateThemeToggleState(el) {
+    console.log('Theme toggled from settings page:', el.checked ? 'Dark' : 'Light');
+  }
+</script>

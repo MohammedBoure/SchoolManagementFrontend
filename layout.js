@@ -48,6 +48,9 @@ const PAGES_MAP = {
   'consumptions':       { label: 'الاستهلاك اليومي',       group: 'المخازن',            navSelector: '[data-page="consumptions"]' },
   'messages':           { label: 'الرسائل',                group: 'التواصل',            navSelector: '[data-page="messages"]' },
   'notifications':      { label: 'مركز الإرسال',           group: 'التواصل',            navSelector: '[data-page="notifications"]' },
+  'profile':            { label: 'الملف الشخصي',           group: 'الحساب',            navSelector: '' },
+  'settings':           { label: 'الإعدادات',             group: 'الحساب',            navSelector: '' },
+  'security':           { label: 'الأمان',               group: 'الحساب',            navSelector: '' },
 };
 
 // ================================================================
@@ -279,11 +282,11 @@ function _buildHeaderHTML() {
       </div>
       <i class="fas fa-chevron-down dropdown-arrow"></i>
       <div class="dropdown-menu" id="user-dropdown">
-        <div class="dropdown-item"><i class="fas fa-user" style="width:14px"></i> الملف الشخصي</div>
-        <div class="dropdown-item"><i class="fas fa-cog" style="width:14px"></i> الإعدادات</div>
-        <div class="dropdown-item"><i class="fas fa-shield-alt" style="width:14px"></i> الأمان</div>
+        <div class="dropdown-item" onclick="Layout.navigateTo('profile')"><i class="fas fa-user" style="width:14px"></i> الملف الشخصي</div>
+        <div class="dropdown-item" onclick="Layout.navigateTo('settings')"><i class="fas fa-cog" style="width:14px"></i> الإعدادات</div>
+        <div class="dropdown-item" onclick="Layout.navigateTo('security')"><i class="fas fa-shield-alt" style="width:14px"></i> الأمان</div>
         <div class="dropdown-divider"></div>
-        <div class="dropdown-item danger"><i class="fas fa-sign-out-alt" style="width:14px"></i> تسجيل الخروج</div>
+        <div class="dropdown-item danger" onclick="showToast('جاري تسجيل الخروج...', 'info')"><i class="fas fa-sign-out-alt" style="width:14px"></i> تسجيل الخروج</div>
       </div>
     </div>
   </div>

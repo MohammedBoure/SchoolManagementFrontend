@@ -1,0 +1,163 @@
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">🛡️ الأمان</div>
+    <div class="page-subtitle">تحديث كلمة المرور ومراقبة نشاط الحساب</div>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 24px; max-width: 800px;" class="fade-in">
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-lock" style="color: var(--brand-accent); margin-left: 8px;"></i> تغيير كلمة المرور</div>
+    </div>
+    <div class="card-body">
+      
+      <div class="form-group" style="max-width: 400px;">
+        <label class="form-label">كلمة المرور الحالية *</label>
+        <div style="position: relative;">
+          <input type="password" class="form-input" required id="current-password" dir="ltr" style="text-align: left; padding-right: 40px;">
+          <i class="fas fa-eye" onclick="togglePasswordVisibility('current-password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+
+      <div class="form-group" style="max-width: 400px;">
+        <label class="form-label">كلمة المرور الجديدة *</label>
+        <div style="position: relative;">
+          <input type="password" class="form-input" required id="new-password" dir="ltr" style="text-align: left; padding-right: 40px;" onkeyup="checkPasswordStrength(this.value)">
+          <i class="fas fa-eye" onclick="togglePasswordVisibility('new-password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+        </div>
+        <div style="margin-top: 8px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 4px;">
+            <span style="color: var(--text-muted);">قوة كلمة المرور:</span>
+            <span id="strength-text" style="font-weight: 600;">ضعيفة</span>
+          </div>
+          <div class="progress-bar-wrap" style="height: 6px;">
+            <div class="progress-bar-track" style="height: 6px;">
+              <div id="strength-bar" class="progress-bar-fill" style="width: 25%; background: var(--brand-danger); transition: all 0.3s ease;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" style="max-width: 400px; margin-bottom: 24px;">
+        <label class="form-label">تأكيد كلمة المرور الجديدة *</label>
+        <div style="position: relative;">
+          <input type="password" class="form-input" required id="confirm-password" dir="ltr" style="text-align: left; padding-right: 40px;">
+          <i class="fas fa-eye" onclick="togglePasswordVisibility('confirm-password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn btn-accent" onclick="showToast('تم تغيير كلمة المرور، سيتم تسجيل خروجك من الأجهزة الأخرى.', 'success')">
+          <i class="fas fa-key"></i> تحديث كلمة المرور
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fas fa-history" style="color: var(--brand-primary); margin-left: 8px;"></i> سجل نشاط الحساب</div>
+    </div>
+    <div class="table-wrapper" style="margin: 0;">
+      <table class="data-table" id="login-history-table">
+        <thead>
+          <tr>
+            <th>التاريخ والوقت</th>
+            <th>الإجراء</th>
+            <th>عنوان IP</th>
+            <th>المتصفح / الجهاز</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td dir="ltr" style="text-align: right;">2026-03-11 09:15 AM</td>
+            <td><span class="badge badge-success">تسجيل دخول ناجح</span></td>
+            <td style="font-family: monospace; color: var(--text-muted);">197.112.45.89</td>
+            <td>Chrome / Windows 11</td>
+          </tr>
+          <tr>
+            <td dir="ltr" style="text-align: right;">2026-03-10 14:30 PM</td>
+            <td><span class="badge badge-success">تسجيل دخول ناجح</span></td>
+            <td style="font-family: monospace; color: var(--text-muted);">197.112.45.89</td>
+            <td>Chrome / Windows 11</td>
+          </tr>
+          <tr>
+            <td dir="ltr" style="text-align: right;">2026-03-08 22:10 PM</td>
+            <td><span class="badge badge-danger">محاولة فاشلة</span></td>
+            <td style="font-family: monospace; color: var(--brand-danger);">41.200.15.22</td>
+            <td>Safari / iPhone 14</td>
+          </tr>
+          <tr>
+            <td dir="ltr" style="text-align: right;">2026-03-05 08:00 AM</td>
+            <td><span class="badge badge-success">تسجيل دخول ناجح</span></td>
+            <td style="font-family: monospace; color: var(--text-muted);">197.112.45.89</td>
+            <td>Chrome / Windows 11</td>
+          </tr>
+          <tr>
+            <td dir="ltr" style="text-align: right;">2026-03-01 10:45 AM</td>
+            <td><span class="badge badge-success">تسجيل دخول ناجح</span></td>
+            <td style="font-family: monospace; color: var(--text-muted);">197.112.45.89</td>
+            <td>Chrome / Windows 11</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" onload="
+  window.togglePasswordVisibility = function(inputId, iconEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      iconEl.classList.remove('fa-eye');
+      iconEl.classList.add('fa-eye-slash');
+      iconEl.style.color = 'var(--brand-primary)';
+    } else {
+      input.type = 'password';
+      iconEl.classList.remove('fa-eye-slash');
+      iconEl.classList.add('fa-eye');
+      iconEl.style.color = 'var(--text-muted)';
+    }
+  };
+
+  window.checkPasswordStrength = function(val) {
+    const bar = document.getElementById('strength-bar');
+    const text = document.getElementById('strength-text');
+    if (!bar || !text) return;
+    
+    let strength = 0;
+    if (val.length > 5) strength += 1;
+    if (val.length > 8) strength += 1;
+    if (/[A-Z]/.test(val)) strength += 1;
+    if (/[0-9]/.test(val)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(val)) strength += 1;
+
+    if (val.length === 0) {
+      bar.style.width = '0%';
+      text.textContent = '';
+    } else if (strength <= 2) {
+      bar.style.width = '33%';
+      bar.style.background = 'var(--brand-danger)';
+      text.textContent = 'ضعيفة';
+      text.style.color = 'var(--brand-danger)';
+    } else if (strength === 3 || strength === 4) {
+      bar.style.width = '66%';
+      bar.style.background = 'var(--brand-warning)';
+      text.textContent = 'متوسطة';
+      text.style.color = 'var(--brand-warning)';
+    } else {
+      bar.style.width = '100%';
+      bar.style.background = 'var(--brand-success)';
+      text.textContent = 'قوية';
+      text.style.color = 'var(--brand-success)';
+    }
+  };
+" style="display:none;">

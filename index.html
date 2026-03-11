@@ -15,6 +15,9 @@
   Sidebar + Header يُحقنان تلقائياً من layout.js
   لإضافة صفحة جديدة: أضف <div class="page" id="page-XXXX"> هنا
 ================================================================ -->
+<div class="page" id="page-profile">       <div id="stub-profile"></div></div>
+<div class="page" id="page-settings">      <div id="stub-settings"></div></div>
+<div class="page" id="page-security">      <div id="stub-security"></div></div>
 
 <!-- ════════════════════════════════════════════════════════════
      PAGE: dashboard
@@ -447,6 +450,9 @@ function _injectStubPage(pageId) {
     'obligations':       { icon:'📌', title:'الالتزامات الخارجية',       file:'sections/obligations.html' },
     'cash-handovers':    { icon:'💵', title:'تسليم العهدة النقدية',      file:'sections/cash-handovers.html' },
     'notifications':     { icon:'📢', title:'مركز الإرسال الجماعي',      file:'sections/notifications.html' },
+    'profile':           { icon:'👤', title:'الملف الشخصي',              file:'sections/profile.html' },
+    'settings':          { icon:'⚙️', title:'إعدادات الحساب',            file:'sections/settings.html' },
+    'security':          { icon:'🛡️', title:'الأمان وتغيير كلمة المرور', file:'sections/security.html' },
   };
 
   const info = pageInfo[pageId] || { icon:'📄', title:'صفحة جديدة', file:`sections/${pageId}.html` };
