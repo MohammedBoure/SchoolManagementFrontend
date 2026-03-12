@@ -221,6 +221,9 @@
 <div class="page" id="page-obligations">   <div id="stub-obligations"></div></div>
 <div class="page" id="page-cash-handovers"><div id="stub-cash-handovers"></div></div>
 <div class="page" id="page-notifications"> <div id="stub-notifications"></div></div>
+<div class="page" id="page-roles-permissions"><div id="stub-roles-permissions"></div></div>
+<div class="page" id="page-resources">        <div id="stub-resources"></div></div>
+<div class="page" id="page-store">            <div id="stub-store"></div></div>
 
 
 <div class="modal-overlay" id="modal-new-student">
@@ -517,6 +520,11 @@ function _injectStubPage(pageId) {
     'profile':           { icon:'👤', title:'الملف الشخصي',              file:'sections/profile.html' },
     'settings':          { icon:'⚙️', title:'إعدادات الحساب',            file:'sections/settings.html' },
     'security':          { icon:'🛡️', title:'الأمان وتغيير كلمة المرور', file:'sections/security.html' },
+    
+    // === الأقسام الجديدة ===
+    'roles-permissions': { icon:'🔑', title:'إدارة الأدوار والصلاحيات',   file:'sections/roles-permissions.html' },
+    'resources':         { icon:'📁', title:'المقررات والموارد التعليمية', file:'sections/resources.html' },
+    'store':             { icon:'🏪', title:'المتجر المدرسي ونقطة البيع', file:'sections/store.html' }
   };
 
   const info = pageInfo[pageId] || { icon:'📄', title:'صفحة جديدة', file:`sections/${pageId}.html` };

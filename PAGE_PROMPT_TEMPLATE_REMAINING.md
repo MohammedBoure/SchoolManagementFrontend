@@ -110,8 +110,7 @@ NOTES:
 
 ---
 
-## 🗂️ فهرس الصفحات الـ 25
-
+## 🗂️ فهرس الصفحات الـ 31
 | # | PAGE_ID | الصفحة | الجداول الرئيسية |
 |---|---------|--------|-----------------|
 | 1 | dashboard | لوحة القيادة | students, payments, expenses, attendance |
@@ -122,7 +121,7 @@ NOTES:
 | 6 | attendance | الحضور والغياب | attendance, students, academic_years |
 | 7 | inventory | كتالوج المخزون | inventory_items, inventory_logs |
 | 8 | messages | صندوق الرسائل | conversations, messages, conversation_participants |
-| 9 | users | إدارة المستخدمين | users, roles, permissions, user_permissions |
+| 9 | users | إدارة المستخدمين | users, roles |
 | 10 | enrollments | طلبات التسجيل | student_enrollments, students, classes, programs |
 | 11 | schedules | الجداول الدراسية | schedules, teacher_assignments |
 | 12 | branches | الفروع | branches |
@@ -140,6 +139,12 @@ NOTES:
 | 24 | obligations | الالتزامات الخارجية | external_obligations, branches |
 | 25 | cash-handovers | تسليم العهدة النقدية | cash_handovers, branches |
 | 26 | notifications | مركز الإشعارات | notifications, users |
+| 27 | profile | الملف الشخصي | users |
+| 28 | settings | إعدادات الحساب | local_storage |
+| 29 | security | الأمان | users, system_logs |
+| 30 | roles-permissions| الأدوار والصلاحيات | roles, permissions, role_permissions |
+| 31 | resources | الموارد التعليمية | resources, teacher_assignments |
+| 32 | store | المتجر ونقطة البيع | store_purchases, wallet_transactions, inventory_items |
 
 ---
 
@@ -2216,6 +2221,186 @@ NOTES:
   - يجب إضافة أيقونة عين (👁️) داخل حقول كلمة المرور لإظهار/إخفاء النص.
   - بعد نجاح تغيير كلمة المرور، أظهر Toast: "تم تغيير كلمة المرور، سيتم تسجيل خروجك من الأجهزة الأخرى."
 ```
+
+
+
+---
+
+### 🔑 roles-permissions — إدارة الأدوار والصلاحيات
+
+```
+PAGE_ID: roles-permissions
+PAGE_TITLE: 🔑 إدارة الأدوار والصلاحيات
+PAGE_SUBTITLE: تخصيص مصفوفة الصلاحيات (Matrix) لكل دور في النظام
+
+DB_TABLES: roles (id, role_name, description)
+           permissions (id, permission_name, description)
+           role_permissions (role_id, permission_id)
+           user_permissions (user_id, permission_id, is_granted)
+
+HEADER_ACTIONS:
+  - دور جديد | btn-primary | openModal('modal-add-role')
+
+SPECIAL_COMPONENTS:
+  - تخطيط عمودين (Split Layout):
+    * العمود الأيسر (30%): قائمة الأدوار (Roles List)
+      - بطاقات قابلة للنقر (Admin, Teacher, Accountant, Parent...).
+      - عند النقر على دور، يتم تفعيله (active) وتُعرض مصفوفة صلاحياته في العمود الأيمن.
+    
+    * العمود الأيمن (70%): مصفوفة الصلاحيات (Permissions Matrix)
+      - إن لم يُختر دور: Empty State "اختر دوراً لعرض صلاحياته".
+      - إن اختير دور: 
+        * Header: اسم الدور + زر "حفظ التعديلات".
+        * جدول مجمع (Grouped Table) مقسم حسب الفئات (مثال: الشؤون المالية، الطلاب، المخزون).
+        * كل صف يحتوي: اسم الصلاحية + وصفها + مفتاح تبديل (Toggle Switch) مُفعل أو غير مُفعل.
+
+MODALS:
+  modal-add-role:
+    title: 🔑 إضافة دور جديد
+    fields:
+      - اسم الدور (باللغة الإنجليزية) | text | مثال: manager | required
+      - اسم الدور (للعرض)           | text | مثال: مدير تنفيذي | required
+      - وصف مختصر                   | textarea
+    submit_label: حفظ الدور
+    submit_type: primary
+    api: POST /api/roles
+
+API_ENDPOINTS:
+  - GET    /api/roles
+  - POST   /api/roles
+  - GET    /api/permissions/matrix?role_id=
+  - PATCH  /api/roles/{id}/permissions (body: array of permission_ids)
+
+NOTES:
+  - عند تغيير أي toggle switch في المصفوفة، يظهر زر "حفظ التعديلات" بلون بارز لتأكيد العملية.
+
+```
+---
+### 📁 resources — المقررات والموارد التعليمية
+
+```
+PAGE_ID: resources
+PAGE_TITLE: 📁 المقررات والموارد التعليمية
+PAGE_SUBTITLE: رفع ومشاركة الملفات، المذكرات، والواجبات المنزلية
+
+DB_TABLES: resources (id, title, description, resource_type, file_path_or_url, file_size_mb, assignment_id, upload_date)
+           teacher_assignments (id, teacher_id, subject_id, class_id)
+           classes (id, class_name)
+           subjects (id, subject_name)
+
+HEADER_ACTIONS:
+  - رفع ملف جديد | btn-primary | openModal('modal-upload-resource')
+
+KPI_CARDS:
+  - 1,245 | إجمالي الملفات المرفوعة | blue
+  - 45 GB | المساحة المستخدمة       | orange
+  - 312   | ملف تمت إضافته الشهر    | green
+  - 12    | واجب منزلي نشط          | gray
+
+FILTERS:
+  - search: "بحث باسم الملف أو المقرر"
+  - select: الفصل (من teacher_assignments)
+  - select: المادة
+  - select: نوع الملف [الكل | PDF | Word | فيديو | روابط]
+
+TABLE:
+  id: resources-table
+  columns:
+    - عنوان الملف    | text Bold + أيقونة النوع (📄, 🎥, 🔗) — title
+    - نوع المقرر     | badge (مذكرة/واجب/كتاب) — resource_type
+    - المادة والفصل  | text (subject_name - class_name)
+    - الحجم          | text — file_size_mb + " MB"
+    - تاريخ الرفع    | text — upload_date
+    - الإجراءات      | تحميل (Download) | نسخ الرابط | حذف
+  pagination: true
+
+MODALS:
+  modal-upload-resource:
+    title: ☁️ رفع مورد تعليمي جديد
+    fields:
+      - الإسناد (الفصل + المادة) | select (مفلتر حسب المعلم الحالي) | required
+      - عنوان الملف             | text | مثال: ملخص الوحدة الأولى | required
+      - نوع المورد              | select: كتاب/مذكرة/واجب/رابط | required
+      - الوصف                   | textarea | اختياري
+      - إرفاق الملف             | file input (drag & drop zone) | required (إلا إن كان النوع رابط)
+    submit_label: رفع الملف
+    submit_type: primary
+    api: POST /api/resources
+    on_success: showToast('تم رفع الملف ومشاركته مع الطلاب','success')
+
+API_ENDPOINTS:
+  - GET    /api/resources?class_id=&subject_id=&type=
+  - POST   /api/resources (Multipart Form-Data)
+  - DELETE /api/resources/{id}
+  - GET    /api/resources/{id}/download
+
+NOTES:
+  - حقل إرفاق الملف يفضل أن يكون بتصميم "Drag & Drop" أنيق.
+  - الطلاب يمكنهم رؤية الموارد المربوطة بفصولهم فقط (يتم التعامل معها من الـ backend).
+```
+---
+
+### 🏪 store — المتجر المدرسي ونقطة البيع (POS)
+
+
+```
+Plaintext
+PAGE_ID: store
+PAGE_TITLE: 🏪 المتجر المدرسي ونقطة البيع
+PAGE_SUBTITLE: بيع المستلزمات والوجبات وخصمها من محفظة الطالب
+
+DB_TABLES: store_purchases (id, user_id, item_id, quantity, total_cost, purchase_date)
+           inventory_items (id, item_name, quantity_in_stock, local_currency_price)
+           wallet_transactions (id, user_id, amount, transaction_type)
+           users (id, full_name, wallet_balance)
+
+LAYOUT: pos-layout (نظام نقطة البيع)
+  - لا تستخدم الـ Table العادي. استخدم تخطيط POS.
+
+SPECIAL_COMPONENTS:
+  - تخطيط نقطة البيع (POS Split Layout):
+    * العمود الأيمن (65%): شبكة المنتجات (Items Grid)
+      - حقل بحث سريع عن الأصناف + أزرار تصنيفات (وجبات، أدوات مدرسية، زي مدرسي).
+      - شبكة بطاقات (CSS Grid): كل بطاقة تحتوي اسم المنتج + السعر + صورة رمزية أو لون + الكمية المتاحة.
+      - عند النقر على المنتج يُضاف إلى "سلة المشتريات".
+      
+    * العمود الأيسر (35%): سلة المشتريات والدفع (Cart & Checkout)
+      - حقل اختيار المشتري (الطالب/المعلم) مع بحث Live.
+      - عرض رصيد المحفظة الحالي للمشتري المختار (wallet_balance) بخط عريض (أخضر إن كافٍ، أحمر إن فارغ).
+      - قائمة المنتجات المختارة (اسم، كمية مع أزرار +/-, إجمالي السعر).
+      - الإجمالي النهائي الكلي.
+      - زر كبير: "تأكيد الشراء (دفع من المحفظة)" | btn-accent.
+
+MODALS:
+  modal-top-up:
+    title: 💳 شحن المحفظة الإلكترونية
+    fields:
+      - المستخدم (المشتري) | text | disabled (الاسم المختار حالياً)
+      - الرصيد الحالي      | text | disabled
+      - مبلغ الشحن (دج)    | number | required
+      - طريقة الدفع        | select: نقداً / بطاقة | required
+    submit_label: تأكيد الشحن
+    submit_type: primary
+    api: POST /api/wallet/top-up
+    on_success: showToast('تم شحن المحفظة بنجاح','success')
+
+API_ENDPOINTS:
+  - GET    /api/inventory/store-items (أصناف للبيع فقط)
+  - GET    /api/users/search?q= (للبحث عن المشتري)
+  - POST   /api/store/purchase (body: { user_id, items: [{item_id, qty}], total_cost })
+  - POST   /api/wallet/top-up (body: { user_id, amount, method })
+
+NOTES:
+  - عند الضغط على "تأكيد الشراء":
+    1. يتأكد النظام أن `wallet_balance >= total_cost`.
+    2. إن كان الرصيد غير كافٍ، يظهر زر "شحن المحفظة" الذي يفتح `modal-top-up`.
+    3. بعد الشراء الناجح، يتم خصم المخزون وإنشاء `wallet_transaction`.
+
+
+```
+
+
+
 
 *آخر تحديث: مارس 2026 — School ERP v2.0*
 *القالب يغطي جميع الـ 25 صفحة مع مطابقة كاملة لـ database.wsd*

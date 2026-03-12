@@ -1,0 +1,435 @@
+<style>
+  /* =========================================================
+     CSS الخاص بصفحة الأدوار والصلاحيات
+     ========================================================= */
+  .roles-permissions-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  
+  /* العمود الأيسر (قائمة الأدوار 30%) */
+  .roles-list-col {
+    flex: 0 0 320px; /* تقريباً 30% من العرض مع حد أقصى */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  
+  .role-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+  .role-card:hover {
+    border-color: var(--brand-primary);
+    box-shadow: var(--shadow-sm);
+  }
+  .role-card.active {
+    border-color: var(--brand-primary);
+    background: rgba(26, 107, 74, 0.04); /* لون أخضر فاتح جداً */
+    box-shadow: 0 0 0 1px var(--brand-primary);
+  }
+  .role-card.active::before {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 10%;
+    height: 80%;
+    width: 4px;
+    background: var(--brand-primary);
+    border-radius: 4px 0 0 4px;
+  }
+  
+  .role-header { display: flex; justify-content: space-between; align-items: center; }
+  .role-title { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+  .role-name-en { font-family: monospace; font-size: 11px; color: var(--text-muted); background: var(--bg-base); padding: 2px 6px; border-radius: 4px; }
+  .role-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+  .role-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--brand-info); margin-top: 4px; }
+
+  /* العمود الأيمن (مصفوفة الصلاحيات 70%) */
+  .permissions-matrix-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* تنسيق الجدول المجمع للصلاحيات */
+  .group-header th {
+    background-color: var(--bg-surface-2) !important;
+    color: var(--brand-primary) !important;
+    font-size: 13px !important;
+    padding: 12px 16px !important;
+    border-bottom: 2px solid var(--border-color) !important;
+  }
+  .perm-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* زر الحفظ النابض */
+  .btn-save-glow {
+    box-shadow: 0 0 0 rgba(221, 107, 32, 0.4);
+    animation: pulseGlow 2s infinite;
+  }
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(221, 107, 32, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(221, 107, 32, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(221, 107, 32, 0); }
+  }
+
+  /* Toggle Switch */
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--text-muted); transition: .3s; border-radius: 20px; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--brand-success); }
+  input:checked + .slider:before { transform: translateX(16px); }
+  [data-theme="dark"] .slider { background-color: #4a5568; }
+
+  /* حالة الفراغ */
+  .empty-matrix {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .empty-matrix i { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">🔑 إدارة الأدوار والصلاحيات</div>
+    <div class="page-subtitle">تخصيص مصفوفة الصلاحيات (Matrix) والتحكم الدقيق بوصول المستخدمين</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-role')">
+      <i class="fas fa-plus"></i> دور جديد
+    </button>
+  </div>
+</div>
+
+<div class="roles-permissions-layout fade-in">
+  
+  <div class="roles-list-col" id="roles-list-container">
+    </div>
+
+  <div class="permissions-matrix-col">
+    
+    <div id="empty-permissions-state" class="empty-matrix">
+      <i class="fas fa-shield-alt"></i>
+      <h3 style="color: var(--text-primary); margin-bottom: 8px;">لم يتم اختيار أي دور</h3>
+      <p style="font-size: 13px;">يرجى اختيار دور من القائمة الجانبية لعرض وتعديل صلاحياته.</p>
+    </div>
+
+    <div id="permissions-matrix-container" class="card" style="display: none;">
+      <div class="card-header" style="position: sticky; top: 0; z-index: 10; background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 16px 24px;">
+        <div>
+          <div class="card-title" id="active-role-title">مدير تنفيذي</div>
+          <div class="card-subtitle" id="active-role-en">manager</div>
+        </div>
+        <div>
+          <button class="btn btn-ghost" id="btn-save-permissions" onclick="savePermissions()" disabled style="transition: all 0.3s ease;">
+            <i class="fas fa-save"></i> <span>حفظ التعديلات</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-wrapper" style="border: none; max-height: calc(100vh - 250px); overflow-y: auto;">
+        <table class="data-table" id="permissions-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">الصلاحية</th>
+              <th style="width: 60%;">الوصف التفصيلي</th>
+              <th style="width: 15%; text-align: center;">الحالة</th>
+            </tr>
+          </thead>
+          <tbody id="permissions-tbody">
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="modal-add-role">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-header">
+      <div class="modal-title">🔑 إضافة دور جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-add-role')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">اسم الدور (للعرض) *</label>
+        <input type="text" id="new-role-ar" class="form-input" placeholder="مثال: مدير تنفيذي" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الاسم البرمجي (English) *</label>
+        <input type="text" id="new-role-en" class="form-input" placeholder="مثال: manager" dir="ltr" style="text-align: left;" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">وصف مختصر للوظيفة والمهام</label>
+      <textarea id="new-role-desc" class="form-textarea" placeholder="اكتب وصفاً يوضح مسؤوليات هذا الدور..." style="min-height: 80px;"></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="submitAddRole()">
+        <i class="fas fa-save"></i> حفظ الدور
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-role')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// =========================================================================
+// متغيرات وبيانات وهمية (Mock Data) لمحاكاة الـ API
+// =========================================================================
+
+const mockRoles = [
+  { id: 1, name_ar: "مدير النظام", name_en: "super_admin", desc: "صلاحيات مطلقة للتحكم بكافة إعدادات النظام.", users_count: 2 },
+  { id: 2, name_ar: "محاسب مالي", name_en: "accountant", desc: "إدارة الرسوم، الرواتب، النفقات والالتزامات المالية.", users_count: 3 },
+  { id: 3, name_ar: "معلم / أستاذ", name_en: "teacher", desc: "تسجيل الحضور، إدخال الدرجات والتقييمات للفصول المسندة.", users_count: 24 },
+  { id: 4, name_ar: "ولي أمر", name_en: "parent", desc: "الاطلاع على بيانات وحضور أبنائه وتسديد الرسوم.", users_count: 312 },
+  { id: 5, name_ar: "أمين مخزن", name_en: "inventory_manager", desc: "التحكم في حركة المخزون والاستهلاك اليومي.", users_count: 1 }
+];
+
+// مصفوفة الصلاحيات مقسمة لفئات (Grouped)
+const mockPermissionsMatrix = [
+  {
+    category: "الإدارة والإعدادات (Settings & Users)",
+    permissions: [
+      { id: "sys_settings", name: "إدارة إعدادات النظام", desc: "القدرة على تغيير الإعدادات العامة والسياسات المالية", is_granted: true },
+      { id: "sys_branches", name: "إدارة الفروع", desc: "إضافة أو تعديل الفروع المدرسية", is_granted: false },
+      { id: "sys_users", name: "إدارة المستخدمين", desc: "إضافة، تعديل، أو إيقاف حسابات المستخدمين الآخرين", is_granted: true },
+      { id: "sys_roles", name: "تخصيص الصلاحيات", desc: "تعديل هذه المصفوفة لباقي الأدوار", is_granted: false },
+    ]
+  },
+  {
+    category: "الشؤون المالية (Finance)",
+    permissions: [
+      { id: "fin_fees_view", name: "استعراض الرسوم", desc: "القدرة على رؤية فواتير الطلاب والمدفوعات", is_granted: true },
+      { id: "fin_fees_collect", name: "تحصيل الأموال", desc: "تسجيل عمليات الدفع وتوليد الإيصالات", is_granted: true },
+      { id: "fin_payrolls", name: "إدارة الرواتب", desc: "توليد كشوفات الرواتب وصرفها", is_granted: false },
+      { id: "fin_expenses", name: "اعتماد النفقات", desc: "القدرة على رفض أو قبول طلبات الصرف المالي", is_granted: false },
+    ]
+  },
+  {
+    category: "الشؤون الأكاديمية (Academics & Operations)",
+    permissions: [
+      { id: "acad_students", name: "إدارة ملفات الطلاب", desc: "تسجيل طلاب جدد وتعديل بياناتهم", is_granted: false },
+      { id: "acad_grades", name: "إدخال الدرجات", desc: "تعديل أو إدخال علامات التقييمات", is_granted: false },
+      { id: "acad_attendance", name: "تسجيل الحضور", desc: "مراقبة وإدخال الغيابات اليومية", is_granted: false },
+    ]
+  }
+];
+
+let currentSelectedRoleId = null;
+let hasUnsavedChanges = false;
+
+// =========================================================================
+// دوال التهيئة والعرض
+// =========================================================================
+
+// دالة تُستدعى تلقائياً عند تحميل الصفحة (مربوطة بـ layout.js)
+window.onPageInit = function(pageId) {
+  if (pageId === 'roles-permissions') {
+    initRolesPermissions();
+  }
+};
+
+// إذا تم فتح الصفحة بشكل مباشر
+if (document.getElementById('roles-list-container')) {
+    initRolesPermissions();
+}
+
+function initRolesPermissions() {
+  renderRolesList();
+}
+
+// 1. رسم قائمة الأدوار في العمود الأيسر
+function renderRolesList() {
+  const container = document.getElementById('roles-list-container');
+  container.innerHTML = '';
+
+  mockRoles.forEach(role => {
+    const card = document.createElement('div');
+    card.className = `role-card ${currentSelectedRoleId === role.id ? 'active' : ''}`;
+    card.onclick = () => selectRole(role.id);
+    
+    card.innerHTML = `
+      <div class="role-header">
+        <div class="role-title">${role.name_ar}</div>
+        <div class="role-name-en">${role.name_en}</div>
+      </div>
+      <div class="role-desc">${role.desc}</div>
+      <div class="role-meta">
+        <i class="fas fa-users"></i> ${role.users_count} مستخدم
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// 2. اختيار دور لفتح مصفوفة الصلاحيات الخاصة به
+function selectRole(roleId) {
+  if (hasUnsavedChanges) {
+      if(!confirm("يوجد تعديلات لم تقم بحفظها! هل تريد المتابعة وتجاهل التعديلات؟")) return;
+  }
+
+  currentSelectedRoleId = roleId;
+  renderRolesList(); // تحديث الـ active class
+  
+  const role = mockRoles.find(r => r.id === roleId);
+  if (!role) return;
+
+  // إخفاء الـ Empty State وإظهار الـ Matrix
+  document.getElementById('empty-permissions-state').style.display = 'none';
+  document.getElementById('permissions-matrix-container').style.display = 'block';
+
+  // تحديث العناوين في رأس البطاقة
+  document.getElementById('active-role-title').innerText = role.name_ar;
+  document.getElementById('active-role-en').innerText = role.name_en;
+
+  // إعادة ضبط زر الحفظ
+  resetSaveButton();
+  
+  // رسم مصفوفة الصلاحيات
+  renderPermissionsMatrix();
+}
+
+// 3. رسم جدول الصلاحيات في العمود الأيمن
+function renderPermissionsMatrix() {
+  const tbody = document.getElementById('permissions-tbody');
+  tbody.innerHTML = '';
+
+  // ملاحظة: في بيئة العمل الحقيقية، ستجلب الـ is_granted من الخادم عبر الـ roleId
+  // هنا سنقوم بمحاكاة عشوائية بسيطة بناءً على الدور للتوضيح
+  
+  mockPermissionsMatrix.forEach(group => {
+    // صف عنوان المجموعة (Group Header)
+    const headerRow = document.createElement('tr');
+    headerRow.className = 'group-header';
+    headerRow.innerHTML = `<th colspan="3"><i class="fas fa-folder-open" style="margin-left: 6px;"></i> ${group.category}</th>`;
+    tbody.appendChild(headerRow);
+
+    // صفوف الصلاحيات داخل المجموعة
+    group.permissions.forEach(perm => {
+      
+      // محاكاة: إعطاء كل الصلاحيات لمدير النظام (id=1)، وصلاحيات محددة للباقي
+      let isGranted = perm.is_granted;
+      if (currentSelectedRoleId === 1) isGranted = true;
+      else if (currentSelectedRoleId === 4) isGranted = false; // الولي لا يملك أي من هذه
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="font-weight: 700;">${perm.name}</td>
+        <td>
+          <div style="font-family: monospace; font-size: 10px; color: var(--text-muted);">${perm.id}</div>
+          <div class="perm-desc">${perm.desc}</div>
+        </td>
+        <td style="text-align: center;">
+          <label class="switch">
+            <input type="checkbox" class="perm-checkbox" onchange="handlePermissionChange()" ${isGranted ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  });
+}
+
+// =========================================================================
+// التفاعلات والأحداث (Events & Actions)
+// =========================================================================
+
+// 4. عند تغيير أي Toggle Switch
+function handlePermissionChange() {
+  hasUnsavedChanges = true;
+  
+  // تفعيل وإضاءة زر الحفظ
+  const saveBtn = document.getElementById('btn-save-permissions');
+  saveBtn.disabled = false;
+  saveBtn.className = 'btn btn-accent btn-save-glow';
+  saveBtn.querySelector('span').innerText = 'حفظ التعديلات الآن';
+}
+
+// 5. حفظ الصلاحيات المحدثة
+function savePermissions() {
+  // محاكاة عملية الحفظ (PATCH /api/roles/{id}/permissions)
+  
+  setTimeout(() => {
+    if(typeof showToast === 'function') {
+        showToast('تم تحديث صلاحيات الدور بنجاح', 'success');
+    }
+    resetSaveButton();
+  }, 500);
+}
+
+// إعادة ضبط شكل زر الحفظ
+function resetSaveButton() {
+  hasUnsavedChanges = false;
+  const saveBtn = document.getElementById('btn-save-permissions');
+  saveBtn.disabled = true;
+  saveBtn.className = 'btn btn-ghost';
+  saveBtn.querySelector('span').innerText = 'حفظ التعديلات';
+}
+
+// 6. إضافة دور جديد
+function submitAddRole() {
+  const nameAr = document.getElementById('new-role-ar').value.trim();
+  const nameEn = document.getElementById('new-role-en').value.trim();
+  const desc = document.getElementById('new-role-desc').value.trim();
+
+  if (!nameAr || !nameEn) {
+      alert("الرجاء تعبئة الاسم البرمجي واسم العرض الإجباريين.");
+      return;
+  }
+
+  // محاكاة الإضافة للجدول
+  const newRole = {
+      id: mockRoles.length + 1,
+      name_ar: nameAr,
+      name_en: nameEn,
+      desc: desc || "دور جديد مخصص",
+      users_count: 0
+  };
+  
+  mockRoles.push(newRole);
+  renderRolesList();
+  
+  if(typeof showToast === 'function') showToast('تم إضافة الدور الجديد بنجاح', 'success');
+  
+  // تفريغ الحقول وإغلاق النافذة
+  document.getElementById('new-role-ar').value = '';
+  document.getElementById('new-role-en').value = '';
+  document.getElementById('new-role-desc').value = '';
+  closeModal('modal-add-role');
+
+  // اختيار الدور الجديد مباشرة وتمرير الشاشة إليه
+  selectRole(newRole.id);
+  const container = document.getElementById('roles-list-container');
+  container.scrollTop = container.scrollHeight;
+}
+</script>

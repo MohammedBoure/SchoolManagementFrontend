@@ -1,0 +1,590 @@
+<style>
+  /* =========================================================
+     CSS الخاص بنقطة البيع (POS)
+     ========================================================= */
+  .pos-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    height: calc(100vh - 160px); /* ملء الشاشة تقريباً */
+  }
+
+  /* العمود الأيمن: المنتجات (65%) */
+  .pos-products-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+  }
+
+  .pos-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .pos-cat-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .pos-cat-btn:hover { border-color: var(--brand-primary); }
+  .pos-cat-btn.active {
+    background: var(--brand-primary);
+    color: white;
+    border-color: var(--brand-primary);
+  }
+
+  .pos-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    overflow-y: auto;
+    padding-right: 8px;
+    padding-bottom: 24px;
+  }
+
+  .pos-item-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pos-item-card:hover {
+    border-color: var(--brand-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  .pos-item-card:active { transform: scale(0.98); }
+  .pos-item-card.out-of-stock { opacity: 0.5; cursor: not-allowed; border-color: var(--border-subtle) !important; transform: none !important; box-shadow: none !important;}
+  
+  .pos-item-icon { font-size: 32px; margin-bottom: 8px; color: var(--text-muted); }
+  .pos-item-title { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+  .pos-item-price { font-size: 15px; font-weight: 800; color: var(--brand-primary); font-family: monospace; }
+  .pos-item-stock { position: absolute; top: 8px; right: 8px; font-size: 10px; background: var(--bg-base); padding: 2px 6px; border-radius: 10px; color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+
+  /* العمود الأيسر: سلة المشتريات (35%) */
+  .pos-cart-col {
+    width: 360px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .cart-header { padding: 16px; border-bottom: 1px solid var(--border-subtle); }
+  
+  /* محفظة المشتري */
+  .buyer-select-wrap { position: relative; margin-bottom: 12px; }
+  .wallet-box {
+    background: rgba(0,0,0,0.02);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .wallet-balance-display { font-size: 18px; font-weight: 900; font-family: monospace; transition: color 0.3s; }
+  .wallet-balance-display.sufficient { color: var(--brand-success); }
+  .wallet-balance-display.insufficient { color: var(--brand-danger); }
+
+  /* عناصر السلة */
+  .cart-items-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .cart-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); opacity: 0.6; }
+  .cart-empty-state i { font-size: 48px; margin-bottom: 12px; }
+
+  .cart-item-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+  .cart-item-info { display: flex; flex-direction: column; width: 45%; }
+  .cart-item-name { font-size: 13px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cart-item-price { font-size: 11px; color: var(--text-muted); }
+  
+  .qty-controls { display: flex; align-items: center; gap: 8px; background: var(--bg-base); padding: 4px; border-radius: 20px; border: 1px solid var(--border-color); }
+  .qty-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); transition: var(--transition); }
+  .qty-btn:hover { background: var(--border-subtle); color: var(--text-primary); }
+  .qty-display { font-size: 13px; font-weight: 700; width: 20px; text-align: center; }
+  
+  .cart-item-total { font-weight: 800; font-size: 13px; width: 25%; text-align: left; }
+
+  /* تذييل السلة */
+  .cart-footer { padding: 16px; border-top: 1px solid var(--border-subtle); background: var(--bg-surface-2); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+  .cart-grand-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .cart-grand-label { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+  .cart-grand-val { font-size: 24px; font-weight: 900; color: var(--text-primary); font-family: monospace; }
+  
+  .btn-checkout { width: 100%; padding: 14px; font-size: 16px; font-weight: 800; border-radius: var(--radius-md); transition: var(--transition); }
+  .btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* محاكاة قائمة البحث الحية */
+  .live-search-results { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: var(--shadow-md); z-index: 100; max-height: 200px; overflow-y: auto; display: none; }
+  .live-search-item { padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
+  .live-search-item:last-child { border-bottom: none; }
+  .live-search-item:hover { background: var(--bg-surface-2); }
+
+  @media (max-width: 900px) {
+    .pos-layout { flex-direction: column; height: auto; }
+    .pos-cart-col { width: 100%; }
+    .pos-items-grid { max-height: 400px; }
+  }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">🏪 المتجر المدرسي ونقطة البيع (POS)</div>
+    <div class="page-subtitle">بيع المستلزمات والوجبات السريعة وخصمها مباشرة من محفظة الطالب</div>
+  </div>
+</div>
+
+<div class="pos-layout fade-in">
+  
+  <div class="pos-products-col">
+    <div class="pos-filters">
+      <div class="search-input-wrap" style="flex: 1; max-width: 300px;">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" id="pos-search" placeholder="بحث عن منتج..." oninput="filterProducts()">
+      </div>
+      <button class="pos-cat-btn active" onclick="filterCategory('all', this)">الكل</button>
+      <button class="pos-cat-btn" onclick="filterCategory('food', this)">الوجبات والمشروبات</button>
+      <button class="pos-cat-btn" onclick="filterCategory('stationery', this)">أدوات مدرسية</button>
+      <button class="pos-cat-btn" onclick="filterCategory('uniform', this)">زي مدرسي</button>
+    </div>
+
+    <div class="pos-items-grid" id="products-grid">
+      </div>
+  </div>
+
+  <div class="pos-cart-col">
+    <div class="cart-header">
+      <div class="buyer-select-wrap">
+        <label class="form-label">المشتري (بحث بالاسم أو الرقم) *</label>
+        <div class="search-input-wrap">
+          <i class="fas fa-user"></i>
+          <input type="text" class="search-input" id="buyer-search-input" placeholder="ابحث عن طالب أو معلم..." oninput="handleBuyerSearch(this.value)" autocomplete="off">
+        </div>
+        <div class="live-search-results" id="buyer-results"></div>
+      </div>
+
+      <div class="wallet-box" id="wallet-box" style="display: none;">
+        <div>
+          <div style="font-size: 11px; color: var(--text-secondary); font-weight: 700; margin-bottom: 2px;">رصيد المحفظة</div>
+          <div class="wallet-balance-display" id="wallet-balance-text">0.00 دج</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="openTopUpModal()">
+          <i class="fas fa-plus"></i> شحن
+        </button>
+      </div>
+    </div>
+
+    <div class="cart-items-list" id="cart-items-container">
+      <div class="cart-empty-state" id="cart-empty-state">
+        <i class="fas fa-shopping-basket"></i>
+        <span>السلة فارغة</span>
+        <span style="font-size: 11px; margin-top: 4px;">انقر على المنتجات لإضافتها</span>
+      </div>
+      </div>
+
+    <div class="cart-footer">
+      <div class="cart-grand-total-row">
+        <span class="cart-grand-label">الإجمالي:</span>
+        <span class="cart-grand-val" id="cart-grand-total">0 دج</span>
+      </div>
+      <button class="btn btn-accent btn-checkout" id="btn-checkout" onclick="processCheckout()" disabled>
+        <i class="fas fa-check-circle"></i> تأكيد الشراء وخصم الرصيد
+      </button>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="modal-overlay" id="modal-top-up">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-header">
+      <div class="modal-title">💳 شحن المحفظة الإلكترونية</div>
+      <button class="modal-close" onclick="closeModal('modal-top-up')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">المستخدم (المشتري)</label>
+      <input type="text" class="form-input" id="topup-user-name" disabled style="background: var(--bg-base);">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الرصيد الحالي</label>
+        <input type="text" class="form-input" id="topup-current-balance" disabled style="background: var(--bg-base); font-family: monospace; font-weight: bold;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">مبلغ الشحن (دج) *</label>
+        <input type="number" class="form-input" id="topup-amount" placeholder="0" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">طريقة الدفع *</label>
+      <select class="form-select" id="topup-method">
+        <option value="cash">نقداً (Cash)</option>
+        <option value="card">بطاقة بنكية</option>
+      </select>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="submitTopUp()">
+        <i class="fas fa-bolt"></i> شحن المحفظة الآن
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-top-up')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =========================================================================
+// بيانات وهمية (Mock Data)
+// =========================================================================
+
+// المنتجات المتاحة في المتجر (تسحب من inventory_items حيث category يسمح بالبيع)
+const mockProducts = [
+  { id: 1, name: "عصير برتقال طبيعي", category: "food", price: 80, stock: 45, icon: "fa-glass-whiskey", color: "#ed8936" },
+  { id: 2, name: "ساندويتش دجاج", category: "food", price: 250, stock: 15, icon: "fa-hamburger", color: "#e53e3e" },
+  { id: 3, name: "ماء معدني (صغير)", category: "food", price: 30, stock: 120, icon: "fa-tint", color: "#3182ce" },
+  { id: 4, name: "كرواسون شوكولاتة", category: "food", price: 60, stock: 0, icon: "fa-bread-slice", color: "#805ad5" }, // منتهي
+  { id: 5, name: "دفتر 96 صفحة", category: "stationery", price: 120, stock: 80, icon: "fa-book", color: "#38a169" },
+  { id: 6, name: "أقلام حبر (حزمة 3)", category: "stationery", price: 100, stock: 50, icon: "fa-pen", color: "#319795" },
+  { id: 7, name: "آلة حاسبة علمية", category: "stationery", price: 1500, stock: 12, icon: "fa-calculator", color: "#4a5568" },
+  { id: 8, name: "قميص رياضي للمدرسة", category: "uniform", price: 1200, stock: 35, icon: "fa-tshirt", color: "#2b6cb0" }
+];
+
+// المستخدمين (محاكاة قاعدة البيانات للبحث)
+const mockUsers = [
+  { id: 101, name: "أحمد الدراجي", type: "طالب", balance: 500 },
+  { id: 102, name: "سارة محمود", type: "طالبة", balance: 150 },
+  { id: 103, name: "خالد العمري", type: "معلم", balance: 0 },
+  { id: 104, name: "ياسين بن علي", type: "طالب", balance: 3500 }
+];
+
+// حالة السلة والمشتري
+let cart = [];
+let currentBuyer = null;
+let currentCategoryFilter = 'all';
+let currentSearchQuery = '';
+
+// =========================================================================
+// دوال التهيئة والعرض
+// =========================================================================
+
+window.onPageInit = function(pageId) {
+  if (pageId === 'store') initStore();
+};
+if (document.getElementById('products-grid')) initStore();
+
+function initStore() {
+  renderProducts();
+  updateCartUI();
+}
+
+// 1. رسم المنتجات
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = '';
+
+  const filtered = mockProducts.filter(p => {
+    const matchCat = (currentCategoryFilter === 'all' || p.category === currentCategoryFilter);
+    const matchSearch = p.name.toLowerCase().includes(currentSearchQuery.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">لا توجد منتجات مطابقة</div>';
+    return;
+  }
+
+  filtered.forEach(p => {
+    const isOutOfStock = p.stock === 0;
+    const card = document.createElement('div');
+    card.className = `pos-item-card ${isOutOfStock ? 'out-of-stock' : ''}`;
+    // تمرير الـ onclick فقط إذا كان هناك مخزون
+    if(!isOutOfStock) {
+        card.onclick = () => addToCart(p.id);
+    }
+    
+    card.innerHTML = `
+      <div class="pos-item-stock">${isOutOfStock ? 'نفد' : p.stock + ' حبة'}</div>
+      <i class="fas ${p.icon} pos-item-icon" style="color: ${p.color}"></i>
+      <div class="pos-item-title">${p.name}</div>
+      <div class="pos-item-price">${p.price} دج</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function filterCategory(cat, btnElement) {
+  currentCategoryFilter = cat;
+  document.querySelectorAll('.pos-cat-btn').forEach(b => b.classList.remove('active'));
+  btnElement.classList.add('active');
+  renderProducts();
+}
+
+function filterProducts() {
+  currentSearchQuery = document.getElementById('pos-search').value;
+  renderProducts();
+}
+
+// =========================================================================
+// السلة (Cart Logic)
+// =========================================================================
+
+function addToCart(productId) {
+  const product = mockProducts.find(p => p.id === productId);
+  if (!product || product.stock === 0) return;
+
+  const existing = cart.find(item => item.product.id === productId);
+  
+  if (existing) {
+    // التحقق من المخزون الوهمي
+    if (existing.qty < product.stock) {
+        existing.qty++;
+    } else {
+        if(typeof showToast === 'function') showToast('تم بلوغ الحد الأقصى للمخزون المتوفر', 'warning');
+    }
+  } else {
+    cart.push({ product: product, qty: 1 });
+  }
+  
+  updateCartUI();
+}
+
+function updateCartQty(productId, delta) {
+  const index = cart.findIndex(item => item.product.id === productId);
+  if (index !== -1) {
+    const item = cart[index];
+    const newQty = item.qty + delta;
+    
+    if (newQty <= 0) {
+      cart.splice(index, 1); // إزالة من السلة
+    } else if (newQty <= item.product.stock) {
+      item.qty = newQty;
+    }
+    updateCartUI();
+  }
+}
+
+function getCartTotal() {
+  return cart.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+}
+
+function updateCartUI() {
+  const container = document.getElementById('cart-items-container');
+  const emptyState = document.getElementById('cart-empty-state');
+  const totalEl = document.getElementById('cart-grand-total');
+  
+  const total = getCartTotal();
+  totalEl.innerText = total.toLocaleString() + ' دج';
+
+  // تنظيف السلة (باستثناء empty state)
+  Array.from(container.children).forEach(child => {
+    if(child.id !== 'cart-empty-state') child.remove();
+  });
+
+  if (cart.length === 0) {
+    emptyState.style.display = 'flex';
+  } else {
+    emptyState.style.display = 'none';
+    
+    cart.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'cart-item-row fade-in';
+      const itemTotal = item.product.price * item.qty;
+      
+      row.innerHTML = `
+        <div class="cart-item-info">
+          <span class="cart-item-name" title="${item.product.name}">${item.product.name}</span>
+          <span class="cart-item-price">${item.product.price} دج للوحدة</span>
+        </div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="updateCartQty(${item.product.id}, -1)"><i class="fas fa-minus" style="font-size:10px"></i></button>
+          <span class="qty-display">${item.qty}</span>
+          <button class="qty-btn" onclick="updateCartQty(${item.product.id}, 1)"><i class="fas fa-plus" style="font-size:10px"></i></button>
+        </div>
+        <div class="cart-item-total">${itemTotal.toLocaleString()} دج</div>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  evaluateCheckoutState();
+}
+
+// =========================================================================
+// إدارة المشتري والمحفظة
+// =========================================================================
+
+function handleBuyerSearch(query) {
+  const resultsBox = document.getElementById('buyer-results');
+  if (query.length < 2) {
+    resultsBox.style.display = 'none';
+    return;
+  }
+
+  const results = mockUsers.filter(u => u.name.includes(query) || u.id.toString().includes(query));
+  
+  if (results.length > 0) {
+    resultsBox.innerHTML = results.map(u => `
+      <div class="live-search-item" onclick="selectBuyer(${u.id})">
+        <div><strong>${u.name}</strong> <span style="font-size:11px; color:var(--text-muted)">(${u.type})</span></div>
+        <div style="font-family:monospace; color:var(--brand-info)">${u.balance} دج</div>
+      </div>
+    `).join('');
+    resultsBox.style.display = 'block';
+  } else {
+    resultsBox.innerHTML = '<div style="padding: 10px 16px; color:var(--text-muted); font-size:12px;">لا يوجد نتائج</div>';
+    resultsBox.style.display = 'block';
+  }
+}
+
+function selectBuyer(userId) {
+  currentBuyer = mockUsers.find(u => u.id === userId);
+  document.getElementById('buyer-search-input').value = currentBuyer.name;
+  document.getElementById('buyer-results').style.display = 'none';
+  
+  // إظهار المحفظة
+  document.getElementById('wallet-box').style.display = 'flex';
+  
+  updateWalletDisplay();
+  evaluateCheckoutState();
+}
+
+// إغلاق قائمة البحث عند النقر خارجها
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.buyer-select-wrap')) {
+    const box = document.getElementById('buyer-results');
+    if(box) box.style.display = 'none';
+  }
+});
+
+function updateWalletDisplay() {
+  if(!currentBuyer) return;
+  const total = getCartTotal();
+  const display = document.getElementById('wallet-balance-text');
+  
+  display.innerText = currentBuyer.balance.toLocaleString() + ' دج';
+  
+  // تلوين بناءً على توفر الرصيد مقارنة بالسلة
+  display.className = 'wallet-balance-display';
+  if (total > 0) {
+    if (currentBuyer.balance >= total) {
+      display.classList.add('sufficient');
+    } else {
+      display.classList.add('insufficient');
+    }
+  }
+}
+
+function evaluateCheckoutState() {
+  const btn = document.getElementById('btn-checkout');
+  const total = getCartTotal();
+  
+  updateWalletDisplay(); // لتحديث ألوان المحفظة بشكل لحظي
+
+  if (cart.length > 0 && currentBuyer) {
+    btn.disabled = false;
+    
+    // تغيير شكل الزر إذا الرصيد غير كاف
+    if (currentBuyer.balance < total) {
+      btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> رصيد المحفظة غير كافٍ';
+      btn.style.background = 'var(--brand-danger)';
+    } else {
+      btn.innerHTML = '<i class="fas fa-check-circle"></i> تأكيد الشراء وخصم الرصيد';
+      btn.style.background = 'var(--brand-accent)';
+    }
+  } else {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> تأكيد الشراء وخصم الرصيد';
+    btn.style.background = 'var(--text-muted)';
+  }
+}
+
+// =========================================================================
+// إتمام الشراء (Checkout) والشحن (Top-up)
+// =========================================================================
+
+function processCheckout() {
+  const total = getCartTotal();
+  
+  if (currentBuyer.balance < total) {
+    // فتح نافذة الشحن تلقائياً لتعويض النقص
+    openTopUpModal();
+    if(typeof showToast === 'function') showToast('يرجى شحن المحفظة أولاً لإتمام الشراء', 'warning');
+    return;
+  }
+
+  // نجاح العملية (محاكاة POST /api/store/purchase)
+  currentBuyer.balance -= total; // خصم من الرصيد
+  
+  // خصم الكميات من المخزون
+  cart.forEach(item => {
+      const p = mockProducts.find(prod => prod.id === item.product.id);
+      if(p) p.stock -= item.qty;
+  });
+
+  if(typeof showToast === 'function') showToast(`تم إتمام الشراء بنجاح. المتبقي: ${currentBuyer.balance} دج`, 'success');
+  
+  // إعادة تعيين السلة وتحديث الواجهة
+  cart = [];
+  updateCartUI();
+  renderProducts(); // لتحديث العدادات على البطاقات
+}
+
+function openTopUpModal() {
+  if(!currentBuyer) {
+      alert("الرجاء اختيار المشتري أولاً");
+      return;
+  }
+  
+  document.getElementById('topup-user-name').value = currentBuyer.name;
+  document.getElementById('topup-current-balance').value = currentBuyer.balance.toLocaleString() + ' دج';
+  document.getElementById('topup-amount').value = '';
+  
+  // اقتراح مبلغ الشحن إذا كانت السلة أكبر من الرصيد
+  const total = getCartTotal();
+  if (total > currentBuyer.balance) {
+      document.getElementById('topup-amount').value = total - currentBuyer.balance;
+  }
+  
+  openModal('modal-top-up');
+}
+
+function submitTopUp() {
+  const amount = parseFloat(document.getElementById('topup-amount').value);
+  if (!amount || amount <= 0) {
+    alert("الرجاء إدخال مبلغ صحيح");
+    return;
+  }
+
+  // محاكاة POST /api/wallet/top-up
+  currentBuyer.balance += amount;
+  
+  if(typeof showToast === 'function') showToast(`تم شحن المحفظة بـ ${amount} دج بنجاح`, 'success');
+  
+  closeModal('modal-top-up');
+  evaluateCheckoutState(); // إعادة تقييم زر الشراء
+}
+</script>

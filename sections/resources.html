@@ -1,0 +1,467 @@
+<style>
+  /* =========================================================
+     CSS الخاص بصفحة الموارد التعليمية
+     ========================================================= */
+  
+  /* تنسيقات أيقونات الملفات */
+  .file-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    margin-left: 12px;
+    font-size: 16px;
+  }
+  .icon-pdf { background: rgba(229, 62, 62, 0.1); color: var(--brand-danger); }
+  .icon-word { background: rgba(43, 108, 176, 0.1); color: var(--brand-primary); }
+  .icon-video { background: rgba(221, 107, 32, 0.1); color: var(--brand-warning); }
+  .icon-link { background: rgba(113, 128, 150, 0.1); color: var(--text-muted); }
+  .icon-excel { background: rgba(72, 187, 120, 0.1); color: var(--brand-success); }
+
+  /* تنسيقات شارات نوع المورد */
+  .badge-note { background: rgba(43, 108, 176, 0.1); color: var(--brand-primary); border: 1px solid rgba(43, 108, 176, 0.2); }
+  .badge-homework { background: rgba(221, 107, 32, 0.1); color: var(--brand-warning); border: 1px solid rgba(221, 107, 32, 0.2); }
+  .badge-book { background: rgba(72, 187, 120, 0.1); color: var(--brand-success); border: 1px solid rgba(72, 187, 120, 0.2); }
+  .badge-link { background: rgba(113, 128, 150, 0.1); color: var(--text-secondary); border: 1px solid rgba(113, 128, 150, 0.2); }
+
+  /* منطقة Drag & Drop لرفع الملفات */
+  .upload-drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--bg-surface-2);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-drop-zone:hover, .upload-drop-zone.dragover {
+    border-color: var(--brand-primary);
+    background: rgba(43, 108, 176, 0.04);
+  }
+  .upload-icon {
+    font-size: 32px;
+    color: var(--brand-primary);
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+  .upload-text {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .upload-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  #file-input {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer;
+  }
+  
+  /* حالة الملف المختار */
+  .selected-file-state {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-surface);
+    border: 1px solid var(--brand-primary);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    margin-top: 12px;
+  }
+  .file-name-display { font-weight: 600; font-size: 13px; color: var(--brand-primary); display: flex; align-items: center; gap: 8px; }
+  .remove-file-btn { color: var(--brand-danger); cursor: pointer; background: none; border: none; padding: 4px; }
+
+  @media (max-width: 768px) {
+    .col-hide-mobile { display: none !important; }
+  }
+</style>
+
+<div class="page-header-row fade-in">
+  <div class="page-header">
+    <div class="page-title">📁 المقررات والموارد التعليمية</div>
+    <div class="page-subtitle">رفع ومشاركة الملفات، المذكرات، والواجبات المنزلية مع الطلاب</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-primary btn-sm" onclick="openUploadModal()">
+      <i class="fas fa-cloud-upload-alt"></i> رفع ملف جديد
+    </button>
+  </div>
+</div>
+
+<div class="kpi-grid fade-in">
+  <div class="kpi-card blue fade-in-delay-1">
+    <div class="kpi-top">
+      <div class="kpi-icon blue"><i class="fas fa-file-alt"></i></div>
+    </div>
+    <div class="kpi-value">1,245</div>
+    <div class="kpi-label">إجمالي الملفات المرفوعة</div>
+  </div>
+  <div class="kpi-card orange fade-in-delay-2">
+    <div class="kpi-top">
+      <div class="kpi-icon orange"><i class="fas fa-hdd"></i></div>
+    </div>
+    <div class="kpi-value">45 GB</div>
+    <div class="kpi-label">المساحة المستخدمة</div>
+  </div>
+  <div class="kpi-card green fade-in-delay-3">
+    <div class="kpi-top">
+      <div class="kpi-icon green"><i class="fas fa-calendar-plus"></i></div>
+    </div>
+    <div class="kpi-value">312</div>
+    <div class="kpi-label">ملف تمت إضافته الشهر</div>
+  </div>
+  <div class="kpi-card gray fade-in-delay-4">
+    <div class="kpi-top">
+      <div class="kpi-icon gray" style="background: rgba(113,128,150,0.1); color: var(--text-muted);"><i class="fas fa-tasks"></i></div>
+    </div>
+    <div class="kpi-value">12</div>
+    <div class="kpi-label">واجب منزلي نشط</div>
+  </div>
+</div>
+
+<div class="card data-table-card fade-in">
+  <div class="card-header">
+    <div class="table-controls">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="بحث باسم الملف أو المقرر...">
+      </div>
+      <select class="filter-select">
+        <option value="">جميع الفصول</option>
+        <option>الفصل الأول - 1A</option>
+        <option>الفصل الثاني - 2B</option>
+      </select>
+      <select class="filter-select">
+        <option value="">جميع المواد</option>
+        <option>رياضيات</option>
+        <option>لغة عربية</option>
+        <option>فيزياء</option>
+      </select>
+      <select class="filter-select">
+        <option value="">كل الأنواع</option>
+        <option>PDF</option>
+        <option>Word</option>
+        <option>فيديو</option>
+        <option>روابط</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="resources-table">
+      <thead>
+        <tr>
+          <th>عنوان الملف</th>
+          <th>نوع المقرر</th>
+          <th class="col-hide-mobile">المادة والفصل</th>
+          <th>الحجم</th>
+          <th class="col-hide-mobile">تاريخ الرفع</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody id="resources-tbody">
+        </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <span>عرض 1 إلى 5 من أصل 1,245 ملف</span>
+    <div class="pagination-btns">
+      <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-upload-resource">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
+      <div class="modal-title">☁️ رفع مورد تعليمي جديد</div>
+      <button class="modal-close" onclick="closeModal('modal-upload-resource')"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">الإسناد (الفصل + المادة) *</label>
+        <select class="form-select" id="res-assignment" required>
+          <option value="">-- اختر الإسناد --</option>
+          <option>رياضيات - الفصل 3B (أحمد)</option>
+          <option>فيزياء - الفصل 4C (أحمد)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">نوع المورد *</label>
+        <select class="form-select" id="res-type" required onchange="handleResourceTypeChange()">
+          <option value="note">مذكرة / درس</option>
+          <option value="homework">واجب منزلي</option>
+          <option value="book">كتاب إلكتروني</option>
+          <option value="link">رابط خارجي (فيديو/موقع)</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">عنوان الملف *</label>
+      <input type="text" id="res-title" class="form-input" placeholder="مثال: ملخص الوحدة الأولى" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">وصف مختصر (اختياري)</label>
+      <textarea id="res-desc" class="form-textarea" placeholder="اكتب تعليمات للطلاب أو نبذة عن الملف..." style="min-height: 60px;"></textarea>
+    </div>
+
+    <div class="form-group" id="file-upload-container">
+      <label class="form-label">إرفاق الملف *</label>
+      
+      <div class="upload-drop-zone" id="drop-zone">
+        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+        <div class="upload-text">اسحب وأفلت الملف هنا</div>
+        <div class="upload-hint">أو انقر لاختيار ملف من جهازك (PDF, DOCX, JPG, ZIP) بحد أقصى 50MB</div>
+        <input type="file" id="file-input" onchange="handleFileSelect(this)">
+      </div>
+
+      <div class="selected-file-state" id="selected-file-state">
+        <div class="file-name-display">
+          <i class="fas fa-file-alt"></i>
+          <span id="display-file-name">filename.pdf</span>
+        </div>
+        <button class="remove-file-btn" onclick="clearSelectedFile()" title="إزالة الملف">
+          <i class="fas fa-times-circle"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group" id="link-input-container" style="display: none;">
+      <label class="form-label">الرابط (URL) *</label>
+      <input type="url" id="res-url" class="form-input" placeholder="https://youtube.com/..." dir="ltr" style="text-align: left;">
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="submitResource()">
+        <i class="fas fa-upload"></i> رفع ومشاركة
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-upload-resource')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =========================================================================
+// البيانات الوهمية والعرض (Mock Data & Render)
+// =========================================================================
+const mockResources = [
+  { id: 1, title: "ملخص الوحدة الأولى - الدوال", type: "note", type_ar: "مذكرة", file_type: "pdf", subject: "الرياضيات", class_name: "3B", size: "2.4 MB", date: "12 مارس 2026", url: "#" },
+  { id: 2, title: "واجب منزلي رقم 4 (الإعراب)", type: "homework", type_ar: "واجب", file_type: "word", subject: "لغة عربية", class_name: "2A", size: "1.1 MB", date: "10 مارس 2026", url: "#" },
+  { id: 3, title: "فيديو شرح الجاذبية الأرضية", type: "link", type_ar: "رابط", file_type: "video", subject: "فيزياء", class_name: "4C", size: "-", date: "08 مارس 2026", url: "https://youtube.com" },
+  { id: 4, title: "كتاب العلوم الطبيعية الجزء الثاني", type: "book", type_ar: "كتاب", file_type: "pdf", subject: "علوم", class_name: "1A", size: "14.5 MB", date: "01 مارس 2026", url: "#" },
+  { id: 5, title: "قائمة درجات الاختبار النصفي", type: "note", type_ar: "مرفق", file_type: "excel", subject: "إدارة", class_name: "عام", size: "0.5 MB", date: "28 فبراير 2026", url: "#" }
+];
+
+function getFileIconHTML(fileType) {
+  switch(fileType) {
+    case 'pdf': return '<div class="file-icon icon-pdf"><i class="fas fa-file-pdf"></i></div>';
+    case 'word': return '<div class="file-icon icon-word"><i class="fas fa-file-word"></i></div>';
+    case 'video': return '<div class="file-icon icon-video"><i class="fab fa-youtube"></i></div>';
+    case 'excel': return '<div class="file-icon icon-excel"><i class="fas fa-file-excel"></i></div>';
+    default: return '<div class="file-icon icon-link"><i class="fas fa-link"></i></div>';
+  }
+}
+
+function getBadgeHTML(type, label) {
+  switch(type) {
+    case 'note': return `<span class="badge badge-note">${label}</span>`;
+    case 'homework': return `<span class="badge badge-homework">${label}</span>`;
+    case 'book': return `<span class="badge badge-book">${label}</span>`;
+    case 'link': return `<span class="badge badge-link">${label}</span>`;
+    default: return `<span class="badge badge-gray">${label}</span>`;
+  }
+}
+
+function renderResourcesTable() {
+  const tbody = document.getElementById('resources-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+
+  mockResources.forEach(res => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div style="display:flex; align-items:center;">
+          ${getFileIconHTML(res.file_type)}
+          <strong style="color: var(--text-primary); margin-right: 12px;">${res.title}</strong>
+        </div>
+      </td>
+      <td>${getBadgeHTML(res.type, res.type_ar)}</td>
+      <td class="col-hide-mobile">${res.subject} - ${res.class_name}</td>
+      <td style="font-family: monospace; color: var(--text-muted);">${res.size}</td>
+      <td class="col-hide-mobile">${res.date}</td>
+      <td>
+        <div class="action-btns">
+          ${res.type === 'link' 
+            ? `<button class="action-btn view" title="فتح الرابط" onclick="window.open('${res.url}', '_blank')"><i class="fas fa-external-link-alt"></i></button>`
+            : `<button class="action-btn view" title="تحميل الملف"><i class="fas fa-download"></i></button>`
+          }
+          <button class="action-btn edit" title="نسخ الرابط" onclick="copyToClipboard()"><i class="fas fa-copy"></i></button>
+          <button class="action-btn delete" title="حذف" onclick="deleteResource(${res.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// تشغيل عند تحميل الصفحة
+if (document.getElementById('resources-tbody')) {
+  renderResourcesTable();
+  setupDragAndDrop();
+}
+
+window.onPageInit = function(pageId) {
+  if (pageId === 'resources') {
+    renderResourcesTable();
+    setupDragAndDrop();
+  }
+};
+
+// =========================================================================
+// المنطق البرمجي للنافذة المنبثقة والـ Drag & Drop
+// =========================================================================
+
+function openUploadModal() {
+  // إعادة تعيين الحقول
+  document.getElementById('res-title').value = '';
+  document.getElementById('res-desc').value = '';
+  document.getElementById('res-assignment').value = '';
+  document.getElementById('res-type').value = 'note';
+  document.getElementById('res-url').value = '';
+  clearSelectedFile();
+  handleResourceTypeChange();
+  
+  openModal('modal-upload-resource');
+}
+
+// التبديل بين رفع ملف وإدخال رابط بناءً على نوع المورد
+function handleResourceTypeChange() {
+  const type = document.getElementById('res-type').value;
+  const fileContainer = document.getElementById('file-upload-container');
+  const linkContainer = document.getElementById('link-input-container');
+
+  if (type === 'link') {
+    fileContainer.style.display = 'none';
+    linkContainer.style.display = 'block';
+  } else {
+    fileContainer.style.display = 'block';
+    linkContainer.style.display = 'none';
+  }
+}
+
+// التعامل مع السحب والإفلات
+function setupDragAndDrop() {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  if(!dropZone || !fileInput) return;
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    let dt = e.dataTransfer;
+    let files = dt.files;
+    if (files.length) {
+      fileInput.files = files; // تعيين الملفات للـ input
+      handleFileSelect(fileInput); // استدعاء دالة العرض
+    }
+  }, false);
+}
+
+// عند اختيار ملف (عبر النقر أو الإفلات)
+function handleFileSelect(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    document.getElementById('display-file-name').textContent = file.name;
+    document.getElementById('drop-zone').style.display = 'none';
+    document.getElementById('selected-file-state').style.display = 'flex';
+    
+    // اقتراح عنوان للمورد من اسم الملف إذا كان العنوان فارغاً
+    const titleInput = document.getElementById('res-title');
+    if(!titleInput.value) {
+      // إزالة الامتداد من اسم الملف
+      titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+    }
+  }
+}
+
+// إلغاء اختيار الملف
+function clearSelectedFile() {
+  const input = document.getElementById('file-input');
+  if(input) input.value = '';
+  document.getElementById('drop-zone').style.display = 'block';
+  document.getElementById('selected-file-state').style.display = 'none';
+}
+
+// =========================================================================
+// الإجراءات (Actions)
+// =========================================================================
+
+function submitResource() {
+  const assign = document.getElementById('res-assignment').value;
+  const type = document.getElementById('res-type').value;
+  const title = document.getElementById('res-title').value.trim();
+  
+  if (!assign || !title) {
+    alert("الرجاء تعبئة جميع الحقول الإجبارية (*)");
+    return;
+  }
+
+  if (type === 'link') {
+    const url = document.getElementById('res-url').value.trim();
+    if(!url) { alert("الرجاء إدخال الرابط."); return; }
+  } else {
+    const fileInput = document.getElementById('file-input');
+    if(!fileInput.files || fileInput.files.length === 0) {
+      alert("الرجاء إرفاق ملف."); return;
+    }
+  }
+
+  // محاكاة إرسال البيانات (POST /api/resources)
+  if(typeof showToast === 'function') {
+    showToast('تم رفع المورد ومشاركته مع الطلاب بنجاح', 'success');
+  }
+  closeModal('modal-upload-resource');
+}
+
+function deleteResource(id) {
+  if(confirm("هل أنت متأكد من حذف هذا المورد؟ سيختفي من حسابات الطلاب ولن يتمكنوا من تحميله.")) {
+    if(typeof showToast === 'function') showToast('تم الحذف بنجاح', 'success');
+    // هنا تقوم بفلترة المصفوفة أو إرسال طلب DELETE للخادم
+  }
+}
+
+function copyToClipboard() {
+  if(typeof showToast === 'function') {
+    showToast('تم نسخ الرابط إلى الحافظة', 'info');
+  }
+}
+</script>

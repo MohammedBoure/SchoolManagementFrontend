@@ -3,14 +3,14 @@
  * layout.js — School ERP Shared Layout Engine
  * ================================================================
  * يُحقن تلقائياً في كل صفحة عبر:
- *   <script src="layout.js"></script>
- *   <script>Layout.init({ pageId: 'students', breadcrumb: ['القسم','الصفحة'] })</script>
+ * <script src="layout.js"></script>
+ * <script>Layout.init({ pageId: 'students', breadcrumb: ['القسم','الصفحة'] })</script>
  *
  * يوفر:
- *  - Sidebar HTML كامل
- *  - Top Header كامل
- *  - دوال Navigation, Theme, Modals, Toast, Dropdowns
- *  - إضافة صفحة جديدة: أضف فقط entry في PAGES_MAP
+ * - Sidebar HTML كامل
+ * - Top Header كامل
+ * - دوال Navigation, Theme, Modals, Toast, Dropdowns
+ * - إضافة صفحة جديدة: أضف فقط entry في PAGES_MAP
  * ================================================================
  */
 
@@ -23,19 +23,21 @@
 // ================================================================
 const PAGES_MAP = {
   'dashboard':          { label: 'لوحة القيادة',          group: 'الرئيسية',           navSelector: '[data-page="dashboard"]' },
-  'branches':           { label: 'إدارة الفروع',           group: 'الإعدادات',          navSelector: '[data-page="branches"]' },
+  'branches':           { label: 'إدارة الفروع',          group: 'الإعدادات',          navSelector: '[data-page="branches"]' },
   'academic-years':     { label: 'السنوات الدراسية',       group: 'الإعدادات',          navSelector: '[data-page="academic-years"]' },
   'financial-policies': { label: 'السياسات المالية',       group: 'الإعدادات',          navSelector: '[data-page="financial-policies"]' },
   'system-logs':        { label: 'سجلات النظام',           group: 'الإعدادات',          navSelector: '[data-page="system-logs"]' },
+  'roles-permissions':  { label: 'الأدوار والصلاحيات',    group: 'الإعدادات',          navSelector: '[data-page="roles-permissions"]' }, // تمت الإضافة
   'users':              { label: 'المستخدمون',             group: 'الموارد البشرية',    navSelector: '[data-page="users"]' },
   'teachers':           { label: 'المعلمون',               group: 'الموارد البشرية',    navSelector: '[data-page="teachers"]' },
   'parents':            { label: 'أولياء الأمور',          group: 'الموارد البشرية',    navSelector: '[data-page="parents"]' },
-  'programs':           { label: 'البرامج والمواد',         group: 'الأكاديميات',        navSelector: '[data-page="programs"]' },
+  'programs':           { label: 'البرامج والمواد',        group: 'الأكاديميات',        navSelector: '[data-page="programs"]' },
   'classes':            { label: 'إدارة الفصول',           group: 'الأكاديميات',        navSelector: '[data-page="classes"]' },
   'enrollments':        { label: 'طلبات التسجيل',          group: 'الأكاديميات',        navSelector: '[data-page="enrollments"]' },
   'students':           { label: 'قاعدة الطلاب',           group: 'الأكاديميات',        navSelector: '[data-page="students"]' },
+  'resources':          { label: 'الموارد التعليمية',      group: 'الأكاديميات',        navSelector: '[data-page="resources"]' }, // تمت الإضافة
   'fees':               { label: 'رسوم الطلاب',            group: 'المالية',            navSelector: '[data-page="fees"]' },
-  'payrolls':           { label: 'إدارة الرواتب',           group: 'المالية',            navSelector: '[data-page="payrolls"]' },
+  'payrolls':           { label: 'إدارة الرواتب',          group: 'المالية',            navSelector: '[data-page="payrolls"]' },
   'expenses':           { label: 'المصروفات',              group: 'المالية',            navSelector: '[data-page="expenses"]' },
   'obligations':        { label: 'الالتزامات الخارجية',    group: 'المالية',            navSelector: '[data-page="obligations"]' },
   'cash-handovers':     { label: 'تسليم العهدة النقدية',   group: 'المالية',            navSelector: '[data-page="cash-handovers"]' },
@@ -46,11 +48,12 @@ const PAGES_MAP = {
   'inventory':          { label: 'كتالوج المخزون',         group: 'المخازن',            navSelector: '[data-page="inventory"]' },
   'stock-actions':      { label: 'حركة المخزون',           group: 'المخازن',            navSelector: '[data-page="stock-actions"]' },
   'consumptions':       { label: 'الاستهلاك اليومي',       group: 'المخازن',            navSelector: '[data-page="consumptions"]' },
+  'store':              { label: 'المتجر المدرسي',         group: 'المخازن',            navSelector: '[data-page="store"]' }, // تمت الإضافة
   'messages':           { label: 'الرسائل',                group: 'التواصل',            navSelector: '[data-page="messages"]' },
   'notifications':      { label: 'مركز الإرسال',           group: 'التواصل',            navSelector: '[data-page="notifications"]' },
   'profile':            { label: 'الملف الشخصي',           group: 'الحساب',            navSelector: '' },
-  'settings':           { label: 'الإعدادات',             group: 'الحساب',            navSelector: '' },
-  'security':           { label: 'الأمان',               group: 'الحساب',            navSelector: '' },
+  'settings':           { label: 'الإعدادات',              group: 'الحساب',            navSelector: '' },
+  'security':           { label: 'الأمان',                 group: 'الحساب',            navSelector: '' },
 };
 
 // ================================================================
@@ -93,6 +96,7 @@ function _buildSidebarHTML() {
           <div class="nav-link" data-page="academic-years"     onclick="Layout.navigateTo('academic-years')"     data-tooltip="السنوات"><i class="fas fa-circle nav-icon"></i><span class="nav-label">السنوات الدراسية</span></div>
           <div class="nav-link" data-page="financial-policies" onclick="Layout.navigateTo('financial-policies')" data-tooltip="السياسات"><i class="fas fa-circle nav-icon"></i><span class="nav-label">السياسات المالية</span></div>
           <div class="nav-link" data-page="system-logs"        onclick="Layout.navigateTo('system-logs')"        data-tooltip="سجلات النظام"><i class="fas fa-circle nav-icon"></i><span class="nav-label">سجلات النظام</span></div>
+          <div class="nav-link" data-page="roles-permissions"  onclick="Layout.navigateTo('roles-permissions')"  data-tooltip="الصلاحيات"><i class="fas fa-circle nav-icon"></i><span class="nav-label">الأدوار والصلاحيات</span></div>
         </div>
       </div>
     </div>
@@ -126,6 +130,7 @@ function _buildSidebarHTML() {
             <span class="nav-badge" id="badge-enrollments">7</span>
           </div>
           <div class="nav-link" data-page="students"    onclick="Layout.navigateTo('students')"    data-tooltip="الطلاب"><i class="fas fa-circle nav-icon"></i><span class="nav-label">قاعدة الطلاب</span></div>
+          <div class="nav-link" data-page="resources"   onclick="Layout.navigateTo('resources')"   data-tooltip="الموارد"><i class="fas fa-circle nav-icon"></i><span class="nav-label">الموارد التعليمية</span></div>
         </div>
       </div>
     </div>
@@ -176,6 +181,7 @@ function _buildSidebarHTML() {
           <div class="nav-link" data-page="inventory"     onclick="Layout.navigateTo('inventory')"     data-tooltip="كتالوج المخزون"><i class="fas fa-circle nav-icon"></i><span class="nav-label">كتالوج المخزون</span></div>
           <div class="nav-link" data-page="stock-actions" onclick="Layout.navigateTo('stock-actions')" data-tooltip="حركة المخزون"><i class="fas fa-circle nav-icon"></i><span class="nav-label">حركة المخزون</span></div>
           <div class="nav-link" data-page="consumptions"  onclick="Layout.navigateTo('consumptions')"  data-tooltip="الاستهلاك"><i class="fas fa-circle nav-icon"></i><span class="nav-label">الاستهلاك اليومي</span></div>
+          <div class="nav-link" data-page="store"         onclick="Layout.navigateTo('store')"         data-tooltip="المتجر"><i class="fas fa-circle nav-icon"></i><span class="nav-label">المتجر المدرسي</span></div>
         </div>
       </div>
     </div>
@@ -195,9 +201,7 @@ function _buildSidebarHTML() {
       </div>
     </div>
 
-  </div><!-- end sidebar-scroll -->
-
-  <div class="sidebar-footer">
+  </div><div class="sidebar-footer">
     <button class="sidebar-collapse-btn" onclick="Layout.toggleSidebar()">
       <i class="fas fa-chevron-right" id="collapse-icon"></i>
       <span class="collapse-label">طي الشريط</span>
@@ -224,14 +228,12 @@ function _buildHeaderHTML() {
   </div>
 
   <div class="header-left">
-    <!-- Branch Selector -->
     <div class="branch-selector" id="branch-selector-btn" onclick="Layout.toggleBranchDropdown()">
       <div class="branch-dot"></div>
       <i class="fas fa-code-branch"></i>
       <span id="current-branch">الفرع الرئيسي</span>
       <i class="fas fa-chevron-down" style="font-size:9px;color:var(--text-muted)"></i>
     </div>
-    <!-- Branch Dropdown -->
     <div class="dropdown-menu" id="branch-dropdown" style="min-width:200px;top:calc(100% + 52px);right:auto;left:0">
       <div class="dropdown-item" onclick="Layout.setBranch('الفرع الرئيسي')"><i class="fas fa-circle" style="color:#48bb78;font-size:8px;width:14px"></i> الفرع الرئيسي</div>
       <div class="dropdown-item" onclick="Layout.setBranch('فرع الشمال')"><i class="fas fa-circle" style="color:var(--text-muted);font-size:8px;width:14px"></i> فرع الشمال</div>
@@ -240,7 +242,6 @@ function _buildHeaderHTML() {
 
     <div class="header-divider"></div>
 
-    <!-- Notifications -->
     <div style="position:relative">
       <button class="header-icon-btn" onclick="Layout.toggleNotifDropdown()">
         <i class="fas fa-bell"></i>
@@ -252,19 +253,16 @@ function _buildHeaderHTML() {
           <span class="notif-mark-all" onclick="Layout.markAllRead()">تعليم الكل كمقروء</span>
         </div>
         <div class="notif-list" id="notif-list">
-          <!-- يُحقن من JS -->
-        </div>
+          </div>
         <div class="notif-footer"><a href="#" onclick="Layout.navigateTo('notifications')">عرض كل الإشعارات</a></div>
       </div>
     </div>
 
-    <!-- Messages -->
     <button class="header-icon-btn" onclick="Layout.navigateTo('messages')">
       <i class="fas fa-comment-dots"></i>
       <span class="badge" style="background:var(--brand-info)" id="msg-badge">3</span>
     </button>
 
-    <!-- Theme Toggle -->
     <div class="theme-toggle" id="theme-toggle" onclick="Layout.toggleTheme()">
       <div class="theme-toggle-thumb" id="theme-thumb">
         <i class="fas fa-sun" id="theme-icon" style="color:#f6c94e"></i>
@@ -273,7 +271,6 @@ function _buildHeaderHTML() {
 
     <div class="header-divider"></div>
 
-    <!-- User Profile -->
     <div class="user-profile" onclick="Layout.toggleUserDropdown()" id="user-profile-btn">
       <div class="user-avatar" id="user-avatar-initials">أد</div>
       <div class="user-info">
@@ -401,8 +398,7 @@ const Layout = {
       <div class="main-wrapper" id="main-wrapper">
         ${_buildHeaderHTML()}
         <main class="page-content" id="page-content-area">
-          <!-- يُملأ من صفحة index.html مباشرة عبر نقل المحتوى -->
-        </main>
+          </main>
       </div>
     `;
 
